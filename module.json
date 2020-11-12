@@ -8,5 +8,9 @@
   "compatibleCoreVersion": "0.7.6",
   "esmodules": ["index.js"],
   "url": "https://github.com/Oromis/touch-vtt",
-  "manifest": "https://raw.githubusercontent.com/Oromis/touch-vtt/main/module.json"
+  "download": "TODO",
+  "manifest": "https://raw.githubusercontent.com/Oromis/touch-vtt/main/module.json",
+  "license": "https://www.gnu.org/licenses/gpl-3.0.en.html",
+  "readme": "README.md",
+  "bugs": "https://github.com/Oromis/touch-vtt/issues"
 }
