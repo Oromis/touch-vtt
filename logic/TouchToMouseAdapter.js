@@ -1,5 +1,8 @@
 import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
 import Touch from './Touch.js'
+import Vectors from './Vectors.js'
+import Screen from '../browser/Screen.js'
+import ObjectUtils from '../utils/ObjectUtils.js'
 
 const longTouchDurationMs = 500;
 const longTouchThreshholdPx = 3;
@@ -124,7 +127,11 @@ class TouchToMouseAdapter {
 
   handleTouchMove(event) {
     for (const touch of event.touches) {
-      this.touches[touch.identifier].update(touch)
+      if (this.touches[touch.identifier] != null) {
+        this.touches[touch.identifier].update(touch)
+      } else {
+        this.touches[touch.identifier] = new Touch(touch)
+      }
     }
 
     if (event.touches.length === 1 && Object.keys(lastPositions).length === 1 && storedTouchStartEvent !== null) {
@@ -136,12 +143,11 @@ class TouchToMouseAdapter {
         storedTouchStartEvent = null
         resetLongTouch()
       }
-    } else if (event.touches.length === 2 && Object.keys(lastPositions).length === 2) {
+    } else if (event.touches.length === 2 && Object.keys(this.touches).length === 2) {
       // Two-finger touch move
-      const dx1Start = event.touches[0].clientX - startPositions[event.touches[0].identifier].x
-      const dx2Start = event.touches[1].clientX - startPositions[event.touches[1].identifier].x
-      const dy1Start = event.touches[0].clientY - startPositions[event.touches[0].identifier].y
-      const dy2Start = event.touches[1].clientY - startPositions[event.touches[1].identifier].y
+      this.handleTwoFingerGesture(event)
+
+      return
 
       if (Math.abs(sign(dx1Start) - sign(dx2Start)) === 2 || Math.abs(sign(dy1Start) - sign(dy2Start)) === 2) {
         // Fingers move in opposite directions => zoom gesture
@@ -213,11 +219,54 @@ class TouchToMouseAdapter {
     }
   }
 
+  handleTwoFingerGesture(event) {
+    const firstId = event.touches[0].identifier
+    const secondId = event.touches[1].identifier
+
+    const zoomVector = Vectors.divideElements(
+      Vectors.subtract(this.touches[firstId].current, this.touches[secondId].current),
+      Vectors.subtract(this.touches[firstId].world, this.touches[secondId].world),
+    )
+    const zoomAfter = (zoomVector.x + zoomVector.y) / 2
+
+    // const distanceBefore = Vectors.distance(this.touches[firstId].last, this.touches[secondId].last)
+    // const distanceNow = Vectors.distance(this.touches[firstId].current, this.touches[secondId].current)
+    // const zoomBefore = FoundryCanvas.zoom
+    // const zoomAfter = zoomBefore * (distanceNow / distanceBefore)
+
+    // const adjustedTransform = FoundryCanvas.getWorldTransformWith({ zoom: zoomAfter })
+    // const touchedPointOnWorldBefore = FoundryCanvas.screenToWorld(this.touches[firstId].last)
+    // const touchedPointOnWorldAfter = adjustedTransform.applyInverse(this.touches[firstId].current)
+    // const panCorrection = Vectors.subtract(touchedPointOnWorldAfter, touchedPointOnWorldBefore)
+    //
+    // console.log({ adjusted: ObjectUtils.cloneObject(adjustedTransform), original: ObjectUtils.cloneObject(FoundryCanvas.worldTransform) })
+    //
+    // const centerBefore = FoundryCanvas.screenToWorld(Screen.center)
+    // const centerAfter = Vectors.add(centerBefore, panCorrection)
+
+    // console.log({
+    //   adjustedTransform,
+    //   touchedPointOnWorldBefore,
+    //   touchedPointOnWorldAfter,
+    //   panCorrection,
+    //   centerBefore,
+    //   centerAfter
+    // })
+
+    // console.log("Actual Transform: ", FoundryCanvas.worldTransform)
+    // console.log("Predicted Transform: ", adjustedTransform)
+
+    console.log(`Zooming to ${zoomAfter}, Center: `, centerBefore)
+    FoundryCanvas.pan({
+      x: centerBefore.x,
+      y: centerBefore.y,
+      zoom: zoomAfter
+    })
+  }
+
   handleTouchEnd(event) {
     // touchend or touchcancel
-    for (const touch of event.touches) {
-      delete this.touches[touch.identifier]
-    }
+    this.touches = {}
 
     if (event.type === 'touchend' && longTouchPrimed && event.touches.length === 0) {
       this.fakeTouchEvent(storedTouchStartEvent, storedTouchStartEvent.changedTouches[0], mouseButtons.right)

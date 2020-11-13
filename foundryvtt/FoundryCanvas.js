@@ -1,3 +1,5 @@
+import ObjectUtils from '../utils/ObjectUtils.js'
+
 class FoundryCanvas {
   get raw() {
     return canvas
@@ -11,12 +13,23 @@ class FoundryCanvas {
     this.raw.pan({ x, y, scale: zoom })
   }
 
+  get worldTransform() {
+    return this.raw.stage.transform.worldTransform
+  }
+
   screenToWorld({ x, y }) {
-    return this.raw.stage.transform.worldTransform.applyInverse({ x, y })
+    return this.worldTransform.applyInverse({ x, y })
   }
 
   worldToScreen({ x, y }) {
-    return this.raw.stage.transform.worldTransform.apply({ x, y })
+    return this.worldTransform.apply({ x, y })
+  }
+
+  getWorldTransformWith({ zoom }) {
+    const copy = ObjectUtils.cloneObject(this.worldTransform)
+    // No rotation => we can just assign the zoom level to the matrix' diagonal
+    copy.a = copy.d = Math.round(zoom * 100) / 100  //< PIXI rounds zoom values to 2 decimals for some reason
+    return copy
   }
 
   toRelativeCoordinates({ x, y }) {
