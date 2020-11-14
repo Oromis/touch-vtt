@@ -2,9 +2,8 @@ import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
 import Touch from './Touch.js'
 import Vectors from './Vectors.js'
 import Screen from '../browser/Screen.js'
-import ObjectUtils from '../utils/ObjectUtils.js'
+import MathUtils from '../utils/MathUtils.js'
 
-const longTouchDurationMs = 500;
 const longTouchThreshholdPx = 3;
 const mouseButtons = {
   left: 0,
@@ -28,16 +27,6 @@ function bitCodeMouseButton(button) {
   }
 }
 
-function sign(num) {
-  if (num < 0) {
-    return -1
-  } else if (num > 0) {
-    return 1
-  } else {
-    return 0
-  }
-}
-
 function resetLongTouch() {
   clearTimeout(holdTimer);
   holdTimer = null;
@@ -45,7 +34,6 @@ function resetLongTouch() {
 }
 
 let activeMouseDown = null
-let editorWrapper = null
 let holdTimer = null
 let lastPositions = {}
 let longTouchPrimed = false
@@ -60,12 +48,6 @@ function onMouseMove(event) {
   }
 }
 
-function onMouseClick() {
-  console.log("Mouse pos: ", mousePos)
-  console.log("\tWorld pos: ", FoundryCanvas.screenToWorld(mousePos))
-  FoundryCanvas.pan(FoundryCanvas.screenToWorld(mousePos))
-}
-
 class TouchToMouseAdapter {
   constructor(canvas) {
     this.canvas = canvas
@@ -77,7 +59,6 @@ class TouchToMouseAdapter {
     canvas.addEventListener('touchend', touchHandler, true)
     canvas.addEventListener('touchcancel', touchHandler, true)
     canvas.addEventListener('mousemove', onMouseMove)
-    canvas.addEventListener('click', onMouseClick)
   }
 
   // The full touch handler with multi-touch pinching and panning support
@@ -98,28 +79,6 @@ class TouchToMouseAdapter {
   }
 
   handleTouchStart(event) {
-    // const touchPointScreen = { x: event.touches[0].clientX, y: event.touches[0].clientY }
-    // const centerScreen = Screen.center
-    // const touchPointWorld = FoundryCanvas.screenToWorld(touchPointScreen)
-    // const centerWorld = FoundryCanvas.screenToWorld(centerScreen)
-    //
-    // FoundryCanvas.pan({
-    //   x: centerWorld.x,
-    //   y: centerWorld.y,
-    //   zoom: FoundryCanvas.zoom
-    // })
-    // return
-
-    // if (event.touches.length === 1) {
-    //   storedTouchStartEvent = event
-    //   holdTimer = setTimeout(function () {
-    //     longTouchPrimed = true
-    //   }, longTouchDurationMs)
-    // } else {
-    //   storedTouchStartEvent = null
-    //   resetLongTouch()
-    // }
-
     for (const touch of event.touches) {
       this.touches[touch.identifier] = new Touch(touch)
     }
@@ -146,72 +105,6 @@ class TouchToMouseAdapter {
     } else if (event.touches.length === 2 && Object.keys(this.touches).length === 2) {
       // Two-finger touch move
       this.handleTwoFingerGesture(event)
-
-      return
-
-      if (Math.abs(sign(dx1Start) - sign(dx2Start)) === 2 || Math.abs(sign(dy1Start) - sign(dy2Start)) === 2) {
-        // Fingers move in opposite directions => zoom gesture
-        const lastDistX = Math.abs(lastPositions[event.touches[0].identifier].x -
-          lastPositions[event.touches[1].identifier].x)
-        const lastDistY = Math.abs(lastPositions[event.touches[0].identifier].y -
-          lastPositions[event.touches[1].identifier].y)
-        const lastDist = Math.sqrt(lastDistX * lastDistX + lastDistY * lastDistY)
-
-        const newDistX = Math.abs(event.touches[0].clientX - event.touches[1].clientX)
-        const newDistY = Math.abs(event.touches[0].clientY - event.touches[1].clientY)
-        const newDist = Math.sqrt(newDistX * newDistX + newDistY * newDistY)
-
-        const touchCenter = {
-          x: (event.touches[0].clientX + event.touches[1].clientX) / 2,
-          y: (event.touches[0].clientY + event.touches[1].clientY) / 2,
-        }
-
-        const factor = newDist / lastDist / 10
-        const delta = 1// - factor
-
-        const worldCenter = FoundryCanvas.screenToWorld(touchCenter)
-        const worldSize = FoundryCanvas.worldSize
-        console.log("Panning to touchCenter: ", touchCenter, ", worldCenter: ", worldCenter, ", worldSize: ", worldSize)
-        FoundryCanvas.pan({
-          x: worldCenter.x,
-          y: worldCenter.y,
-          zoom: FoundryCanvas.zoom + delta
-        })
-
-        // const evt = new WheelEvent('wheel', {
-        //   isTrusted: true,
-        //   deltaY: delta,
-        //   altKey: event.altKey || false,
-        //   shiftKey: event.shiftKey || false,
-        //   ctrlKey: event.shiftKey || false,
-        //   metaKey: event.metaKey || false,
-        //   bubbles: true,
-        //   cancelable: true,
-        //   x: touchCenter.x,
-        //   y: touchCenter.y,
-        //   layerX: touchCenter.x,
-        //   layerY: touchCenter.y,
-        //   clientX: touchCenter.x,
-        //   clientY: touchCenter.y,
-        //   clientX: touchCenter.x,
-        //   clientY: touchCenter.y,
-        //   view: window,
-        //   which: 1,
-        // })
-        // this.canvas.dispatchEvent(evt)
-      } else {
-        // Fingers move in the same direct => pan gesture
-        const dx1 = event.touches[0].clientX - lastPositions[event.touches[0].identifier].x
-        const dx2 = event.touches[1].clientX - lastPositions[event.touches[1].identifier].x
-        const dy1 = event.touches[0].clientY - lastPositions[event.touches[0].identifier].y
-        const dy2 = event.touches[1].clientY - lastPositions[event.touches[1].identifier].y
-
-        const dx = (dx1 + dx2) / 2
-        const dy = (dy1 + dy2) / 2
-
-        editorWrapper.scrollLeft -= dx
-        editorWrapper.scrollTop -= dy
-      }
     }
 
     if (event.touches.length === 1 && activeMouseDown != null) {
@@ -229,37 +122,21 @@ class TouchToMouseAdapter {
     )
     const zoomAfter = (zoomVector.x + zoomVector.y) / 2
 
-    // const distanceBefore = Vectors.distance(this.touches[firstId].last, this.touches[secondId].last)
-    // const distanceNow = Vectors.distance(this.touches[firstId].current, this.touches[secondId].current)
-    // const zoomBefore = FoundryCanvas.zoom
-    // const zoomAfter = zoomBefore * (distanceNow / distanceBefore)
+    let panCorrection = Vectors.zero
+    if (MathUtils.roundToDecimals(zoomAfter, 2) === FoundryCanvas.worldTransform.a) {
+      const adjustedTransform = FoundryCanvas.getWorldTransformWith({ zoom: zoomAfter }, { discrete: true })
+      // const touchedPointOnWorldBefore = FoundryCanvas.screenToWorld(this.touches[firstId].last)
+      const correctionA = this.calcPanCorrection(adjustedTransform, this.touches[firstId])
+      const correctionB = this.calcPanCorrection(adjustedTransform, this.touches[secondId])
+      panCorrection = Vectors.centerBetween(correctionA, correctionB)
+    }
+    const centerBefore = FoundryCanvas.screenToWorld(Screen.center)
+    const worldCenter = Vectors.subtract(centerBefore, panCorrection)
 
-    // const adjustedTransform = FoundryCanvas.getWorldTransformWith({ zoom: zoomAfter })
-    // const touchedPointOnWorldBefore = FoundryCanvas.screenToWorld(this.touches[firstId].last)
-    // const touchedPointOnWorldAfter = adjustedTransform.applyInverse(this.touches[firstId].current)
-    // const panCorrection = Vectors.subtract(touchedPointOnWorldAfter, touchedPointOnWorldBefore)
-    //
-    // console.log({ adjusted: ObjectUtils.cloneObject(adjustedTransform), original: ObjectUtils.cloneObject(FoundryCanvas.worldTransform) })
-    //
-    // const centerBefore = FoundryCanvas.screenToWorld(Screen.center)
-    // const centerAfter = Vectors.add(centerBefore, panCorrection)
-
-    // console.log({
-    //   adjustedTransform,
-    //   touchedPointOnWorldBefore,
-    //   touchedPointOnWorldAfter,
-    //   panCorrection,
-    //   centerBefore,
-    //   centerAfter
-    // })
-
-    // console.log("Actual Transform: ", FoundryCanvas.worldTransform)
-    // console.log("Predicted Transform: ", adjustedTransform)
-
-    console.log(`Zooming to ${zoomAfter}, Center: `, centerBefore)
+    // console.log(`Zooming to ${zoomAfter}, Center: `, worldCenter)
     FoundryCanvas.pan({
-      x: centerBefore.x,
-      y: centerBefore.y,
+      x: worldCenter.x,
+      y: worldCenter.y,
       zoom: zoomAfter
     })
   }
@@ -348,6 +225,11 @@ class TouchToMouseAdapter {
         activeMouseDown = null
       }
     }
+  }
+
+  calcPanCorrection(transform, touch) {
+    const touchedPointOnWorldAfter = transform.applyInverse(touch.current)
+    return Vectors.subtract(touchedPointOnWorldAfter, touch.world)
   }
 }
 

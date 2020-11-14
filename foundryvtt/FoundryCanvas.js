@@ -25,10 +25,14 @@ class FoundryCanvas {
     return this.worldTransform.apply({ x, y })
   }
 
-  getWorldTransformWith({ zoom }) {
+  getWorldTransformWith({ zoom }, { discrete = true } = {}) {
     const copy = ObjectUtils.cloneObject(this.worldTransform)
+    if (discrete) {
+      zoom = Math.round(zoom * 100) / 100  //< PIXI rounds zoom values to 2 decimals for some reason
+    }
+
     // No rotation => we can just assign the zoom level to the matrix' diagonal
-    copy.a = copy.d = Math.round(zoom * 100) / 100  //< PIXI rounds zoom values to 2 decimals for some reason
+    copy.a = copy.d = zoom
     return copy
   }
 
