@@ -8,13 +8,17 @@ name: Create Release
 jobs:
   build:
     name: Create Release
-    runs-on: node:12
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Get the version
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
       - name: Build Project
         run: |
           npm install
