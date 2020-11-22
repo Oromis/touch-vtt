@@ -3,12 +3,8 @@ import Touch from './Touch.js'
 import Vectors from './Vectors.js'
 import Screen from '../browser/Screen.js'
 import MathUtils from '../utils/MathUtils.js'
-
-const longTouchThreshholdPx = 3;
-const mouseButtons = {
-  left: 0,
-  right: 2
-}
+import TouchContext from './TouchContext.js'
+import MouseButton from './MouseButton.js'
 
 function bitCodeMouseButton(button) {
   switch (button) {
@@ -27,30 +23,8 @@ function bitCodeMouseButton(button) {
   }
 }
 
-function resetLongTouch() {
-  clearTimeout(holdTimer);
-  holdTimer = null;
-  longTouchPrimed = false;
-}
-
-let activeMouseDown = null
-let holdTimer = null
-let lastPositions = {}
-let longTouchPrimed = false
-let startPositions = {}
-let storedTouchStartEvent = null
-
-let mousePos = null
-function onMouseMove(event) {
-  mousePos = {
-    x: event.clientX,
-    y: event.clientY,
-  }
-}
-
 class TouchToMouseAdapter {
   constructor(canvas) {
-    this.canvas = canvas
     this.touches = {}
 
     const touchHandler = this.handleTouch.bind(this)
@@ -58,7 +32,6 @@ class TouchToMouseAdapter {
     canvas.addEventListener('touchmove', touchHandler, true)
     canvas.addEventListener('touchend', touchHandler, true)
     canvas.addEventListener('touchcancel', touchHandler, true)
-    canvas.addEventListener('mousemove', onMouseMove)
   }
 
   // The full touch handler with multi-touch pinching and panning support
@@ -69,8 +42,6 @@ class TouchToMouseAdapter {
       } else {
         this.handleTouchStart(event)
       }
-
-      this.storeTouchPositions(event)
     } else {
       this.handleTouchEnd(event)
     }
@@ -79,37 +50,33 @@ class TouchToMouseAdapter {
   }
 
   handleTouchStart(event) {
+    const context = this.getTouchContextByTouches(event.touches)
     for (const touch of event.touches) {
-      this.touches[touch.identifier] = new Touch(touch)
+      this.touches[touch.identifier] = new Touch(touch, { context })
     }
+
+    this.forwardTouches(event)
   }
 
   handleTouchMove(event) {
+    const context = this.getTouchContextByTouches(event.touches)
     for (const touch of event.touches) {
       if (this.touches[touch.identifier] != null) {
         this.touches[touch.identifier].update(touch)
+        if (this.touches[touch.identifier].context === TouchContext.PRIMARY_CLICK && context === TouchContext.ZOOM_PAN_GESTURE) {
+          this.touches[touch.identifier].context = context
+        }
       } else {
-        this.touches[touch.identifier] = new Touch(touch)
+        this.touches[touch.identifier] = new Touch(touch, { context })
       }
     }
 
-    if (event.touches.length === 1 && Object.keys(lastPositions).length === 1 && storedTouchStartEvent !== null) {
-      // Check if we're exceeding the long touch movement threshold. If we are, trigger the stored event.
-      const dxStart = event.touches[0].clientX - startPositions[event.touches[0].identifier].x
-      const dyStart = event.touches[0].clientY - startPositions[event.touches[0].identifier].y
-      if (Math.abs(dxStart) > longTouchThreshholdPx || Math.abs(dyStart) > longTouchThreshholdPx) {
-        this.fakeTouchEvent(storedTouchStartEvent, storedTouchStartEvent.changedTouches[0], mouseButtons.left, true)
-        storedTouchStartEvent = null
-        resetLongTouch()
-      }
-    } else if (event.touches.length === 2 && Object.keys(this.touches).length === 2) {
+    if (event.touches.length === 2 && Object.keys(this.touches).length === 2) {
       // Two-finger touch move
       this.handleTwoFingerGesture(event)
     }
 
-    if (event.touches.length === 1 && activeMouseDown != null) {
-      this.fakeTouchEvent(event, event.changedTouches[0], mouseButtons.left, false)
-    }
+    this.forwardTouches(event)
   }
 
   handleTwoFingerGesture(event) {
@@ -143,93 +110,93 @@ class TouchToMouseAdapter {
 
   handleTouchEnd(event) {
     // touchend or touchcancel
+    this.forwardTouches(event, Object.values(this.touches))
     this.touches = {}
-
-    if (event.type === 'touchend' && longTouchPrimed && event.touches.length === 0) {
-      this.fakeTouchEvent(storedTouchStartEvent, storedTouchStartEvent.changedTouches[0], mouseButtons.right)
-      this.fakeTouchEvent(event, event.changedTouches[0], mouseButtons.right)
-    } else if (event.touches.length <= 1) {
-      if (activeMouseDown == null && storedTouchStartEvent != null) {
-        this.fakeTouchEvent(storedTouchStartEvent, storedTouchStartEvent.changedTouches[0], mouseButtons.left)
-      }
-      this.fakeTouchEvent(event, event.changedTouches[0], mouseButtons.left)
-    }
-    lastPositions = {}
-    startPositions = {}
-    resetLongTouch()
   }
 
-  storeTouchPositions(event) {
-    lastPositions = {}
-    for (const touch of event.touches) {
-      lastPositions[touch.identifier] = {
-        x: touch.clientX,
-        y: touch.clientY,
-      }
+  forwardTouches(event, touches) {
+    if (!Array.isArray(touches)) {
+      touches = event.changedTouches
+    }
 
-      if (startPositions[touch.identifier] == null) {
-        startPositions[touch.identifier] = {
-          x: touch.clientX,
-          y: touch.clientY,
+    for (const touch of touches) {
+      const touchInstance = this.getTouch(touch.identifier)
+      if (touchInstance != null) {
+        if (touchInstance.context.forwardsEvent(event)) {
+          this.fakeTouchEvent(event, touch, touchInstance.context.mouseButton)
         }
+      } else {
+        console.warn(`Found no touch instance for ID ${touch.identifier}`, this.touches)
       }
     }
   }
 
-  fakeTouchEvent(originalEvent, touch, mouseButton, recordActiveMouseDown = true) {
+  fakeTouchEvent(originalEvent, touch, mouseButton) {
     if (originalEvent == null || typeof originalEvent !== 'object') {
       console.warn(`Passed invalid event argument to fakeTouchEvent: ${originalEvent}`)
       return
     }
 
-    const type = {
-      touchstart: 'mousedown',
-      touchmove: 'mousemove',
-      touchend: 'mouseup',
+    const types = {
+      // First simulate that the pointer moves to the specified location, then simulate the down event.
+      // Foundry won't take the "click" on the first try otherwise.
+      touchstart: ['pointermove', 'pointerdown'],
+      touchmove: ['pointermove'],
+      touchend: ['pointerup'],
     }[originalEvent.type]
 
-    const simulatedEvent = new MouseEvent(type, {
-      clientX: touch.clientX,
-      clientY: touch.clientY,
-      screenX: touch.screenX,
-      screenY: touch.screenY,
-      ctrlKey: originalEvent.ctrlKey || false,
-      altKey: originalEvent.altKey || false,
-      shiftKey: originalEvent.shiftKey || false,
-      metaKey: originalEvent.metaKey || false,
-      button: mouseButton,
-      buttons: bitCodeMouseButton(mouseButton),
-      relatedTarget: originalEvent.relatedTarget || null,
-      region: originalEvent.region || null,
-      detail: 0,
-      view: window,
-      sourceCapabilities: originalEvent.sourceCapabilities,
-      eventInit: {
-        bubbles: true,
-        cancelable: true,
-        composed: true,
-      },
-    })
-    touch.target.dispatchEvent(simulatedEvent)
-
-    if (recordActiveMouseDown) {
-      if (type === 'mousedown') {
-        activeMouseDown = {
-          clientX: touch.clientX,
-          clientY: touch.clientY,
-          screenX: touch.screenX,
-          screenY: touch.screenY,
-          target: touch.target,
-        }
-      } else if (type === 'mouseup') {
-        activeMouseDown = null
+    for (const type of types) {
+      const mouseEventInitProperties = {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        screenX: touch.screenX,
+        screenY: touch.screenY,
+        ctrlKey: originalEvent.ctrlKey || false,
+        altKey: originalEvent.altKey || false,
+        shiftKey: originalEvent.shiftKey || false,
+        metaKey: originalEvent.metaKey || false,
+        button: mouseButton,
+        buttons: bitCodeMouseButton(mouseButton),
+        relatedTarget: originalEvent.relatedTarget || null,
+        region: originalEvent.region || null,
+        detail: 0,
+        view: window,
+        sourceCapabilities: originalEvent.sourceCapabilities,
+        eventInit: {
+          bubbles: true,
+          cancelable: true,
+          composed: true,
+        },
       }
+
+      let simulatedEvent
+      if (type.indexOf('mouse') === 0) {
+        simulatedEvent = new MouseEvent(type, mouseEventInitProperties)
+      } else {
+        const pointerEventInit = {
+          pointerId: touch.identifier,
+          pointerType: 'mouse',
+          isPrimary: true,
+          ...mouseEventInitProperties,
+        }
+        console.info(`Simulating ${type} for ID ${pointerEventInit.pointerId}`)
+        simulatedEvent = new PointerEvent(type, pointerEventInit)
+      }
+      touch.target.dispatchEvent(simulatedEvent)
     }
   }
 
   calcPanCorrection(transform, touch) {
     const touchedPointOnWorldAfter = transform.applyInverse(touch.current)
     return Vectors.subtract(touchedPointOnWorldAfter, touch.world)
+  }
+
+  getTouchContextByTouches(touches) {
+    return touches.length >= 2 ? TouchContext.ZOOM_PAN_GESTURE : TouchContext.PRIMARY_CLICK
+  }
+
+  getTouch(id) {
+    return this.touches[id]
   }
 }
 
