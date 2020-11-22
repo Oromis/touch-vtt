@@ -3,14 +3,14 @@
   "title": "TouchVTT",
   "description": "Adds touch screen support to FoundryVTT",
   "author": "Oromis | David <david.bauske@googlemail.com>",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "minimumCoreVersion": "0.5.0",
   "compatibleCoreVersion": "0.7.7",
   "scripts": [
     "dist/touch-vtt.js"
   ],
   "url": "https://github.com/Oromis/touch-vtt",
-  "download": "https://github.com/Oromis/touch-vtt/releases/download/v0.7.1touch-vtt-v0.7.1.zip",
+  "download": "https://github.com/Oromis/touch-vtt/releases/download/v0.7.2touch-vtt-v0.7.2.zip",
   "manifest": "https://raw.githubusercontent.com/Oromis/touch-vtt/main/module.json",
   "license": "https://www.gnu.org/licenses/gpl-3.0.en.html",
   "readme": "README.md",
