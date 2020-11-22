@@ -4,23 +4,15 @@ import Vectors from './Vectors.js'
 import Screen from '../browser/Screen.js'
 import MathUtils from '../utils/MathUtils.js'
 import TouchContext from './TouchContext.js'
-import MouseButton from './MouseButton.js'
+import {fakeTouchEvent} from './FakeTouchEvent.js'
 
-function bitCodeMouseButton(button) {
-  switch (button) {
-    case 0:
-      return 1  // Primary (left) mouse button
-    case 1:
-      return 4  // Auxiliary (middle) mouse button
-    case 2:
-      return 2  // Secondary (right) mouse button
-    case 3:
-      return 8  // "Back" button
-    case 4:
-      return 16 // "Forward" button
-    default:
-      return 0  // No button pressed
+function findTouch(touchList, predicate) {
+  for (const touch of touchList) {
+    if (predicate(touch)) {
+      return touch
+    }
   }
+  return null
 }
 
 class TouchToMouseAdapter {
@@ -52,7 +44,7 @@ class TouchToMouseAdapter {
   handleTouchStart(event) {
     const context = this.getTouchContextByTouches(event.touches)
     for (const touch of event.touches) {
-      this.touches[touch.identifier] = new Touch(touch, { context })
+      this.touches[touch.identifier] = new Touch(event, touch, { context })
     }
 
     this.forwardTouches(event)
@@ -62,14 +54,15 @@ class TouchToMouseAdapter {
     const context = this.getTouchContextByTouches(event.touches)
     for (const touch of event.touches) {
       if (this.touches[touch.identifier] != null) {
-        this.touches[touch.identifier].update(touch)
+        this.touches[touch.identifier].update(event, touch)
         if (this.touches[touch.identifier].context === TouchContext.PRIMARY_CLICK && context === TouchContext.ZOOM_PAN_GESTURE) {
-          this.touches[touch.identifier].context = context
+          this.touches[touch.identifier].changeContext(context)
         }
       } else {
-        this.touches[touch.identifier] = new Touch(touch, { context })
+        this.touches[touch.identifier] = new Touch(event, touch, { context })
       }
     }
+    this.cleanUpTouches(event.touches)
 
     if (event.touches.length === 2 && Object.keys(this.touches).length === 2) {
       // Two-finger touch move
@@ -111,6 +104,7 @@ class TouchToMouseAdapter {
   handleTouchEnd(event) {
     // touchend or touchcancel
     this.forwardTouches(event, Object.values(this.touches))
+    this.cleanUpTouches(event.touches)
     this.touches = {}
   }
 
@@ -123,7 +117,7 @@ class TouchToMouseAdapter {
       const touchInstance = this.getTouch(touch.identifier)
       if (touchInstance != null) {
         if (touchInstance.context.forwardsEvent(event)) {
-          this.fakeTouchEvent(event, touch, touchInstance.context.mouseButton)
+          fakeTouchEvent(event, touch, touchInstance.context.mouseButton)
         }
       } else {
         console.warn(`Found no touch instance for ID ${touch.identifier}`, this.touches)
@@ -131,58 +125,19 @@ class TouchToMouseAdapter {
     }
   }
 
-  fakeTouchEvent(originalEvent, touch, mouseButton) {
-    if (originalEvent == null || typeof originalEvent !== 'object') {
-      console.warn(`Passed invalid event argument to fakeTouchEvent: ${originalEvent}`)
-      return
+  cleanUpTouches(activeTouches) {
+    const storedTouches = Object.values(this.touches)
+    const markedForRemoval = []
+    for (const storedTouch of storedTouches) {
+      if (findTouch(activeTouches, activeTouch => activeTouch.identifier === storedTouch.identifier) == null) {
+        // Touch is no longer active => kill it
+        storedTouch.destroy()
+        markedForRemoval.push(storedTouch)
+      }
     }
 
-    const types = {
-      // First simulate that the pointer moves to the specified location, then simulate the down event.
-      // Foundry won't take the "click" on the first try otherwise.
-      touchstart: ['pointermove', 'pointerdown'],
-      touchmove: ['pointermove'],
-      touchend: ['pointerup'],
-    }[originalEvent.type]
-
-    for (const type of types) {
-      const mouseEventInitProperties = {
-        clientX: touch.clientX,
-        clientY: touch.clientY,
-        screenX: touch.screenX,
-        screenY: touch.screenY,
-        ctrlKey: originalEvent.ctrlKey || false,
-        altKey: originalEvent.altKey || false,
-        shiftKey: originalEvent.shiftKey || false,
-        metaKey: originalEvent.metaKey || false,
-        button: mouseButton,
-        buttons: bitCodeMouseButton(mouseButton),
-        relatedTarget: originalEvent.relatedTarget || null,
-        region: originalEvent.region || null,
-        detail: 0,
-        view: window,
-        sourceCapabilities: originalEvent.sourceCapabilities,
-        eventInit: {
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-        },
-      }
-
-      let simulatedEvent
-      if (type.indexOf('mouse') === 0) {
-        simulatedEvent = new MouseEvent(type, mouseEventInitProperties)
-      } else {
-        const pointerEventInit = {
-          pointerId: touch.identifier,
-          pointerType: 'mouse',
-          isPrimary: true,
-          ...mouseEventInitProperties,
-        }
-        console.info(`Simulating ${type} for ID ${pointerEventInit.pointerId}`)
-        simulatedEvent = new PointerEvent(type, pointerEventInit)
-      }
-      touch.target.dispatchEvent(simulatedEvent)
+    for (const toRemove of markedForRemoval) {
+      delete this.touches[toRemove.identifier]
     }
   }
 
