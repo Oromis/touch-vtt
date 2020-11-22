@@ -2,8 +2,12 @@
   "name": "touchvtt",
   "version": "1.0.0",
   "description": "Adds touch support to FoundryVTT",
-  "main": "index.js",
+  "main": "src/touch-vtt.js",
   "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "dev": "webpack --config webpack.config.js --watch --mode development --devtool inline-cheap-module-source-map",
+    "version": "node automation/release.js && git add module.json",
+    "postversion": "git push && git push --tags",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -16,7 +20,11 @@
   "author": "David Bauske <david.bauske@googlemail.com>",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/Oromis/touchvtt/issues"
+    "url": "https://github.com/Oromis/touch-vtt/issues"
   },
-  "homepage": "https://github.com/Oromis/touchvtt#readme"
+  "homepage": "https://github.com/Oromis/touch-vtt#readme",
+  "devDependencies": {
+    "webpack": "^5.6.0",
+    "webpack-cli": "^4.2.0"
+  }
 }

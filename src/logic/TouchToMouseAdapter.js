@@ -8,7 +8,7 @@ const longTouchThreshholdPx = 3;
 const mouseButtons = {
   left: 0,
   right: 2
-};
+}
 
 function bitCodeMouseButton(button) {
   switch (button) {
