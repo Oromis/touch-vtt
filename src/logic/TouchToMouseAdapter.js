@@ -1,8 +1,4 @@
-import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
 import Touch from './Touch.js'
-import Vectors from './Vectors.js'
-import Screen from '../browser/Screen.js'
-import MathUtils from '../utils/MathUtils.js'
 import TouchContext from './TouchContext.js'
 import {fakeTouchEvent} from './FakeTouchEvent.js'
 
@@ -16,29 +12,31 @@ function findTouch(touchList, predicate) {
 }
 
 class TouchToMouseAdapter {
-  constructor(canvas) {
+  constructor(element) {
     this.touches = {}
 
     const touchHandler = this.handleTouch.bind(this)
-    canvas.addEventListener('touchstart', touchHandler, true)
-    canvas.addEventListener('touchmove', touchHandler, true)
-    canvas.addEventListener('touchend', touchHandler, true)
-    canvas.addEventListener('touchcancel', touchHandler, true)
+    element.addEventListener('touchstart', touchHandler, this.getEventListenerOptions())
+    element.addEventListener('touchmove', touchHandler, this.getEventListenerOptions())
+    element.addEventListener('touchend', touchHandler, this.getEventListenerOptions())
+    element.addEventListener('touchcancel', touchHandler, this.getEventListenerOptions())
   }
 
   // The full touch handler with multi-touch pinching and panning support
   handleTouch(event) {
-    if (event.type === 'touchstart' || event.type === 'touchmove') {
-      if (event.type === 'touchmove') {
-        this.handleTouchMove(event)
+    if (this.shouldHandleEvent(event)) {
+      if (event.type === 'touchstart' || event.type === 'touchmove') {
+        if (event.type === 'touchmove') {
+          this.handleTouchMove(event)
+        } else {
+          this.handleTouchStart(event)
+        }
       } else {
-        this.handleTouchStart(event)
+        this.handleTouchEnd(event)
       }
-    } else {
-      this.handleTouchEnd(event)
-    }
 
-    event.preventDefault()
+      event.preventDefault()
+    }
   }
 
   handleTouchStart(event) {
@@ -51,54 +49,8 @@ class TouchToMouseAdapter {
   }
 
   handleTouchMove(event) {
-    const context = this.getTouchContextByTouches(event.touches)
-    for (const touch of event.touches) {
-      if (this.touches[touch.identifier] != null) {
-        this.touches[touch.identifier].update(event, touch)
-        if (this.touches[touch.identifier].context === TouchContext.PRIMARY_CLICK && context === TouchContext.ZOOM_PAN_GESTURE) {
-          this.touches[touch.identifier].changeContext(context)
-        }
-      } else {
-        this.touches[touch.identifier] = new Touch(event, touch, { context })
-      }
-    }
-    this.cleanUpTouches(event.touches)
-
-    if (event.touches.length === 2 && Object.keys(this.touches).length === 2) {
-      // Two-finger touch move
-      this.handleTwoFingerGesture(event)
-    }
-
+    this.updateActiveTouches(event)
     this.forwardTouches(event)
-  }
-
-  handleTwoFingerGesture(event) {
-    const firstId = event.touches[0].identifier
-    const secondId = event.touches[1].identifier
-
-    const zoomVector = Vectors.divideElements(
-      Vectors.subtract(this.touches[firstId].current, this.touches[secondId].current),
-      Vectors.subtract(this.touches[firstId].world, this.touches[secondId].world),
-    )
-    const zoomAfter = (zoomVector.x + zoomVector.y) / 2
-
-    let panCorrection = Vectors.zero
-    if (MathUtils.roundToDecimals(zoomAfter, 2) === FoundryCanvas.worldTransform.a) {
-      const adjustedTransform = FoundryCanvas.getWorldTransformWith({ zoom: zoomAfter }, { discrete: true })
-      // const touchedPointOnWorldBefore = FoundryCanvas.screenToWorld(this.touches[firstId].last)
-      const correctionA = this.calcPanCorrection(adjustedTransform, this.touches[firstId])
-      const correctionB = this.calcPanCorrection(adjustedTransform, this.touches[secondId])
-      panCorrection = Vectors.centerBetween(correctionA, correctionB)
-    }
-    const centerBefore = FoundryCanvas.screenToWorld(Screen.center)
-    const worldCenter = Vectors.subtract(centerBefore, panCorrection)
-
-    // console.log(`Zooming to ${zoomAfter}, Center: `, worldCenter)
-    FoundryCanvas.pan({
-      x: worldCenter.x,
-      y: worldCenter.y,
-      zoom: zoomAfter
-    })
   }
 
   handleTouchEnd(event) {
@@ -117,12 +69,27 @@ class TouchToMouseAdapter {
       const touchInstance = this.getTouch(touch.identifier)
       if (touchInstance != null) {
         if (touchInstance.context.forwardsEvent(event)) {
-          fakeTouchEvent(event, touch, touchInstance.context.mouseButton)
+          fakeTouchEvent(event, touch, touchInstance.context.mouseButton, this.getEventMap(), this.getEventTarget(event))
         }
       } else {
         console.warn(`Found no touch instance for ID ${touch.identifier}`, this.touches)
       }
     }
+  }
+
+  updateActiveTouches(event) {
+    const context = this.getTouchContextByTouches(event.touches)
+    for (const touch of event.touches) {
+      if (this.touches[touch.identifier] != null) {
+        this.touches[touch.identifier].update(event, touch)
+        if (this.touches[touch.identifier].context === TouchContext.PRIMARY_CLICK && context === TouchContext.ZOOM_PAN_GESTURE) {
+          this.touches[touch.identifier].changeContext(context)
+        }
+      } else {
+        this.touches[touch.identifier] = new Touch(event, touch, { context })
+      }
+    }
+    this.cleanUpTouches(event.touches)
   }
 
   cleanUpTouches(activeTouches) {
@@ -141,11 +108,6 @@ class TouchToMouseAdapter {
     }
   }
 
-  calcPanCorrection(transform, touch) {
-    const touchedPointOnWorldAfter = transform.applyInverse(touch.current)
-    return Vectors.subtract(touchedPointOnWorldAfter, touch.world)
-  }
-
   getTouchContextByTouches(touches) {
     return touches.length >= 2 ? TouchContext.ZOOM_PAN_GESTURE : TouchContext.PRIMARY_CLICK
   }
@@ -153,10 +115,33 @@ class TouchToMouseAdapter {
   getTouch(id) {
     return this.touches[id]
   }
+
+  getEventListenerOptions() {
+    return {
+      capture: true,
+      passive: false,
+    }
+  }
+
+  getEventMap() {
+    return {
+      touchstart: ['mousedown'],
+      touchmove: ['mousemove'],
+      touchend: ['mouseup'],
+    }
+  }
+
+  getEventTarget() {
+    return null // pick the same target as the original event
+  }
+
+  shouldHandleEvent() {
+    return true
+  }
 }
 
-TouchToMouseAdapter.init = function init(canvas) {
-  return new TouchToMouseAdapter(canvas)
+TouchToMouseAdapter.init = function init(element) {
+  return new TouchToMouseAdapter(element)
 }
 
 export default TouchToMouseAdapter

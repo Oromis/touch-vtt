@@ -15,7 +15,7 @@ function bitCodeMouseButton(button) {
   }
 }
 
-export function dispatchFakeEvent(originalEvent, touch, mouseButton, type) {
+export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, target = touch.target) {
   const mouseEventInitProperties = {
     clientX: touch.clientX,
     clientY: touch.clientY,
@@ -49,27 +49,20 @@ export function dispatchFakeEvent(originalEvent, touch, mouseButton, type) {
       isPrimary: true,
       ...mouseEventInitProperties,
     }
-    console.info(`Simulating ${type} for ID ${pointerEventInit.pointerId}`)
     simulatedEvent = new PointerEvent(type, pointerEventInit)
   }
-  touch.target.dispatchEvent(simulatedEvent)
+  target.dispatchEvent(simulatedEvent)
 }
 
-export function fakeTouchEvent(originalEvent, touch, mouseButton) {
+export function fakeTouchEvent(originalEvent, touch, mouseButton, eventMap, target = null) {
   if (originalEvent == null || typeof originalEvent !== 'object') {
     console.warn(`Passed invalid event argument to fakeTouchEvent: ${originalEvent}`)
     return
   }
 
-  const types = {
-    // First simulate that the pointer moves to the specified location, then simulate the down event.
-    // Foundry won't take the "click" on the first try otherwise.
-    touchstart: ['pointermove', 'pointerdown'],
-    touchmove: ['pointermove'],
-    touchend: ['pointerup'],
-  }[originalEvent.type]
+  const types = eventMap[originalEvent.type]
 
   for (const type of types) {
-    dispatchFakeEvent(originalEvent, touch, mouseButton, type)
+    dispatchFakeEvent(originalEvent, touch, mouseButton, type, target || touch.target)
   }
 }
