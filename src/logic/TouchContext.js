@@ -1,7 +1,8 @@
 import MouseButton from './MouseButton.js'
 
 class TouchContext {
-  constructor({ forwardingEvents = [], mouseButton = null } = {}) {
+  constructor({ name, forwardingEvents = [], mouseButton = null } = {}) {
+    this.name = name
     this.forwardingEvents = forwardingEvents
     this.mouseButton = mouseButton
   }
@@ -16,14 +17,18 @@ class TouchContext {
 }
 
 const PRIMARY_CLICK = Object.freeze(new TouchContext({
+  name: 'primary-click',
   forwardingEvents: ['touchstart', 'touchmove', 'touchend', 'touchcancel'],
   mouseButton: MouseButton.left,
 }))
 const SECONDARY_CLICK = Object.freeze(new TouchContext({
+  name: 'secondary-click',
   forwardingEvents: ['touchstart', 'touchmove', 'touchend', 'touchcancel'],
   mouseButton: MouseButton.right,
 }))
-const ZOOM_PAN_GESTURE = Object.freeze(new TouchContext())
+const ZOOM_PAN_GESTURE = Object.freeze(new TouchContext({
+  name: 'zoom-pan',
+}))
 
 export default Object.freeze({
   PRIMARY_CLICK,

@@ -20,6 +20,8 @@ class Touch {
     this.world = FoundryCanvas.screenToWorld(this.current)  //< Position in the world where the user touched
     this.movementDistance = 0
 
+    console.log(`New Touch, ID: ${this.id}, context: ${context.name}`)
+
     this.longPressTimeout = setTimeout(() => {
       // Long click detection: if the pointer hasn't moved considerably and if this is still the only touch point,
       // then we need to treat this as a right-click.
@@ -42,7 +44,13 @@ class Touch {
   }
 
   changeContext(newContext) {
+    if (this.context === TouchContext.ZOOM_PAN_GESTURE) {
+      // A touch point that was used as a zoom gesture can never change its function back to a regular touch,
+      // that would be confusing. The user needs to lift the finger and touch again (which is intuitive)
+      return
+    }
     if (this.context !== newContext) {
+      console.log(`Changing touch from ${this.context.name} to ${newContext.name}`)
       if (this.context.forwardsEvent('touchend')) {
         dispatchFakeEvent(this.latestEvent, this, this.context.mouseButton, 'pointerup')
       }

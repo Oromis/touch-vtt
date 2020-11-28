@@ -25,14 +25,25 @@ class TouchToMouseAdapter {
   // The full touch handler with multi-touch pinching and panning support
   handleTouch(event) {
     if (this.shouldHandleEvent(event)) {
-      if (event.type === 'touchstart' || event.type === 'touchmove') {
-        if (event.type === 'touchmove') {
-          this.handleTouchMove(event)
-        } else {
+      switch (event.type) {
+        case 'touchstart':
+          console.log(event.type)
           this.handleTouchStart(event)
-        }
-      } else {
-        this.handleTouchEnd(event)
+          break
+
+        case 'touchmove':
+          this.handleTouchMove(event)
+          break
+
+        case 'touchend':
+        case 'touchcancel':
+          console.log(event.type)
+          this.handleTouchEnd(event)
+          break
+
+        default:
+          console.warn(`Unknown touch event type ${event.type}`)
+          break
       }
 
       event.preventDefault()
@@ -40,11 +51,7 @@ class TouchToMouseAdapter {
   }
 
   handleTouchStart(event) {
-    const context = this.getTouchContextByTouches(event.touches)
-    for (const touch of event.touches) {
-      this.touches[touch.identifier] = new Touch(event, touch, { context })
-    }
-
+    this.updateActiveTouches(event)
     this.forwardTouches(event)
   }
 
@@ -82,9 +89,7 @@ class TouchToMouseAdapter {
     for (const touch of event.touches) {
       if (this.touches[touch.identifier] != null) {
         this.touches[touch.identifier].update(event, touch)
-        if (this.touches[touch.identifier].context === TouchContext.PRIMARY_CLICK && context === TouchContext.ZOOM_PAN_GESTURE) {
-          this.touches[touch.identifier].changeContext(context)
-        }
+        this.touches[touch.identifier].changeContext(context)
       } else {
         this.touches[touch.identifier] = new Touch(event, touch, { context })
       }
@@ -108,8 +113,8 @@ class TouchToMouseAdapter {
     }
   }
 
-  getTouchContextByTouches(touches) {
-    return touches.length >= 2 ? TouchContext.ZOOM_PAN_GESTURE : TouchContext.PRIMARY_CLICK
+  getTouchContextByTouches() {
+    return TouchContext.PRIMARY_CLICK
   }
 
   getTouch(id) {

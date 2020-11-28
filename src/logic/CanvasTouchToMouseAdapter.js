@@ -3,6 +3,7 @@ import Vectors from './Vectors.js'
 import MathUtils from '../utils/MathUtils.js'
 import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
 import Screen from '../browser/Screen.js'
+import TouchContext from './TouchContext.js'
 
 class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   constructor(canvas) {
@@ -31,12 +32,17 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
     const zoomAfter = (zoomVector.x + zoomVector.y) / 2
 
     let panCorrection = Vectors.zero
-    if (MathUtils.roundToDecimals(zoomAfter, 2) === FoundryCanvas.worldTransform.a) {
-      const adjustedTransform = FoundryCanvas.getWorldTransformWith({ zoom: zoomAfter }, { discrete: true })
-      const correctionA = this.calcPanCorrection(adjustedTransform, this.touches[firstId])
-      const correctionB = this.calcPanCorrection(adjustedTransform, this.touches[secondId])
-      panCorrection = Vectors.centerBetween(correctionA, correctionB)
-    }
+    const zoomBefore = FoundryCanvas.worldTransform.a
+    const zoomLevelChanges = MathUtils.roundToDecimals(zoomAfter, 2) !== zoomBefore
+
+    // There's some weirdness going on with how PIXI implements vectors / matrices: Zoom values are rounded to
+    // two decimal places. This messes with my calculations here, which is why I need the following line. I'm not
+    // entirely sure why it works, but it does work great :D
+    const adjustedZoom = zoomLevelChanges ? zoomBefore : zoomAfter
+    const adjustedTransform = FoundryCanvas.getWorldTransformWith({ zoom: adjustedZoom }, { discrete: true })
+    const correctionA = this.calcPanCorrection(adjustedTransform, this.touches[firstId])
+    const correctionB = this.calcPanCorrection(adjustedTransform, this.touches[secondId])
+    panCorrection = Vectors.centerBetween(correctionA, correctionB)
     const centerBefore = FoundryCanvas.screenToWorld(Screen.center)
     const worldCenter = Vectors.subtract(centerBefore, panCorrection)
 
@@ -60,6 +66,11 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
       touchmove: ['pointermove'],
       touchend: ['pointerup'],
     }
+  }
+
+
+  getTouchContextByTouches(touches) {
+    return touches.length >= 2 ? TouchContext.ZOOM_PAN_GESTURE : TouchContext.PRIMARY_CLICK
   }
 }
 
