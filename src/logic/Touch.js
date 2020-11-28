@@ -19,8 +19,7 @@ class Touch {
 
     this.world = FoundryCanvas.screenToWorld(this.current)  //< Position in the world where the user touched
     this.movementDistance = 0
-
-    console.log(`New Touch, ID: ${this.id}, context: ${context.name}`)
+    this.movement = Vectors.zero
 
     this.longPressTimeout = setTimeout(() => {
       // Long click detection: if the pointer hasn't moved considerably and if this is still the only touch point,
@@ -41,6 +40,7 @@ class Touch {
     this.last = this.current
     this.current = Object.freeze({ x: touchSource.clientX, y: touchSource.clientY })
     this.movementDistance += Vectors.distance(this.last, this.current)
+    this.movement = Vectors.add(this.movement, Vectors.subtract(this.current, this.last))
   }
 
   changeContext(newContext) {
@@ -50,7 +50,6 @@ class Touch {
       return
     }
     if (this.context !== newContext) {
-      console.log(`Changing touch from ${this.context.name} to ${newContext.name}`)
       if (this.context.forwardsEvent('touchend')) {
         dispatchFakeEvent(this.latestEvent, this, this.context.mouseButton, 'pointerup')
       }

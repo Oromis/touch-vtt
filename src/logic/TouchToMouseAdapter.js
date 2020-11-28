@@ -27,7 +27,6 @@ class TouchToMouseAdapter {
     if (this.shouldHandleEvent(event)) {
       switch (event.type) {
         case 'touchstart':
-          console.log(event.type)
           this.handleTouchStart(event)
           break
 
@@ -37,7 +36,6 @@ class TouchToMouseAdapter {
 
         case 'touchend':
         case 'touchcancel':
-          console.log(event.type)
           this.handleTouchEnd(event)
           break
 

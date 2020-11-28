@@ -17,13 +17,6 @@ class Vectors {
     }
   }
 
-  multiplyElements(a, b) {
-    return {
-      x: a.x * b.x,
-      y: a.y * b.y,
-    }
-  }
-
   divideElements(a, b) {
     return {
       x: a.x / b.x,
@@ -49,7 +42,14 @@ class Vectors {
   }
 
   length(vector) {
-    return Math.sqrt((vector.x ** 2) + (vector.y) ** 2)
+    return Math.sqrt((vector.x ** 2) + (vector.y ** 2))
+  }
+
+  abs(vector) {
+    return {
+      x: Math.abs(vector.x),
+      y: Math.abs(vector.y),
+    }
   }
 }
 

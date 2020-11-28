@@ -15,8 +15,6 @@ function bitCodeMouseButton(button) {
   }
 }
 
-let activePointers = []
-
 export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, target = touch.target) {
   const mouseEventInitProperties = {
     clientX: touch.clientX,
@@ -54,6 +52,13 @@ export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, targe
     simulatedEvent = new PointerEvent(type, pointerEventInit)
   }
 
+  // trackActivePointers(type, touch, mouseButton)
+
+  target.dispatchEvent(simulatedEvent)
+}
+
+let activePointers = []
+function trackActivePointers(type, touch, mouseButton) {
   if (type === 'pointerdown') {
     activePointers.push({ id: touch.identifier, type, mouseButton })
   } else if (type === 'pointerup') {
@@ -69,8 +74,6 @@ export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, targe
       console.log(`\tID: ${ap.id}, Button: ${ap.mouseButton}`)
     }
   }
-
-  target.dispatchEvent(simulatedEvent)
 }
 
 export function fakeTouchEvent(originalEvent, touch, mouseButton, eventMap, target = null) {
