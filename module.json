@@ -9,6 +9,9 @@
   "scripts": [
     "dist/touch-vtt.js"
   ],
+  "styles": [
+    "dist/touch-vtt.css"
+  ],
   "url": "https://github.com/Oromis/touch-vtt",
   "download": "https://github.com/Oromis/touch-vtt/releases/download/v1.0.0/touch-vtt-v1.0.0.zip",
   "manifest": "https://raw.githubusercontent.com/Oromis/touch-vtt/main/module.json",

@@ -2,6 +2,8 @@ import {MODULE_NAME} from './config/ModuleConstants.js'
 import CanvasTouchToMouseAdapter from './logic/CanvasTouchToMouseAdapter.js'
 import WindowHeaderTouchToMouseAdapter from './logic/WindowHeaderTouchToMouseAdapter.js'
 
+import '../style/touch-vtt.css'
+
 function findCanvas() {
   return document.querySelector('canvas#board') ||
     document.querySelector('body > canvas') ||

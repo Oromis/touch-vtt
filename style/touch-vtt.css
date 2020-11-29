@@ -1,0 +1,10 @@
+#token-hud .status-effects {
+    width: 160px;
+    grid-template-columns: repeat(4, 40px);
+}
+
+#token-hud .status-effects .effect-control {
+    padding: 3px;
+    width: 34px;
+    height: 34px;
+}

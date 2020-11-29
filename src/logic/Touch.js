@@ -44,9 +44,9 @@ class Touch {
   }
 
   changeContext(newContext) {
-    if (this.context === TouchContext.ZOOM_PAN_GESTURE) {
-      // A touch point that was used as a zoom gesture can never change its function back to a regular touch,
-      // that would be confusing. The user needs to lift the finger and touch again (which is intuitive)
+    if (this.context.isFinal) {
+      // A touch point that was used as a right click or a zoom gesture can never change its function back to a
+      // regular touch, that would be confusing. The user needs to lift the finger and touch again (which is intuitive)
       return
     }
     if (this.context !== newContext) {

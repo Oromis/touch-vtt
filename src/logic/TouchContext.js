@@ -1,10 +1,11 @@
 import MouseButton from './MouseButton.js'
 
 class TouchContext {
-  constructor({ name, forwardingEvents = [], mouseButton = null } = {}) {
+  constructor({ name, forwardingEvents = [], mouseButton = null, isFinal = true } = {}) {
     this.name = name
     this.forwardingEvents = forwardingEvents
     this.mouseButton = mouseButton
+    this.isFinal = isFinal
   }
 
   forwardsEvent(event) {
@@ -20,6 +21,7 @@ const PRIMARY_CLICK = Object.freeze(new TouchContext({
   name: 'primary-click',
   forwardingEvents: ['touchstart', 'touchmove', 'touchend', 'touchcancel'],
   mouseButton: MouseButton.left,
+  isFinal: false,
 }))
 const SECONDARY_CLICK = Object.freeze(new TouchContext({
   name: 'secondary-click',
