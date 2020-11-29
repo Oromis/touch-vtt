@@ -24,4 +24,4 @@ Feel free to suggest features and report bugs via Github issues!
 
 If you want to show your support for my work financially, feel free to donate via PayPal - it's greatly appreciated! 
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UV4QZJ8SW4JAN&source=url)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JTE9BL67E6TUL&source=url)
