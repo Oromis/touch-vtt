@@ -16,26 +16,30 @@ class TouchToMouseAdapter {
     this.touches = {}
 
     const touchHandler = this.handleTouch.bind(this)
-    element.addEventListener('touchstart', touchHandler, this.getEventListenerOptions())
-    element.addEventListener('touchmove', touchHandler, this.getEventListenerOptions())
-    element.addEventListener('touchend', touchHandler, this.getEventListenerOptions())
-    element.addEventListener('touchcancel', touchHandler, this.getEventListenerOptions())
+    element.addEventListener('pointerdown', touchHandler, this.getEventListenerOptions())
+    element.addEventListener('pointermove', touchHandler, this.getEventListenerOptions())
+    element.addEventListener('pointerup', touchHandler, this.getEventListenerOptions())
+    element.addEventListener('pointercancel', touchHandler, this.getEventListenerOptions())
   }
+
 
   // The full touch handler with multi-touch pinching and panning support
   handleTouch(event) {
+    if(event.pointerType != "touch") 
+      return
+
     if (this.shouldHandleEvent(event)) {
       switch (event.type) {
-        case 'touchstart':
+        case 'pointerdown':
           this.handleTouchStart(event)
           break
 
-        case 'touchmove':
+        case 'pointermove':
           this.handleTouchMove(event)
           break
 
-        case 'touchend':
-        case 'touchcancel':
+        case 'pointerup':
+        case 'pointercancel':
           this.handleTouchEnd(event)
           break
 
@@ -61,54 +65,38 @@ class TouchToMouseAdapter {
   handleTouchEnd(event) {
     // touchend or touchcancel
     this.forwardTouches(event, Object.values(this.touches))
-    this.cleanUpTouches(event.touches)
+    this.cleanUpTouches(event)
     this.touches = {}
   }
 
   forwardTouches(event, touches) {
-    if (!Array.isArray(touches)) {
-      touches = event.changedTouches
-    }
 
-    for (const touch of touches) {
-      const touchInstance = this.getTouch(touch.identifier)
+    for (const touch of Object.values(this.touches)) {
+      const touchInstance = this.getTouch(touch.pointerId)
       if (touchInstance != null) {
         if (touchInstance.context.forwardsEvent(event)) {
           fakeTouchEvent(event, touch, touchInstance.context.mouseButton, this.getEventMap(), this.getEventTarget(event))
         }
       } else {
-        console.warn(`Found no touch instance for ID ${touch.identifier}`, this.touches)
+        console.warn(`Found no touch instance for ID ${touch.pointerId}`, this.touches)
       }
     }
   }
 
   updateActiveTouches(event) {
-    const context = this.getTouchContextByTouches(event.touches)
-    for (const touch of event.touches) {
-      if (this.touches[touch.identifier] != null) {
-        this.touches[touch.identifier].update(event, touch)
-        this.touches[touch.identifier].changeContext(context)
-      } else {
-        this.touches[touch.identifier] = new Touch(event, touch, { context })
-      }
+    const context = TouchContext.PRIMARY_CLICK
+    if (this.touches[event.pointerId] != null) {
+      this.touches[event.pointerId].update(event)
+      this.touches[event.pointerId].changeContext(context)
+    } else {
+      this.touches[event.pointerId] = new Touch(event, { context })
     }
-    this.cleanUpTouches(event.touches)
+
   }
 
-  cleanUpTouches(activeTouches) {
-    const storedTouches = Object.values(this.touches)
-    const markedForRemoval = []
-    for (const storedTouch of storedTouches) {
-      if (findTouch(activeTouches, activeTouch => activeTouch.identifier === storedTouch.identifier) == null) {
-        // Touch is no longer active => kill it
-        storedTouch.destroy()
-        markedForRemoval.push(storedTouch)
-      }
-    }
-
-    for (const toRemove of markedForRemoval) {
-      delete this.touches[toRemove.identifier]
-    }
+  cleanUpTouches(event) {
+    delete this.touches[event.pointerId]
+    
   }
 
   getTouchContextByTouches() {
@@ -128,9 +116,9 @@ class TouchToMouseAdapter {
 
   getEventMap() {
     return {
-      touchstart: ['mousedown'],
-      touchmove: ['mousemove'],
-      touchend: ['mouseup'],
+      pointerdown: ['pointerdown'],
+      pointermove: ['pointermove'],
+      pointerup: ['pointerup'],
     }
   }
 
