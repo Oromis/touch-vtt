@@ -51,10 +51,10 @@ class Touch {
       return
     }
     if (this.context !== newContext) {
-      if (this.context.forwardsEvent('touchend')) {
+      if (this.context.forwardsEvent('pointerup')) {
         dispatchFakeEvent(this.latestEvent, this, this.context.mouseButton, 'pointerup')
       }
-      if (newContext.forwardsEvent('touchstart')) {
+      if (newContext.forwardsEvent('pointerdown')) {
         dispatchFakeEvent(this.latestEvent, this, newContext.mouseButton, 'pointerdown')
       }
     }

@@ -77,15 +77,12 @@ function trackActivePointers(type, touch, mouseButton) {
   }
 }
 
-export function fakeTouchEvent(originalEvent, touch, mouseButton, eventMap, target = null) {
+export function fakeTouchEvent(originalEvent, touch, mouseButton, target = null) {
   if (originalEvent == null || typeof originalEvent !== 'object') {
     console.warn(`Passed invalid event argument to fakeTouchEvent: ${originalEvent}`)
     return
   }
 
-  const types = eventMap[originalEvent.type]
-
-  for (const type of types) {
-    dispatchFakeEvent(originalEvent, touch, mouseButton, type, target || touch.target)
-  }
+  dispatchFakeEvent(originalEvent, touch, mouseButton, originalEvent.type, target || touch.target)
+  
 }

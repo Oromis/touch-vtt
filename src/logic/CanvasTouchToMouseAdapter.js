@@ -66,16 +66,6 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
     return Vectors.subtract(touchedPointOnWorldAfter, touch.world)
   }
 
-  getEventMap() {
-    return {
-      // First simulate that the pointer moves to the specified location, then simulate the down event.
-      // Foundry won't take the "click" on the first try otherwise.
-      pointerdown: ['pointermove', 'pointerdown'],
-      pointermove: ['pointermove'],
-      pointerup: ['pointerup'],
-    }
-  }
-
   getTouchContextByTouches(touches) {
     return touches.length >= 2 ? TouchContext.ZOOM_PAN_GESTURE : TouchContext.PRIMARY_CLICK
   }

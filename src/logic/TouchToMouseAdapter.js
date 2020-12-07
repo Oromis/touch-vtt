@@ -75,7 +75,7 @@ class TouchToMouseAdapter {
       const touchInstance = this.getTouch(touch.pointerId)
       if (touchInstance != null) {
         if (touchInstance.context.forwardsEvent(event)) {
-          fakeTouchEvent(event, touch, touchInstance.context.mouseButton, this.getEventMap(), this.getEventTarget(event))
+          fakeTouchEvent(event, touch, touchInstance.context.mouseButton, this.getEventTarget(event))
         }
       } else {
         console.warn(`Found no touch instance for ID ${touch.pointerId}`, this.touches)
@@ -114,13 +114,6 @@ class TouchToMouseAdapter {
     }
   }
 
-  getEventMap() {
-    return {
-      pointerdown: ['pointerdown'],
-      pointermove: ['pointermove'],
-      pointerup: ['pointerup'],
-    }
-  }
 
   getEventTarget() {
     return null // pick the same target as the original event
