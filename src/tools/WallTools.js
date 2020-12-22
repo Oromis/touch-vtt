@@ -13,8 +13,11 @@ const big_button_style =  `
     left: 72px;
 }
 `
-
+// Local storage for GUI toggles, since they shouldn't be saved over reloads
+let chainmode = false
 let button_size = false
+
+
 Hooks.once("init", () => {
     createStyleElement();
     registerSettings();
@@ -47,18 +50,10 @@ function registerSettings() { // Monkey patch click function to force this._chai
 
     replaceMethod(WallsLayer.prototype, '_onClickLeft', ({callOriginal, self}) => {
         callOriginal()
-        if (game.settings.get("touch-vtt", "CHAIN_WALLS")) {
+        if (chainmode) {
             self._chain = true
         }
     })
-
-    // Register setting to track controls toggle setting
-    game.settings.register('touch-vtt', "CHAIN_WALLS", {
-        scope: "world",
-        type: Boolean,
-        default: false,
-        config: false
-    });
 }
 
 function addControls(menuStructure) {
@@ -70,8 +65,8 @@ function addControls(menuStructure) {
         title: "TOUCHVTT.ToggleWallChain",
         icon: "fas fa-link",
         toggle: true,
-        active: game.settings.get("touch-vtt", "CHAIN_WALLS"),
-        onClick: toggled => game.settings.set("touch-vtt", "CHAIN_WALLS", toggled)
+        active: chainmode,
+        onClick: toggled => chainmode =  toggled
     }, {
         // Simulates hitting Ctrl-Z
         name: "undo",
