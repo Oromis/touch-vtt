@@ -72,13 +72,13 @@ class TouchToMouseAdapter {
   forwardTouches(event, touches) {
 
     for (const touch of Object.values(this.touches)) {
-      const touchInstance = this.getTouch(touch.pointerId)
+      const touchInstance = this.getTouch(touch.identifier)
       if (touchInstance != null) {
         if (touchInstance.context.forwardsEvent(event)) {
           fakeTouchEvent(event, touch, touchInstance.context.mouseButton, this.getEventTarget(event))
         }
       } else {
-        console.warn(`Found no touch instance for ID ${touch.pointerId}`, this.touches)
+        console.warn(`Found no touch instance for ID ${touch.identifier}`, this.touches)
       }
     }
   }

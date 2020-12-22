@@ -16,16 +16,16 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
     if ( Object.keys(this.touches).length === 2) {
       // Two-finger touch move
       this.handleTwoFingerGesture(event)
-    }
-    else {
+    } else {
       this.forwardTouches(event, Object.values(this.touches))
     }
   }
 
   handleTwoFingerGesture(event) {
-    const k = Object.keys(this.touches)
-    const firstTouch = this.touches[k[0]]
-    const secondTouch = this.touches[k[1]]
+    // Use the first two touch points for gestures
+    const touchIds = Object.keys(this.touches)
+    const firstTouch = this.touches[touchIds[0]]
+    const secondTouch = this.touches[touchIds[1]]
 
     const zoomBefore = FoundryCanvas.worldTransform.a
     const zoomAfter = this.calcZoom(firstTouch, secondTouch)

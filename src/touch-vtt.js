@@ -3,7 +3,7 @@ import CanvasTouchToMouseAdapter from './logic/CanvasTouchToMouseAdapter.js'
 import WindowHeaderTouchToMouseAdapter from './logic/WindowHeaderTouchToMouseAdapter.js'
 
 import '../style/touch-vtt.css'
-import '../src/tools/wall-tools.js'
+import '../src/tools/WallTools.js'
 import {injectMethodCondition, replaceMethod} from './utils/Injection.js'
 import {installMeasurementTemplateEraser} from './tools/MeasurementTemplateEraser.js'
 

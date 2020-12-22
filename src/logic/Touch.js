@@ -5,7 +5,7 @@ import {dispatchFakeEvent} from './FakeTouchEvent.js'
 
 class Touch {
   constructor(event, { context = TouchContext.PRIMARY_CLICK } = {}) {
-    this.pointerId = event.pointerId
+    this.identifier = event.pointerId
     this.start = Object.freeze({ x: event.clientX, y: event.clientY })
     this.last = this.start
     this.current = this.last
@@ -33,7 +33,7 @@ class Touch {
   }
 
   get identifier() {
-    return this.pointerId
+    return this.identifier
   }
 
   update(event) {

@@ -1,8 +1,47 @@
 import {injectMethodCondition, replaceMethod} from '../utils/Injection.js'
+import {MODULE_NAME} from '../config/ModuleConstants.js'
 
-Hooks.once("init", registerSettings)
+const STYLE_ID = `${MODULE_NAME}-bug_button_styles`
+const big_button_style =  `
+#controls .scene-control, #controls .control-tool {
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    font-size: 28px;
+}
+#controls .control-tools {
+    left: 72px;
+}
+`
+
+let button_size = false
+Hooks.once("init", () => {
+    createStyleElement();
+    registerSettings();
+})   
 
 Hooks.on("getSceneControlButtons", addControls)
+
+
+function createStyleElement() {
+    const style = document.createElement('style')
+    style.setAttribute('id', STYLE_ID)
+    document.head.append(style)
+    return style
+}
+
+function updateButtonSize(button_size) {
+    const style = document.getElementById(STYLE_ID)
+    if (style != null) {
+        if (button_size){
+            style.innerText = big_button_style
+        } else {
+            style.innerText = ''
+        }
+    }
+}
+  
+
 
 function registerSettings() { // Monkey patch click function to force this._chain when chainmode is set
 
@@ -53,13 +92,9 @@ function addControls(menuStructure) {
         title: "TOUCHVTT.BigButton",
         icon: "fas fa-expand-alt",
         visible: true,
-        button: true,
-        onClick: () => {
-            window.document.styleSheets[0].insertRule("#controls .control-tool, #controls .scene-control {width: 59px;height: 59px; font-size: 48px;line-height: revert;}", window.document.styleSheets[0].rules.length)
-            window.document.styleSheets[0].insertRule("#controls .control-tools {left: 78px}", window.document.styleSheets[0].rules.length)
-        }
+        toggle: true,
+        active: button_size,
+        onClick: toggled => {updateButtonSize(toggled)}
     })
-
-
 }
 
