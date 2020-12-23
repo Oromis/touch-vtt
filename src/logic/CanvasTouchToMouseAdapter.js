@@ -13,17 +13,19 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   handleTouchMove(event) {
     this.updateActiveTouches(event)
 
-    if (event.touches.length === 2 && Object.keys(this.touches).length === 2) {
+    if ( Object.keys(this.touches).length === 2) {
       // Two-finger touch move
       this.handleTwoFingerGesture(event)
+    } else {
+      this.forwardTouches(event, Object.values(this.touches))
     }
-
-    this.forwardTouches(event)
   }
 
   handleTwoFingerGesture(event) {
-    const firstTouch = this.touches[event.touches[0].identifier]
-    const secondTouch = this.touches[event.touches[1].identifier]
+    // Use the first two touch points for gestures
+    const touchIds = Object.keys(this.touches)
+    const firstTouch = this.touches[touchIds[0]]
+    const secondTouch = this.touches[touchIds[1]]
 
     const zoomBefore = FoundryCanvas.worldTransform.a
     const zoomAfter = this.calcZoom(firstTouch, secondTouch)
@@ -62,16 +64,6 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   calcPanCorrection(transform, touch) {
     const touchedPointOnWorldAfter = transform.applyInverse(touch.current)
     return Vectors.subtract(touchedPointOnWorldAfter, touch.world)
-  }
-
-  getEventMap() {
-    return {
-      // First simulate that the pointer moves to the specified location, then simulate the down event.
-      // Foundry won't take the "click" on the first try otherwise.
-      touchstart: ['pointermove', 'pointerdown'],
-      touchmove: ['pointermove'],
-      touchend: ['pointerup'],
-    }
   }
 
   getTouchContextByTouches(touches) {

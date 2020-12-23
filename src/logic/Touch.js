@@ -4,23 +4,24 @@ import Vectors from './Vectors.js'
 import {dispatchFakeEvent} from './FakeTouchEvent.js'
 
 class Touch {
-  constructor(event, touchSource, { context = TouchContext.PRIMARY_CLICK } = {}) {
-    this.id = touchSource.identifier
-    this.start = Object.freeze({ x: touchSource.clientX, y: touchSource.clientY })
+  constructor(event, { context = TouchContext.PRIMARY_CLICK } = {}) {
+    this.id = event.pointerId
+    this.start = Object.freeze({ x: event.clientX, y: event.clientY })
     this.last = this.start
     this.current = this.last
     this.context = context
-    this.clientX = touchSource.clientX
-    this.clientY = touchSource.clientY
-    this.screenX = touchSource.screenX
-    this.screenY = touchSource.screenY
-    this.target = touchSource.target
+    this.clientX = event.clientX
+    this.clientY = event.clientY
+    this.screenX = event.screenX
+    this.screenY = event.screenY
+    this.target = event.target
     this.latestEvent = event
 
     this.world = FoundryCanvas.screenToWorld(this.current)  //< Position in the world where the user touched
     this.movementDistance = 0
     this.movement = Vectors.zero
 
+    //console.log("Construct",this.current)
     this.longPressTimeout = setTimeout(() => {
       // Long click detection: if the pointer hasn't moved considerably and if this is still the only touch point,
       // then we need to treat this as a right-click.
@@ -35,10 +36,10 @@ class Touch {
     return this.id
   }
 
-  update(event, touchSource) {
+  update(event) {
     this.latestEvent = event
     this.last = this.current
-    this.current = Object.freeze({ x: touchSource.clientX, y: touchSource.clientY })
+    this.current = Object.freeze({ x: event.clientX, y: event.clientY })
     this.movementDistance += Vectors.distance(this.last, this.current)
     this.movement = Vectors.add(this.movement, Vectors.subtract(this.current, this.last))
   }
@@ -50,10 +51,10 @@ class Touch {
       return
     }
     if (this.context !== newContext) {
-      if (this.context.forwardsEvent('touchend')) {
+      if (this.context.forwardsEvent('pointerup')) {
         dispatchFakeEvent(this.latestEvent, this, this.context.mouseButton, 'pointerup')
       }
-      if (newContext.forwardsEvent('touchstart')) {
+      if (newContext.forwardsEvent('pointerdown')) {
         dispatchFakeEvent(this.latestEvent, this, newContext.mouseButton, 'pointerdown')
       }
     }

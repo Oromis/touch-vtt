@@ -17,8 +17,8 @@ function bitCodeMouseButton(button) {
 
 export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, target = touch.target) {
   const mouseEventInitProperties = {
-    clientX: touch.clientX,
-    clientY: touch.clientY,
+    clientX: touch.current ? touch.current.x : touch.clientX,
+    clientY: touch.current ? touch.current.y : touch.clientY,
     screenX: touch.screenX,
     screenY: touch.screenY,
     ctrlKey: originalEvent.ctrlKey || false,
@@ -53,6 +53,7 @@ export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, targe
   }
 
   // trackActivePointers(type, touch, mouseButton)
+  //console.log("Sim",simulatedEvent.clientX, simulatedEvent.clientY,simulatedEvent.type,originalEvent)//,touch)
 
   target.dispatchEvent(simulatedEvent)
 }
@@ -76,15 +77,12 @@ function trackActivePointers(type, touch, mouseButton) {
   }
 }
 
-export function fakeTouchEvent(originalEvent, touch, mouseButton, eventMap, target = null) {
+export function fakeTouchEvent(originalEvent, touch, mouseButton, target = null) {
   if (originalEvent == null || typeof originalEvent !== 'object') {
     console.warn(`Passed invalid event argument to fakeTouchEvent: ${originalEvent}`)
     return
   }
 
-  const types = eventMap[originalEvent.type]
-
-  for (const type of types) {
-    dispatchFakeEvent(originalEvent, touch, mouseButton, type, target || touch.target)
-  }
+  dispatchFakeEvent(originalEvent, touch, mouseButton, originalEvent.type, target || touch.target)
+  
 }

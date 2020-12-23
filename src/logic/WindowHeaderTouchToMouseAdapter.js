@@ -8,7 +8,7 @@ class WindowHeaderTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   getEventTarget(event) {
-    if (event.type === 'touchstart') {
+    if (event.type === 'pointerdown') {
       return this.getParentByClass(event.target, 'window-header')
     } else {
       return window
@@ -16,13 +16,13 @@ class WindowHeaderTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   shouldHandleEvent(event) {
-    if (event.type === 'touchstart') {
+    if (event.type === 'pointerdown') {
       const inWindowTitle = this.isInWindowTitle(event.target)
       if (inWindowTitle) {
         this.dragging = true
       }
       return inWindowTitle
-    } else if (this.dragging && event.type === 'touchend') {
+    } else if (this.dragging && event.type === 'pointerup') {
       this.dragging = false
       return true
     } else {
