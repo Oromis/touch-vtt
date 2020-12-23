@@ -17,11 +17,11 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
       // Two-finger touch move
       this.handleTwoFingerGesture(event)
     } else {
-      this.forwardTouches(event, Object.values(this.touches))
+      this.forwardTouches(event)
     }
   }
 
-  handleTwoFingerGesture(event) {
+  handleTwoFingerGesture() {
     // Use the first two touch points for gestures
     const touchIds = Object.keys(this.touches)
     const firstTouch = this.touches[touchIds[0]]

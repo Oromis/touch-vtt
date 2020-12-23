@@ -2,15 +2,6 @@ import Touch from './Touch.js'
 import TouchContext from './TouchContext.js'
 import {fakeTouchEvent} from './FakeTouchEvent.js'
 
-function findTouch(touchList, predicate) {
-  for (const touch of touchList) {
-    if (predicate(touch)) {
-      return touch
-    }
-  }
-  return null
-}
-
 class TouchToMouseAdapter {
   constructor(element) {
     this.touches = {}
@@ -22,11 +13,11 @@ class TouchToMouseAdapter {
     element.addEventListener('pointercancel', touchHandler, this.getEventListenerOptions())
   }
 
-
   // The full touch handler with multi-touch pinching and panning support
   handleTouch(event) {
-    if(event.pointerType != "touch") 
+    if(event.pointerType !== "touch") {
       return
+    }
 
     if (this.shouldHandleEvent(event)) {
       switch (event.type) {
@@ -63,14 +54,12 @@ class TouchToMouseAdapter {
   }
 
   handleTouchEnd(event) {
-    // touchend or touchcancel
-    this.forwardTouches(event, Object.values(this.touches))
+    this.forwardTouches(event)
     this.cleanUpTouches(event)
     this.touches = {}
   }
 
-  forwardTouches(event, touches) {
-
+  forwardTouches(event) {
     for (const touch of Object.values(this.touches)) {
       const touchInstance = this.getTouch(touch.identifier)
       if (touchInstance != null) {
@@ -96,7 +85,6 @@ class TouchToMouseAdapter {
 
   cleanUpTouches(event) {
     delete this.touches[event.pointerId]
-    
   }
 
   getTouchContextByTouches() {
@@ -113,7 +101,6 @@ class TouchToMouseAdapter {
       passive: false,
     }
   }
-
 
   getEventTarget() {
     return null // pick the same target as the original event
