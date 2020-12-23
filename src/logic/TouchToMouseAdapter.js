@@ -7,10 +7,9 @@ class TouchToMouseAdapter {
     this.touches = {}
 
     const touchHandler = this.handleTouch.bind(this)
-    element.addEventListener('pointerdown', touchHandler, this.getEventListenerOptions())
-    element.addEventListener('pointermove', touchHandler, this.getEventListenerOptions())
-    element.addEventListener('pointerup', touchHandler, this.getEventListenerOptions())
-    element.addEventListener('pointercancel', touchHandler, this.getEventListenerOptions())
+    for (const eventType of Object.keys(this.getEventMap())) {
+      element.addEventListener(eventType, touchHandler, this.getEventListenerOptions())
+    }
   }
 
   // The full touch handler with multi-touch pinching and panning support
@@ -64,7 +63,7 @@ class TouchToMouseAdapter {
       const touchInstance = this.getTouch(touch.identifier)
       if (touchInstance != null) {
         if (touchInstance.context.forwardsEvent(event)) {
-          fakeTouchEvent(event, touch, touchInstance.context.mouseButton, this.getEventTarget(event))
+          fakeTouchEvent(event, touch, touchInstance.context.mouseButton, this.getEventMap(), this.getEventTarget(event))
         }
       } else {
         console.warn(`Found no touch instance for ID ${touch.identifier}`, this.touches)
@@ -89,6 +88,15 @@ class TouchToMouseAdapter {
 
   getTouchContextByTouches() {
     return TouchContext.PRIMARY_CLICK
+  }
+
+  getEventMap() {
+    return {
+      pointerdown: ['pointerdown'],
+      pointermove: ['pointermove'],
+      pointerup: ['pointerup'],
+      pointercancel: ['pointercancel'],
+    }
   }
 
   getTouch(id) {

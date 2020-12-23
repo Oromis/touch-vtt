@@ -3,6 +3,7 @@ import TouchToMouseAdapter from './TouchToMouseAdapter.js'
 class WindowHeaderTouchToMouseAdapter extends TouchToMouseAdapter {
   constructor(element) {
     super(element)
+    console.log(`Creating window header mouse adapter for ${element}`)
 
     this.dragging = false
   }
@@ -32,6 +33,14 @@ class WindowHeaderTouchToMouseAdapter extends TouchToMouseAdapter {
 
   isInWindowTitle(element) {
     return this.getParentByClass(element, 'window-title') != null
+  }
+
+  getEventMap() {
+    return {
+      pointerdown: ['mousedown'],
+      pointermove: ['mousemove'],
+      pointerup: ['mouseup'],
+    }
   }
 
   getParentByClass(element, className) {
