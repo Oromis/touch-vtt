@@ -2,18 +2,19 @@ import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
 import TouchContext from './TouchContext.js'
 import Vectors from './Vectors.js'
 import {dispatchFakeEvent} from './FakeTouchEvent.js'
+import {idOf} from '../utils/EventUtils.js'
 
 class Touch {
-  constructor(event, { context = TouchContext.PRIMARY_CLICK } = {}) {
-    this.id = event.pointerId
-    this.start = Object.freeze({ x: event.clientX, y: event.clientY })
+  constructor(event, touch, { context = TouchContext.PRIMARY_CLICK } = {}) {
+    this.id = idOf(event)
+    this.start = Object.freeze({ x: touch.clientX, y: touch.clientY })
     this.last = this.start
     this.current = this.last
     this.context = context
-    this.clientX = event.clientX
-    this.clientY = event.clientY
-    this.screenX = event.screenX
-    this.screenY = event.screenY
+    this.clientX = touch.clientX
+    this.clientY = touch.clientY
+    this.screenX = touch.screenX
+    this.screenY = touch.screenY
     this.target = event.target
     this.latestEvent = event
 
@@ -36,10 +37,10 @@ class Touch {
     return this.id
   }
 
-  update(event) {
+  update(event, touch) {
     this.latestEvent = event
     this.last = this.current
-    this.current = Object.freeze({ x: event.clientX, y: event.clientY })
+    this.current = Object.freeze({ x: touch.clientX, y: touch.clientY })
     this.movementDistance += Vectors.distance(this.last, this.current)
     this.movement = Vectors.add(this.movement, Vectors.subtract(this.current, this.last))
   }

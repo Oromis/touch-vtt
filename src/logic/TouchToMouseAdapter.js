@@ -1,6 +1,7 @@
 import Touch from './Touch.js'
 import TouchContext from './TouchContext.js'
 import {fakeTouchEvent} from './FakeTouchEvent.js'
+import {idOf} from '../utils/EventUtils.js'
 
 class TouchToMouseAdapter {
   constructor(element) {
@@ -12,27 +13,33 @@ class TouchToMouseAdapter {
     }
   }
 
-  // The full touch handler with multi-touch pinching and panning support
   handleTouch(event) {
-    if(event.pointerType !== "touch") {
+    if(!this.isTouchEvent(event)) {
       return
     }
 
     if (this.shouldHandleEvent(event)) {
       switch (event.type) {
         case 'pointerdown':
-          console.log(`Native pointerdown ${event.pointerId}`)
+        case 'touchstart':
+          console.log(`Native ${event.type} ${idOf(event)}`)
           this.handleTouchStart(event)
           break
 
         case 'pointermove':
+        case 'touchmove':
           this.handleTouchMove(event)
           break
 
         case 'pointerup':
         case 'pointercancel':
-          console.log(`Native ${event.type} ${event.pointerId}`)
+          console.log(`Native ${event.type} ${idOf(event)}`)
           this.handleTouchEnd(event)
+          break
+
+        case 'touchend':
+        case 'touchcancel':
+          this.handleEndAll(event)
           break
 
         default:
@@ -59,34 +66,64 @@ class TouchToMouseAdapter {
     this.cleanUpTouches(event)
   }
 
+  handleEndAll(event) {
+    for (const touch of Object.values(this.touches)) {
+      this.forwardTouch(event, touch)
+    }
+    this.cleanUpAll()
+  }
+
   forwardTouches(event) {
-    const touchInstance = this.getTouch(event.pointerId)
+    const touchInstance = this.getTouch(idOf(event))
     if (touchInstance != null) {
-      if (touchInstance.context.forwardsEvent(event)) {
-        fakeTouchEvent(event, touchInstance, touchInstance.context.mouseButton, this.getEventMap(), this.getEventTarget(event))
-      }
+      this.forwardTouch(event, touchInstance)
     } else {
-      console.warn(`Found no touch instance for ID ${event.pointerId} while trying to forward a ${event.type}`, this.touches)
+      console.warn(`Found no touch instance for ID ${idOf(event)} while trying to forward a ${event.type}`, this.touches)
+    }
+  }
+
+  forwardTouch(event, touch) {
+    if (touch.context.forwardsEvent(event)) {
+      fakeTouchEvent(event, touch, touch.context.mouseButton, this.getEventMap(), this.getEventTarget(event))
     }
   }
 
   updateActiveTouches(event) {
     const context = this.getTouchContextByTouches(event)
-    if (this.touches[event.pointerId] != null) {
-      this.touches[event.pointerId].update(event)
-      this.touches[event.pointerId].changeContext(context)
+    if (event.pointerId != null) {
+      this.updateActiveTouch(event.pointerId, event, event, context)
     } else {
-      this.touches[event.pointerId] = new Touch(event, { context })
+      for (const touch of event.touches) {
+        this.updateActiveTouch(touch.identifier, event, touch, context)
+      }
     }
   }
 
+  updateActiveTouch(id, event, touch, context) {
+    if (this.touches[id] != null) {
+      this.touches[id].update(event, touch)
+      this.touches[id].changeContext(context)
+    } else {
+      this.touches[id] = new Touch(event, touch, { context })
+    }
+  }
+
+  cleanUpAll() {
+    Object.keys(this.touches).forEach(id => this.cleanUpTouch(id))
+  }
+
   cleanUpTouches(event) {
-    const touch = this.touches[event.pointerId]
+    const id = idOf(event)
+    return this.cleanUpTouch(id)
+  }
+
+  cleanUpTouch(id) {
+    const touch = this.touches[id]
     if (touch != null) {
       console.log(`Destroying touch ${touch.identifier} (${touch.context.name})`)
       touch.destroy()
     }
-    delete this.touches[event.pointerId]
+    delete this.touches[id]
   }
 
   getTouchContextByTouches() {
@@ -119,6 +156,10 @@ class TouchToMouseAdapter {
 
   shouldHandleEvent() {
     return true
+  }
+
+  isTouchEvent(event) {
+    return event.pointerType === "touch" || event instanceof TouchEvent
   }
 }
 

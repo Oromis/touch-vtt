@@ -4,6 +4,7 @@ import MathUtils from '../utils/MathUtils.js'
 import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
 import Screen from '../browser/Screen.js'
 import TouchContext from './TouchContext.js'
+import {idOf} from '../utils/EventUtils.js'
 
 class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   constructor(canvas) {
@@ -13,7 +14,7 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   handleTouchMove(event) {
     this.updateActiveTouches(event)
 
-    if ( Object.keys(this.touches).length === 2) {
+    if (Object.keys(this.touches).length === 2) {
       // Two-finger touch move
       this.handleTwoFingerGesture(event)
     } else {
@@ -68,7 +69,7 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
 
   getTouchContextByTouches(event) {
     const existingTouchCount = Object.keys(this.touches).length
-    if (existingTouchCount >= 2 || (existingTouchCount === 1 && this.touches[event.pointerId] == null)) {
+    if (existingTouchCount >= 2 || (existingTouchCount === 1 && this.touches[idOf(event)] == null)) {
       return TouchContext.ZOOM_PAN_GESTURE
     } else {
       return TouchContext.PRIMARY_CLICK

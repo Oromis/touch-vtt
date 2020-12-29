@@ -1,5 +1,9 @@
 import TouchToMouseAdapter from './TouchToMouseAdapter.js'
 
+const START_EVENT = 'touchstart'
+const MOVE_EVENT = 'touchmove'
+const END_EVENT = 'touchend'
+
 class WindowHeaderTouchToMouseAdapter extends TouchToMouseAdapter {
   constructor(element) {
     super(element)
@@ -9,7 +13,7 @@ class WindowHeaderTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   getEventTarget(event) {
-    if (event.type === 'pointerdown') {
+    if (event.type === END_EVENT) {
       return this.getParentByClass(event.target, 'window-header')
     } else {
       return window
@@ -17,13 +21,13 @@ class WindowHeaderTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   shouldHandleEvent(event) {
-    if (event.type === 'pointerdown') {
+    if (event.type === START_EVENT) {
       const inWindowTitle = this.isInWindowTitle(event.target)
       if (inWindowTitle) {
         this.dragging = true
       }
       return inWindowTitle
-    } else if (this.dragging && event.type === 'pointerup') {
+    } else if (this.dragging && event.type === END_EVENT) {
       this.dragging = false
       return true
     } else {
@@ -37,9 +41,9 @@ class WindowHeaderTouchToMouseAdapter extends TouchToMouseAdapter {
 
   getEventMap() {
     return {
-      pointerdown: ['mousedown'],
-      pointermove: ['mousemove'],
-      pointerup: ['mouseup'],
+      [START_EVENT]: ['mousedown'],
+      [MOVE_EVENT]: ['mousemove'],
+      [END_EVENT]: ['mouseup'],
     }
   }
 
