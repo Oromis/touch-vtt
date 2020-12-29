@@ -17,15 +17,20 @@ class TouchContext {
   }
 }
 
+const ALL_EVENTS = [
+  'pointerdown', 'pointermove', 'pointerup', 'pointercancel',
+  'touchstart', 'touchmove', 'touchend', 'touchcancel'
+]
+
 const PRIMARY_CLICK = Object.freeze(new TouchContext({
   name: 'primary-click',
-  forwardingEvents: ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'],
+  forwardingEvents: ALL_EVENTS,
   mouseButton: MouseButton.left,
   isFinal: false,
 }))
 const SECONDARY_CLICK = Object.freeze(new TouchContext({
   name: 'secondary-click',
-  forwardingEvents: ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'],
+  forwardingEvents: ALL_EVENTS,
   mouseButton: MouseButton.right,
 }))
 const ZOOM_PAN_GESTURE = Object.freeze(new TouchContext({
