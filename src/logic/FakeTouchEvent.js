@@ -52,7 +52,7 @@ export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, targe
     simulatedEvent = new PointerEvent(type, pointerEventInit)
   }
 
-  trackActivePointers(type, touch, mouseButton)
+  // trackActivePointers(type, touch, mouseButton)
   target.dispatchEvent(simulatedEvent)
 }
 

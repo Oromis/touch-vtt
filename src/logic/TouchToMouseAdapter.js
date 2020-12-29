@@ -22,7 +22,6 @@ class TouchToMouseAdapter {
       switch (event.type) {
         case 'pointerdown':
         case 'touchstart':
-          console.log(`Native ${event.type} ${idOf(event)}`)
           this.handleTouchStart(event)
           break
 
@@ -33,7 +32,6 @@ class TouchToMouseAdapter {
 
         case 'pointerup':
         case 'pointercancel':
-          console.log(`Native ${event.type} ${idOf(event)}`)
           this.handleTouchEnd(event)
           break
 
@@ -120,7 +118,6 @@ class TouchToMouseAdapter {
   cleanUpTouch(id) {
     const touch = this.touches[id]
     if (touch != null) {
-      console.log(`Destroying touch ${touch.identifier} (${touch.context.name})`)
       touch.destroy()
     }
     delete this.touches[id]
