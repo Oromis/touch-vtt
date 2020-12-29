@@ -39,6 +39,8 @@ export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, targe
     },
   }
 
+  console.log(`Faking ${type} event: ${mouseEventInitProperties.clientX}|${mouseEventInitProperties.clientY} on target`, target)
+
   let simulatedEvent
   if (type.indexOf('mouse') === 0) {
     simulatedEvent = new MouseEvent(type, mouseEventInitProperties)
@@ -86,7 +88,6 @@ export function fakeTouchEvent(originalEvent, touch, mouseButton, eventMap, targ
     console.warn(`Unmapped event type detected: ${originalEvent.type}`)
   } else {
     for (const type of types) {
-      console.log(`Faking ${type} event`)
       dispatchFakeEvent(originalEvent, touch, mouseButton, type, target || touch.target)
     }
   }
