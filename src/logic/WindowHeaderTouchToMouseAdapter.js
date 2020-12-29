@@ -13,7 +13,7 @@ class WindowHeaderTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   getEventTarget(event) {
-    if (event.type === END_EVENT) {
+    if (event.type === START_EVENT) {
       return this.getParentByClass(event.target, 'window-header')
     } else {
       return window

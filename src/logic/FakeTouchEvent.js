@@ -39,8 +39,6 @@ export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, targe
     },
   }
 
-  console.log(`Faking ${type} event: ${mouseEventInitProperties.clientX}|${mouseEventInitProperties.clientY} on target`, target)
-
   let simulatedEvent
   if (type.indexOf('mouse') === 0) {
     simulatedEvent = new MouseEvent(type, mouseEventInitProperties)
