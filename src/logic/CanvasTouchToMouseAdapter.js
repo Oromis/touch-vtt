@@ -66,8 +66,13 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
     return Vectors.subtract(touchedPointOnWorldAfter, touch.world)
   }
 
-  getTouchContextByTouches(touches) {
-    return touches.length >= 2 ? TouchContext.ZOOM_PAN_GESTURE : TouchContext.PRIMARY_CLICK
+  getTouchContextByTouches(event) {
+    const existingTouchCount = Object.keys(this.touches).length
+    if (existingTouchCount >= 2 || (existingTouchCount === 1 && this.touches[event.pointerId] == null)) {
+      return TouchContext.ZOOM_PAN_GESTURE
+    } else {
+      return TouchContext.PRIMARY_CLICK
+    }
   }
 
   getEventMap() {

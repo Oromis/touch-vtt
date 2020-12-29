@@ -4,7 +4,6 @@ import WindowHeaderTouchToMouseAdapter from './logic/WindowHeaderTouchToMouseAda
 
 import '../style/touch-vtt.css'
 import '../src/tools/WallTools.js'
-import {injectMethodCondition, replaceMethod} from './utils/Injection.js'
 import {installMeasurementTemplateEraser} from './tools/MeasurementTemplateEraser.js'
 
 function findCanvas() {
@@ -20,12 +19,16 @@ Hooks.on('getSceneControlButtons', (controls) => {
 })
 
 Hooks.on('ready', function () {
-  const canvas = findCanvas()
-  if (canvas) {
-    CanvasTouchToMouseAdapter.init(canvas)
-    WindowHeaderTouchToMouseAdapter.init(document.body)
-    console.info(`${MODULE_NAME} started successfully.`)
-  } else {
-    console.warn(`Failed to find canvas element. ${MODULE_NAME} will not be available.`)
+  try {
+    const canvas = findCanvas()
+    if (canvas) {
+      CanvasTouchToMouseAdapter.init(canvas)
+      WindowHeaderTouchToMouseAdapter.init(document.body)
+      console.info(`${MODULE_NAME} started successfully.`)
+    } else {
+      console.warn(`Failed to find canvas element. ${MODULE_NAME} will not be available.`)
+    }
+  } catch (e) {
+    console.error(`Failed to initialize ${MODULE_NAME}: `, e)
   }
 })

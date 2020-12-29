@@ -21,6 +21,7 @@ class TouchToMouseAdapter {
     if (this.shouldHandleEvent(event)) {
       switch (event.type) {
         case 'pointerdown':
+          console.log(`Native pointerdown ${event.pointerId}`)
           this.handleTouchStart(event)
           break
 
@@ -30,6 +31,7 @@ class TouchToMouseAdapter {
 
         case 'pointerup':
         case 'pointercancel':
+          console.log(`Native ${event.type} ${event.pointerId}`)
           this.handleTouchEnd(event)
           break
 
@@ -55,34 +57,35 @@ class TouchToMouseAdapter {
   handleTouchEnd(event) {
     this.forwardTouches(event)
     this.cleanUpTouches(event)
-    this.touches = {}
   }
 
   forwardTouches(event) {
-    for (const touch of Object.values(this.touches)) {
-      const touchInstance = this.getTouch(touch.identifier)
-      if (touchInstance != null) {
-        if (touchInstance.context.forwardsEvent(event)) {
-          fakeTouchEvent(event, touch, touchInstance.context.mouseButton, this.getEventMap(), this.getEventTarget(event))
-        }
-      } else {
-        console.warn(`Found no touch instance for ID ${touch.identifier}`, this.touches)
+    const touchInstance = this.getTouch(event.pointerId)
+    if (touchInstance != null) {
+      if (touchInstance.context.forwardsEvent(event)) {
+        fakeTouchEvent(event, touchInstance, touchInstance.context.mouseButton, this.getEventMap(), this.getEventTarget(event))
       }
+    } else {
+      console.warn(`Found no touch instance for ID ${event.pointerId} while trying to forward a ${event.type}`, this.touches)
     }
   }
 
   updateActiveTouches(event) {
-    const context = TouchContext.PRIMARY_CLICK
+    const context = this.getTouchContextByTouches(event)
     if (this.touches[event.pointerId] != null) {
       this.touches[event.pointerId].update(event)
       this.touches[event.pointerId].changeContext(context)
     } else {
       this.touches[event.pointerId] = new Touch(event, { context })
     }
-
   }
 
   cleanUpTouches(event) {
+    const touch = this.touches[event.pointerId]
+    if (touch != null) {
+      console.log(`Destroying touch ${touch.identifier} (${touch.context.name})`)
+      touch.destroy()
+    }
     delete this.touches[event.pointerId]
   }
 

@@ -21,7 +21,7 @@ class Touch {
     this.movementDistance = 0
     this.movement = Vectors.zero
 
-    //console.log("Construct",this.current)
+    console.log(`New Touch: ${context.name}, ID ${this.id}`)
     this.longPressTimeout = setTimeout(() => {
       // Long click detection: if the pointer hasn't moved considerably and if this is still the only touch point,
       // then we need to treat this as a right-click.
@@ -51,6 +51,7 @@ class Touch {
       return
     }
     if (this.context !== newContext) {
+      console.log(`Changing touch from ${this.context.name} to ${newContext.name}`)
       if (this.context.forwardsEvent('pointerup')) {
         dispatchFakeEvent(this.latestEvent, this, this.context.mouseButton, 'pointerup')
       }
