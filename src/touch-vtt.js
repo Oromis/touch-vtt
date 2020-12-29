@@ -3,8 +3,8 @@ import CanvasTouchToMouseAdapter from './logic/CanvasTouchToMouseAdapter.js'
 import WindowHeaderTouchToMouseAdapter from './logic/WindowHeaderTouchToMouseAdapter.js'
 
 import '../style/touch-vtt.css'
-import '../src/tools/WallTools.js'
 import {installMeasurementTemplateEraser} from './tools/MeasurementTemplateEraser.js'
+import {initWallTools, installWallToolsControls} from './tools/WallTools.js'
 
 function findCanvas() {
   return document.querySelector('canvas#board') ||
@@ -16,6 +16,11 @@ console.log(`${MODULE_NAME} booting ...`)
 
 Hooks.on('getSceneControlButtons', (controls) => {
   installMeasurementTemplateEraser(controls)
+  installWallToolsControls(controls)
+})
+
+Hooks.once('init', () => {
+  initWallTools()
 })
 
 Hooks.on('ready', function () {

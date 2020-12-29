@@ -17,13 +17,6 @@ const largeButtonStyle = `
 let chainingActive = false
 let largeButtons = false
 
-Hooks.once('init', () => {
-  createStyleElement()
-  registerSettings()
-})
-
-Hooks.on('getSceneControlButtons', addControls)
-
 function createStyleElement() {
   const style = document.createElement('style')
   style.setAttribute('id', STYLE_ID)
@@ -52,7 +45,7 @@ function registerSettings() { // Monkey patch click function to force this._chai
   })
 }
 
-function addControls(menuStructure) {
+export function installWallToolsControls(menuStructure) {
   const wallCategory = menuStructure.find(c => c.name === 'walls')
 
   wallCategory.tools.push({
@@ -91,3 +84,7 @@ function addControls(menuStructure) {
   })
 }
 
+export function initWallTools() {
+  createStyleElement()
+  registerSettings()
+}
