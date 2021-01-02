@@ -12,6 +12,7 @@ Features:
  - Removing measurement templates usually requires you to press the DELETE key on your keyboard. TouchVTT 
     adds an eraser tool to the measurement templates menu that can be used with touch controls. First tap 
     the eraser tool, then tap the template you want to remove.
+ - Additional wall placement tools that work with touch controls
 
 Primary use cases:
  - You and your group play in person and you want to use Foundry to visualize gameplay - just put a touchscreen 
