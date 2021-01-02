@@ -24,10 +24,7 @@ Hooks.once('init', () => {
       const fn_name = split.pop()
       const root_nm = split.splice(0, 1)[0]
       const _eval = eval // The browser doesn't expose all global variables (e.g. 'Game') inside globalThis, but it does to an eval. We copy it to a variable to have it run in global scope.
-      const obj = split.reduce((x, y) => x[y], globalThis[root_nm] ?? _eval(root_nm))
-
-      const descriptor = Object.getOwnPropertyDescriptor(obj, fn_name)
-      if (!descriptor) throw `libWrapper Shim: "${target}" does not exist or could not be found.`
+      const obj = split.reduce((x, y) => x[y], globalThis[root_nm] || _eval(root_nm))
 
       let original = null
       const wrapper = (type === 'OVERRIDE') ? function () {
@@ -35,21 +32,30 @@ Hooks.once('init', () => {
       } : function () {
         return fn.call(this, original.bind(this), ...arguments)
       }
-      if (descriptor.value) {
+
+      const descriptor = Object.getOwnPropertyDescriptor(obj, fn_name)
+      if (descriptor != null) {
+        if (descriptor.value) {
+          original = obj[fn_name]
+          obj[fn_name] = wrapper
+          return
+        }
+
+        if (!is_setter) {
+          original = descriptor.get
+          descriptor.get = wrapper
+        } else {
+          original = descriptor.set
+          descriptor.set = wrapper
+        }
+        descriptor.configurable = true
+        Object.defineProperty(obj, fn_name, descriptor)
+      } else if (typeof obj[fn_name] === 'function') {
         original = obj[fn_name]
         obj[fn_name] = wrapper
-        return
-      }
-
-      if (!is_setter) {
-        original = descriptor.get
-        descriptor.get = wrapper
       } else {
-        original = descriptor.set
-        descriptor.set = wrapper
+        throw `libWrapper Shim: "${target}" does not exist or could not be found.`
       }
-      descriptor.configurable = true
-      Object.defineProperty(obj, fn_name, descriptor)
     }
   }
 })
