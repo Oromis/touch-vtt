@@ -1,4 +1,4 @@
-import {replaceMethod} from '../utils/Injection.js'
+import {wrapMethod} from '../utils/Injection.js'
 import {MODULE_NAME} from '../config/ModuleConstants.js'
 
 const STYLE_ID = `${MODULE_NAME}-bug_button_styles`
@@ -37,11 +37,12 @@ function updateButtonSize(button_size) {
 
 
 function registerSettings() { // Monkey patch click function to force this._chain when chainingActive is set
-  replaceMethod(WallsLayer.prototype, '_onClickLeft', ({ callOriginal, self }) => {
-    callOriginal()
+  wrapMethod('WallsLayer.prototype._onClickLeft', function(callOriginal, ...args) {
+    const result = callOriginal(...args)
     if (chainingActive) {
-      self._chain = true
+      this._chain = true
     }
+    return result
   })
 }
 

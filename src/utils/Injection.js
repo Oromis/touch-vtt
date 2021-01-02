@@ -1,22 +1,15 @@
-export function replaceMethod(object, methodName, replacement) {
-  const originalMethod = object[methodName]
-  if (typeof originalMethod !== 'function') {
-    throw new Error(`Method ${methodName} on object ${object} doesn't exist.`)
-  }
+import {libWrapper} from './libWrapper.js'
+import packageJson from '../../package.json'
+const MODULE_NAME = packageJson.name
 
-  object[methodName] = function injectedMethod(...args) {
-    return replacement({
-      self: this,
-      original: originalMethod.bind(this),
-      callOriginal: () => originalMethod.call(this, ...args),
-    }, ...args)
-  }
+export function wrapMethod(method, wrapper, mode = 'WRAPPER') {
+  return libWrapper.register(MODULE_NAME, method, wrapper, mode)
 }
 
-export function injectMethodCondition(object, methodName, predicate) {
-  replaceMethod(object, methodName, ({ callOriginal }, ...args) => {
+export function injectMethodCondition(method, predicate) {
+  return libWrapper.register(MODULE_NAME, method, (next, ...args) => {
     if (predicate(...args)) {
-      callOriginal()
+      return next(...args)
     }
-  })
+  }, 'MIXED')
 }

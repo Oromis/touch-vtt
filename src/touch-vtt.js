@@ -3,7 +3,7 @@ import CanvasTouchToMouseAdapter from './logic/CanvasTouchToMouseAdapter.js'
 import WindowHeaderTouchToMouseAdapter from './logic/WindowHeaderTouchToMouseAdapter.js'
 
 import '../style/touch-vtt.css'
-import {installMeasurementTemplateEraser} from './tools/MeasurementTemplateEraser.js'
+import {installMeasurementTemplateEraser, initMeasurementTemplateEraser} from './tools/MeasurementTemplateEraser.js'
 import {initWallTools, installWallToolsControls} from './tools/WallTools.js'
 
 function findCanvas() {
@@ -20,6 +20,7 @@ Hooks.on('getSceneControlButtons', (controls) => {
 })
 
 Hooks.once('init', () => {
+  initMeasurementTemplateEraser()
   initWallTools()
 })
 
