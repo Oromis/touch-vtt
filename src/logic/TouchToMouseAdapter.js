@@ -156,7 +156,7 @@ class TouchToMouseAdapter {
   }
 
   isTouchEvent(event) {
-    return event.pointerType === "touch" || event instanceof TouchEvent
+    return event.pointerType === "touch" || (typeof TouchEvent === "function" && event instanceof TouchEvent)
   }
 }
 
