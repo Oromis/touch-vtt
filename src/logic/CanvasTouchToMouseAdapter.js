@@ -16,7 +16,7 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   handleTouchMove(event) {
     this.updateActiveTouches(event)
 
-    switch (Object.keys(this.touches).length) {
+    switch (this.touchIds.length) {
       case 2:
         if (this.useSplitGestures()) {
           this.handleTwoFingerZoom(event)
@@ -26,11 +26,8 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
         break
 
       case 3:
-        if (this.useSplitGestures()) {
-          this.handleThreeFingerPan(event)
-        } else {
-          this.forwardTouches(event)
-        }
+      case 4:
+        this.handleThreeFingerPan(event)
         break
 
       default:
@@ -40,7 +37,7 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
 
   handleTwoFingerZoomAndPan() {
     // Use the first two touch points for gestures
-    const touchIds = Object.keys(this.touches)
+    const touchIds = this.touchIds
     const firstTouch = this.touches[touchIds[0]]
     const secondTouch = this.touches[touchIds[1]]
 
@@ -67,7 +64,7 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   handleTwoFingerZoom() {
-    const touchIds = Object.keys(this.touches)
+    const touchIds = this.touchIds
     const firstTouch = this.touches[touchIds[0]]
     const secondTouch = this.touches[touchIds[1]]
 
@@ -75,7 +72,7 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   handleThreeFingerPan() {
-    const touchIds = Object.keys(this.touches)
+    const touchIds = this.touchIds
     const adjustedTransform = FoundryCanvas.worldTransform
     const panCorrection = Vectors.centerOf(
       this.calcPanCorrection(adjustedTransform, this.touches[touchIds[0]]),
@@ -106,7 +103,7 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   getTouchContextByTouches(event) {
-    const existingTouchCount = Object.keys(this.touches).length
+    const existingTouchCount = this.touchIds.length
     if (existingTouchCount >= 2 || (existingTouchCount === 1 && this.touches[idOf(event)] == null)) {
       return TouchContext.ZOOM_PAN_GESTURE
     } else {

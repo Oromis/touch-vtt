@@ -158,6 +158,10 @@ class TouchToMouseAdapter {
   isTouchEvent(event) {
     return event.pointerType === "touch" || (typeof TouchEvent === "function" && event instanceof TouchEvent)
   }
+
+  get touchIds() {
+    return Object.keys(this.touches)
+  }
 }
 
 TouchToMouseAdapter.init = function init(element) {

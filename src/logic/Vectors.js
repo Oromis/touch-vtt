@@ -58,7 +58,7 @@ class Vectors {
       return currentValue < acc.distance ?
         { index: currentIndex, distance: currentValue } :
         acc
-    }, { distance: 10000, index: -1 }).index
+    }, { distance: Number.MAX_VALUE, index: -1 }).index
 
     const otherIndices = vectors.map((e, i) => i)
     otherIndices.splice(centerIndex, 1)
