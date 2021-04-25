@@ -33,6 +33,7 @@ when those features are locked in "Lock View".
 
 ### Changelog
 
+- **1.3.1:** Fixed bug with compatibility between TouchVTT and LockView
 - **1.3.0:** Added setting to split zoom and pan gestures. 3 and 4 finger gestures now always pan the map. Added compatibility with [Lock View](https://foundryvtt.com/packages/LockView/).
 - **1.2.3:** Added support for module compatibility library [libWrapper](https://foundryvtt.com/packages/lib-wrapper/)
 - **1.2.0:** Added support for wall tools
