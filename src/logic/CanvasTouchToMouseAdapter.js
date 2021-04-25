@@ -36,6 +36,10 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   handleTwoFingerZoomAndPan() {
+    if (!FoundryCanvas.isZoomAllowed() || !FoundryCanvas.isPanAllowed()) {
+      return
+    }
+
     // Use the first two touch points for gestures
     const touchIds = this.touchIds
     const firstTouch = this.touches[touchIds[0]]
@@ -64,6 +68,10 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   handleTwoFingerZoom() {
+    if (!FoundryCanvas.isZoomAllowed()) {
+      return
+    }
+
     const touchIds = this.touchIds
     const firstTouch = this.touches[touchIds[0]]
     const secondTouch = this.touches[touchIds[1]]
@@ -72,6 +80,10 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   handleThreeFingerPan() {
+    if (!FoundryCanvas.isPanAllowed()) {
+      return
+    }
+
     const touchIds = this.touchIds
     const adjustedTransform = FoundryCanvas.worldTransform
     const panCorrection = Vectors.centerOf(

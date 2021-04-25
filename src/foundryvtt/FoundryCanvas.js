@@ -1,4 +1,5 @@
 import ObjectUtils from '../utils/ObjectUtils.js'
+import FoundryUser from './FoundryUser.js'
 
 class FoundryCanvas {
   get raw() {
@@ -61,6 +62,14 @@ class FoundryCanvas {
       x: size.x / 2,
       y: size.y / 2,
     }
+  }
+
+  isZoomAllowed() {
+    return FoundryUser.isGm || !this.raw.scene.getFlag('LockView', 'lockZoom')
+  }
+
+  isPanAllowed() {
+    return FoundryUser.isGm || !this.raw.scene.getFlag('LockView', 'lockPan')
   }
 }
 
