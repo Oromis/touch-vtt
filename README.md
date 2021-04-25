@@ -4,8 +4,10 @@ Introduces touch screen support to FoundryVTT. If you have a tablet, a PC or a T
 touch screen and want to play on FoundryVTT, this module is for you!
 
 Features:
- - Use two-finger pinching and panning gestures to zoom and pan the map - it's really smooth and intuitive!
+ - Use two-finger pinching and panning gestures to zoom and pan the map. Panning can be turned off for this gesture 
+   in the settings (use three fingers to pan if you change this).
  - Move tokens by dragging them with your finger - just as you would with the mouse
+ - Move three fingers around on the canvas to pan the scene - no zooming in this mode.
  - Need to right-click to access the corresponding functionality on a game world entity? Just long-press (0.5s) 
     with your finger.
  - Move windows around and interact with their content intuitively
@@ -25,6 +27,9 @@ This module changes the behavior of several aspects of FoundryVTT by overriding 
 measurement controls at the moment). I implemented all that with compatibility to other modules in mind by using 
 [libWrapper](https://foundryvtt.com/packages/lib-wrapper/). If you experience any issues that could stem from module 
 incompatibility, please install and activate libWrapper. 
+
+The [Lock View](https://foundryvtt.com/packages/LockView/) module is supported. Touch zooming and panning is disabled 
+when those features are locked in "Lock View".
 
 Disclaimer: I also made the "Touch20" browser extension for Roll20, TouchVTT is my contribution to FoundryVTT.
 
