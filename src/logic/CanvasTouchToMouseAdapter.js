@@ -5,6 +5,8 @@ import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
 import Screen from '../browser/Screen.js'
 import TouchContext from './TouchContext.js'
 import {idOf} from '../utils/EventUtils.js'
+import {GESTURE_MODE_SETTING, GESTURE_MODE_SPLIT} from '../config/TouchSettings.js'
+import {MODULE_NAME} from '../config/ModuleConstants.js'
 
 class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   constructor(canvas) {
@@ -14,15 +16,29 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   handleTouchMove(event) {
     this.updateActiveTouches(event)
 
-    if (Object.keys(this.touches).length === 2) {
-      // Two-finger touch move
-      this.handleTwoFingerGesture(event)
-    } else {
-      this.forwardTouches(event)
+    switch (Object.keys(this.touches).length) {
+      case 2:
+        if (this.useSplitGestures()) {
+          this.handleTwoFingerZoom(event)
+        } else {
+          this.handleTwoFingerZoomAndPan(event)
+        }
+        break
+
+      case 3:
+        if (this.useSplitGestures()) {
+          this.handleThreeFingerPan(event)
+        } else {
+          this.forwardTouches(event)
+        }
+        break
+
+      default:
+        this.forwardTouches(event)
     }
   }
 
-  handleTwoFingerGesture() {
+  handleTwoFingerZoomAndPan() {
     // Use the first two touch points for gestures
     const touchIds = Object.keys(this.touches)
     const firstTouch = this.touches[touchIds[0]]
@@ -48,6 +64,28 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
       y: worldCenter.y,
       zoom: zoomAfter
     })
+  }
+
+  handleTwoFingerZoom() {
+    const touchIds = Object.keys(this.touches)
+    const firstTouch = this.touches[touchIds[0]]
+    const secondTouch = this.touches[touchIds[1]]
+
+    FoundryCanvas.zoom(this.calcZoom(firstTouch, secondTouch))
+  }
+
+  handleThreeFingerPan() {
+    const touchIds = Object.keys(this.touches)
+    const adjustedTransform = FoundryCanvas.worldTransform
+    const panCorrection = Vectors.centerOf(
+      this.calcPanCorrection(adjustedTransform, this.touches[touchIds[0]]),
+      this.calcPanCorrection(adjustedTransform, this.touches[touchIds[1]]),
+      this.calcPanCorrection(adjustedTransform, this.touches[touchIds[2]]),
+    )
+    const centerBefore = FoundryCanvas.screenToWorld(Screen.center)
+    const worldCenter = Vectors.subtract(centerBefore, panCorrection)
+
+    FoundryCanvas.pan({ x: worldCenter.x, y: worldCenter.y })
   }
 
   calcZoom(firstTouch, secondTouch) {
@@ -85,6 +123,10 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
       pointerup: ['pointerup'],
       pointercancel: ['pointercancel'],
     }
+  }
+
+  useSplitGestures() {
+    return game.settings.get(MODULE_NAME, GESTURE_MODE_SETTING) === GESTURE_MODE_SPLIT
   }
 }
 

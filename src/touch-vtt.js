@@ -1,10 +1,11 @@
-import {MODULE_NAME} from './config/ModuleConstants.js'
+import {MODULE_DISPLAY_NAME} from './config/ModuleConstants.js'
 import CanvasTouchToMouseAdapter from './logic/CanvasTouchToMouseAdapter.js'
 import WindowHeaderTouchToMouseAdapter from './logic/WindowHeaderTouchToMouseAdapter.js'
 
 import '../style/touch-vtt.css'
 import {installMeasurementTemplateEraser, initMeasurementTemplateEraser} from './tools/MeasurementTemplateEraser.js'
 import {initWallTools, installWallToolsControls} from './tools/WallTools.js'
+import {registerTouchSettings} from './config/TouchSettings.js'
 
 function findCanvas() {
   return document.querySelector('canvas#board') ||
@@ -12,7 +13,7 @@ function findCanvas() {
     document.querySelector('canvas')
 }
 
-console.log(`${MODULE_NAME} booting ...`)
+console.log(`${MODULE_DISPLAY_NAME} booting ...`)
 
 Hooks.on('getSceneControlButtons', (controls) => {
   installMeasurementTemplateEraser(controls)
@@ -20,6 +21,7 @@ Hooks.on('getSceneControlButtons', (controls) => {
 })
 
 Hooks.once('init', () => {
+  registerTouchSettings()
   initMeasurementTemplateEraser()
   initWallTools()
 })
@@ -30,11 +32,11 @@ Hooks.on('ready', function () {
     if (canvas) {
       CanvasTouchToMouseAdapter.init(canvas)
       WindowHeaderTouchToMouseAdapter.init(document.body)
-      console.info(`${MODULE_NAME} started successfully.`)
+      console.info(`${MODULE_DISPLAY_NAME} started successfully.`)
     } else {
-      console.warn(`Failed to find canvas element. ${MODULE_NAME} will not be available.`)
+      console.warn(`Failed to find canvas element. ${MODULE_DISPLAY_NAME} will not be available.`)
     }
   } catch (e) {
-    console.error(`Failed to initialize ${MODULE_NAME}: `, e)
+    console.error(`Failed to initialize ${MODULE_DISPLAY_NAME}: `, e)
   }
 })

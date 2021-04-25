@@ -13,6 +13,10 @@ class FoundryCanvas {
     this.raw.pan({ x, y, scale: zoom })
   }
 
+  zoom(scale) {
+    this.raw.pan({ scale })
+  }
+
   get worldTransform() {
     return this.raw.stage.transform.worldTransform
   }
