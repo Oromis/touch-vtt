@@ -27,7 +27,7 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
 
       case 3:
       case 4:
-        this.handleThreeFingerPan(event)
+        this.handleMultiFingerPan(event)
         break
 
       default:
@@ -36,35 +36,37 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   handleTwoFingerZoomAndPan() {
-    if (!FoundryCanvas.isZoomAllowed() || !FoundryCanvas.isPanAllowed()) {
-      return
+    if (FoundryCanvas.isZoomAllowed() && FoundryCanvas.isPanAllowed()) {
+      // Use the first two touch points for gestures
+      const touchIds = this.touchIds
+      const firstTouch = this.touches[touchIds[0]]
+      const secondTouch = this.touches[touchIds[1]]
+
+      const zoomBefore = FoundryCanvas.worldTransform.a
+      const zoomAfter = this.calcZoom(firstTouch, secondTouch)
+      const zoomLevelChanges = MathUtils.roundToDecimals(zoomAfter, 2) !== zoomBefore
+
+      // There's some weirdness going on with how PIXI implements vectors / matrices: Zoom values are rounded to
+      // two decimal places. This messes with my calculations here, which is why I need the following line. I'm not
+      // entirely sure why it works, but it does work great :D
+      const adjustedZoom = zoomLevelChanges ? zoomBefore : zoomAfter
+      const adjustedTransform = FoundryCanvas.getWorldTransformWith({ zoom: adjustedZoom }, { discrete: true })
+      const correctionA = this.calcPanCorrection(adjustedTransform, firstTouch)
+      const correctionB = this.calcPanCorrection(adjustedTransform, secondTouch)
+      const panCorrection = Vectors.centerBetween(correctionA, correctionB)
+      const centerBefore = FoundryCanvas.screenToWorld(Screen.center)
+      const worldCenter = Vectors.subtract(centerBefore, panCorrection)
+
+      FoundryCanvas.pan({
+        x: worldCenter.x,
+        y: worldCenter.y,
+        zoom: zoomAfter
+      })
+    } else if (FoundryCanvas.isZoomAllowed()) {
+      this.handleTwoFingerZoom()
+    } else if (FoundryCanvas.isPanAllowed()) {
+      this.handleMultiFingerPan()
     }
-
-    // Use the first two touch points for gestures
-    const touchIds = this.touchIds
-    const firstTouch = this.touches[touchIds[0]]
-    const secondTouch = this.touches[touchIds[1]]
-
-    const zoomBefore = FoundryCanvas.worldTransform.a
-    const zoomAfter = this.calcZoom(firstTouch, secondTouch)
-    const zoomLevelChanges = MathUtils.roundToDecimals(zoomAfter, 2) !== zoomBefore
-
-    // There's some weirdness going on with how PIXI implements vectors / matrices: Zoom values are rounded to
-    // two decimal places. This messes with my calculations here, which is why I need the following line. I'm not
-    // entirely sure why it works, but it does work great :D
-    const adjustedZoom = zoomLevelChanges ? zoomBefore : zoomAfter
-    const adjustedTransform = FoundryCanvas.getWorldTransformWith({ zoom: adjustedZoom }, { discrete: true })
-    const correctionA = this.calcPanCorrection(adjustedTransform, firstTouch)
-    const correctionB = this.calcPanCorrection(adjustedTransform, secondTouch)
-    const panCorrection = Vectors.centerBetween(correctionA, correctionB)
-    const centerBefore = FoundryCanvas.screenToWorld(Screen.center)
-    const worldCenter = Vectors.subtract(centerBefore, panCorrection)
-
-    FoundryCanvas.pan({
-      x: worldCenter.x,
-      y: worldCenter.y,
-      zoom: zoomAfter
-    })
   }
 
   handleTwoFingerZoom() {
@@ -79,18 +81,28 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
     FoundryCanvas.zoom(this.calcZoom(firstTouch, secondTouch))
   }
 
-  handleThreeFingerPan() {
+  handleMultiFingerPan() {
     if (!FoundryCanvas.isPanAllowed()) {
       return
     }
 
     const touchIds = this.touchIds
     const adjustedTransform = FoundryCanvas.worldTransform
-    const panCorrection = Vectors.centerOf(
-      this.calcPanCorrection(adjustedTransform, this.touches[touchIds[0]]),
-      this.calcPanCorrection(adjustedTransform, this.touches[touchIds[1]]),
-      this.calcPanCorrection(adjustedTransform, this.touches[touchIds[2]]),
-    )
+
+    let panCorrection
+    if (touchIds.length === 2) {
+      panCorrection = Vectors.centerBetween(
+        this.calcPanCorrection(adjustedTransform, this.touches[touchIds[0]]),
+        this.calcPanCorrection(adjustedTransform, this.touches[touchIds[1]]),
+      )
+    } else {
+      panCorrection = Vectors.centerOf(
+        this.calcPanCorrection(adjustedTransform, this.touches[touchIds[0]]),
+        this.calcPanCorrection(adjustedTransform, this.touches[touchIds[1]]),
+        this.calcPanCorrection(adjustedTransform, this.touches[touchIds[2]]),
+      )
+    }
+
     const centerBefore = FoundryCanvas.screenToWorld(Screen.center)
     const worldCenter = Vectors.subtract(centerBefore, panCorrection)
 
