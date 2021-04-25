@@ -1,5 +1,8 @@
 import ObjectUtils from '../utils/ObjectUtils.js'
 import FoundryUser from './FoundryUser.js'
+import FoundryModules from './FoundryModules.js'
+
+const LOCK_VIEW_KEY = 'LockView'
 
 class FoundryCanvas {
   get raw() {
@@ -65,11 +68,23 @@ class FoundryCanvas {
   }
 
   isZoomAllowed() {
-    return FoundryUser.isGm || !this.raw.scene.getFlag('LockView', 'lockZoom')
+    if (FoundryUser.isGm) {
+      return true
+    }
+    if (!FoundryModules.isActive(LOCK_VIEW_KEY)) {
+      return true
+    }
+    return !this.raw.scene.getFlag(LOCK_VIEW_KEY, 'lockZoom')
   }
 
   isPanAllowed() {
-    return FoundryUser.isGm || !this.raw.scene.getFlag('LockView', 'lockPan')
+    if (FoundryUser.isGm) {
+      return true
+    }
+    if (!FoundryModules.isActive(LOCK_VIEW_KEY)) {
+      return true
+    }
+    return !this.raw.scene.getFlag(LOCK_VIEW_KEY, 'lockPan')
   }
 }
 
