@@ -31,6 +31,16 @@ incompatibility, please install and activate libWrapper.
 The [Lock View](https://foundryvtt.com/packages/LockView/) module is supported. Touch zooming and panning is disabled 
 when those features are locked in "Lock View".
 
+### Changelog
+
+- **1.3.0:** Added setting to split zoom and pan gestures. 3 and 4 finger gestures now always pan the map. Added compatibility with [Lock View](https://foundryvtt.com/packages/LockView/).
+- **1.2.3:** Added support for module compatibility library [libWrapper](https://foundryvtt.com/packages/lib-wrapper/)
+- **1.2.0:** Added support for wall tools
+- **1.1.0:** Added touch support for measurement templates
+- **1.0.0:** Initial release. Zooming & panning with 2 fingers, token movement
+
+### About
+
 Disclaimer: I also made the "Touch20" browser extension for Roll20, TouchVTT is my contribution to FoundryVTT.
 
 Feel free to suggest features and report bugs via Github issues!
