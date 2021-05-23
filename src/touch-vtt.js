@@ -6,6 +6,7 @@ import '../style/touch-vtt.css'
 import {installMeasurementTemplateEraser, initMeasurementTemplateEraser} from './tools/MeasurementTemplateEraser.js'
 import {initWallTools, installWallToolsControls} from './tools/WallTools.js'
 import {registerTouchSettings} from './config/TouchSettings.js'
+import {installSnapToGrid} from './tools/SnapToGridTool.js'
 
 function findCanvas() {
   return document.querySelector('canvas#board') ||
@@ -18,6 +19,7 @@ console.log(`${MODULE_DISPLAY_NAME} booting ...`)
 Hooks.on('getSceneControlButtons', (controls) => {
   installMeasurementTemplateEraser(controls)
   installWallToolsControls(controls)
+  installSnapToGrid(controls)
 })
 
 Hooks.once('init', () => {

@@ -2,6 +2,7 @@ import Touch from './Touch.js'
 import TouchContext from './TouchContext.js'
 import {fakeTouchEvent} from './FakeTouchEvent.js'
 import {idOf} from '../utils/EventUtils.js'
+import {isSnapToGridEnabled} from '../tools/SnapToGridTool.js'
 
 class TouchToMouseAdapter {
   constructor(element) {
@@ -82,7 +83,16 @@ class TouchToMouseAdapter {
 
   forwardTouch(event, touch) {
     if (touch.context.forwardsEvent(event)) {
-      fakeTouchEvent(event, touch, touch.context.mouseButton, this.getEventMap(), this.getEventTarget(event))
+      fakeTouchEvent(
+        event,
+        touch,
+        touch.context.mouseButton,
+        this.getEventMap(),
+        {
+          target: this.getEventTarget(event),
+          shiftKey: game.activeTool === 'select' && event.type === 'pointerup' && !isSnapToGridEnabled() ? true : null,
+        }
+      )
     }
   }
 

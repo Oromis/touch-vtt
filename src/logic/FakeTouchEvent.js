@@ -15,7 +15,7 @@ function bitCodeMouseButton(button) {
   }
 }
 
-export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, target = touch.target) {
+export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, { target = touch.target, shiftKey = null } = {}) {
   const mouseEventInitProperties = {
     clientX: touch.current ? touch.current.x : touch.clientX,
     clientY: touch.current ? touch.current.y : touch.clientY,
@@ -23,7 +23,7 @@ export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, targe
     screenY: touch.screenY,
     ctrlKey: originalEvent.ctrlKey || false,
     altKey: originalEvent.altKey || false,
-    shiftKey: originalEvent.shiftKey || false,
+    shiftKey: shiftKey || originalEvent.shiftKey || false,
     metaKey: originalEvent.metaKey || false,
     button: mouseButton,
     buttons: bitCodeMouseButton(mouseButton),
@@ -75,7 +75,7 @@ function trackActivePointers(type, touch, mouseButton) {
   }
 }
 
-export function fakeTouchEvent(originalEvent, touch, mouseButton, eventMap, target = null) {
+export function fakeTouchEvent(originalEvent, touch, mouseButton, eventMap, { target = null, shiftKey = null } = {}) {
   if (originalEvent == null || typeof originalEvent !== 'object') {
     console.warn(`Passed invalid event argument to fakeTouchEvent: ${originalEvent}`)
     return
@@ -86,7 +86,7 @@ export function fakeTouchEvent(originalEvent, touch, mouseButton, eventMap, targ
     console.warn(`Unmapped event type detected: ${originalEvent.type}`)
   } else {
     for (const type of types) {
-      dispatchFakeEvent(originalEvent, touch, mouseButton, type, target || touch.target)
+      dispatchFakeEvent(originalEvent, touch, mouseButton, type, { target: target || touch.target, shiftKey })
     }
   }
 }

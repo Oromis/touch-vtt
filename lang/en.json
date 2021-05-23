@@ -3,5 +3,6 @@
   "TOUCHVTT.ToggleWallChain": "Toggle Wall Chaining",
   "TOUCHVTT.UndoWall": "Undo Last Wall",
   "TOUCHVTT.DeleteWall": "Delete Selected Wall",
-  "TOUCHVTT.BigButton": "Make tool buttons bigger"
+  "TOUCHVTT.BigButton": "Make tool buttons bigger",
+  "TOUCHVTT.SnapToGrid": "Snap Tokens to Grid"
 }
