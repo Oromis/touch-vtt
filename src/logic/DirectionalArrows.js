@@ -37,11 +37,9 @@ function addArrow(parent, angle) {
     </div>`
   )
   arrow.on('click', () => {
-    if (canvas.hud.token.object != null) {
-      const activeToken = getActiveToken()
-      if (activeToken != null) {
-        activeToken.rotate((angle + 180) % 360)
-      }
+    const activeToken = getActiveToken()
+    if (canControl(activeToken)) {
+      activeToken.rotate((angle + 180) % 360)
     }
   })
   parent.prepend(arrow)
@@ -59,4 +57,10 @@ function getActiveToken() {
 
 function areDirectionalArrowsEnabled() {
   return game.settings.get(MODULE_NAME, DIRECTIONAL_ARROWS_SETTING) === DIRECTIONAL_ARROWS_ON
+}
+
+function canControl(token) {
+  return token != null &&
+    typeof token._canDrag === 'function' &&
+    token._canDrag()
 }
