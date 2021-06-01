@@ -8,3 +8,30 @@
     width: 34px;
     height: 34px;
 }
+
+.directional-arrow {
+    position: absolute;
+}
+
+.directional-arrow.directional-arrow-0 { top: -16px; transform: translate(0, -100%); }
+
+.directional-arrow.directional-arrow-45 { top: 0; right: 0; transform: translate(100%, -100%); }
+.directional-arrow.directional-arrow-45 > i { transform: rotate(45deg); }
+
+.directional-arrow.directional-arrow-90 { right: 0; transform: translate(100%, 0); }
+.directional-arrow.directional-arrow-90 > i { transform: rotate(90deg); }
+
+.directional-arrow.directional-arrow-135 { bottom: 0; right: 0; transform: translate(100%, 100%); }
+.directional-arrow.directional-arrow-135 > i { transform: rotate(135deg); }
+
+.directional-arrow.directional-arrow-180 { bottom: -16px; transform: translate(0, 100%); }
+.directional-arrow.directional-arrow-180 > i { transform: rotate(180deg); }
+
+.directional-arrow.directional-arrow-225 { bottom: 0; left: 0; transform: translate(-100%, 100%); }
+.directional-arrow.directional-arrow-225 > i { transform: rotate(225deg); }
+
+.directional-arrow.directional-arrow-270 { left: 0; transform: translate(-100%, 0); }
+.directional-arrow.directional-arrow-270 > i { transform: rotate(270deg); }
+
+.directional-arrow.directional-arrow-315 { top: 0; left: 0; transform: translate(-100%, -100%); }
+.directional-arrow.directional-arrow-315 > i { transform: rotate(315deg); }

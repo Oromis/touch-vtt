@@ -4,5 +4,13 @@
   "TOUCHVTT.UndoWall": "Undo Last Wall",
   "TOUCHVTT.DeleteWall": "Delete Selected Wall",
   "TOUCHVTT.BigButton": "Make tool buttons bigger",
-  "TOUCHVTT.SnapToGrid": "Snap Tokens to Grid"
+  "TOUCHVTT.SnapToGrid": "Snap Tokens to Grid",
+  "TOUCHVTT.Rotate0": "Rotate Up",
+  "TOUCHVTT.Rotate45": "Rotate Up-Right",
+  "TOUCHVTT.Rotate90": "Rotate Right",
+  "TOUCHVTT.Rotate135": "Rotate Down-Right",
+  "TOUCHVTT.Rotate180": "Rotate Down",
+  "TOUCHVTT.Rotate225": "Rotate Down-Left",
+  "TOUCHVTT.Rotate270": "Rotate Left",
+  "TOUCHVTT.Rotate315": "Rotate Up-Left"
 }

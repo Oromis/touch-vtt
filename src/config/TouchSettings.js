@@ -4,6 +4,10 @@ export const GESTURE_MODE_SETTING = "gestureMode"
 export const GESTURE_MODE_COMBINED = "combined"
 export const GESTURE_MODE_SPLIT = "split"
 
+export const DIRECTIONAL_ARROWS_SETTING = "directionalArrows"
+export const DIRECTIONAL_ARROWS_OFF = "off"
+export const DIRECTIONAL_ARROWS_ON = "on"
+
 export function registerTouchSettings() {
   game.settings.register(MODULE_NAME, GESTURE_MODE_SETTING, {
     name: "Zoom / Pan Gestures",
@@ -16,8 +20,18 @@ export function registerTouchSettings() {
       [GESTURE_MODE_SPLIT]: "Zoom with 2 fingers, pan with 3 fingers",
     },
     default: GESTURE_MODE_COMBINED,
-    onChange: value => {
-      console.log(value)
-    }
+  })
+
+  game.settings.register(MODULE_NAME, DIRECTIONAL_ARROWS_SETTING, {
+    name: "Direction arrows in Token HUD",
+    hint: "Enables / disables the addition of arrow buttons used to rotate a token in the token's right-click menu",
+    scope: "client",
+    config: true,
+    type: String,
+    choices: {
+      [DIRECTIONAL_ARROWS_ON]: "On",
+      [DIRECTIONAL_ARROWS_OFF]: "Off",
+    },
+    default: DIRECTIONAL_ARROWS_ON,
   })
 }

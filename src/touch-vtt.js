@@ -7,6 +7,7 @@ import {installMeasurementTemplateEraser, initMeasurementTemplateEraser} from '.
 import {initWallTools, installWallToolsControls} from './tools/WallTools.js'
 import {registerTouchSettings} from './config/TouchSettings.js'
 import {installSnapToGrid} from './tools/SnapToGridTool.js'
+import {initDirectionalArrows} from './logic/DirectionalArrows'
 
 function findCanvas() {
   return document.querySelector('canvas#board') ||
@@ -24,6 +25,7 @@ Hooks.on('getSceneControlButtons', (controls) => {
 
 Hooks.once('init', () => {
   registerTouchSettings()
+  initDirectionalArrows()
   initMeasurementTemplateEraser()
   initWallTools()
 })
