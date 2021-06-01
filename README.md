@@ -8,6 +8,7 @@ Features:
    in the settings (use three fingers to pan if you change this).
  - Move tokens by dragging them with your finger - just as you would with the mouse
  - Move three fingers around on the canvas to pan the scene - no zooming in this mode.
+ - Rotate tokens using the (optional) directional buttons added to the token right-click menu (HUD)
  - Need to right-click to access the corresponding functionality on a game world entity? Just long-press (0.5s) 
     with your finger.
  - Move windows around and interact with their content intuitively
