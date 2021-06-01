@@ -1,42 +1,9 @@
 import {wrapMethod} from '../utils/Injection.js'
-import {MODULE_NAME} from '../config/ModuleConstants.js'
 
-const STYLE_ID = `${MODULE_NAME}-bug_button_styles`
-const largeButtonStyle = `
-#controls .scene-control, #controls .control-tool {
-    width: 50px;
-    height: 50px;
-    line-height: 50px;
-    font-size: 28px;
-}
-#controls .control-tools {
-    left: 72px;
-}
-`
 // Local storage for GUI toggles, since they shouldn't be saved over reloads
 let chainingActive = false
-let largeButtons = false
 
-function createStyleElement() {
-  const style = document.createElement('style')
-  style.setAttribute('id', STYLE_ID)
-  document.head.append(style)
-  return style
-}
-
-function updateButtonSize(button_size) {
-  const style = document.getElementById(STYLE_ID)
-  if (style != null) {
-    if (button_size) {
-      style.innerText = largeButtonStyle
-    } else {
-      style.innerText = ''
-    }
-  }
-}
-
-
-function registerSettings() { // Monkey patch click function to force this._chain when chainingActive is set
+function installChainingHook() { // Monkey patch click function to force this._chain when chainingActive is set
   wrapMethod('WallsLayer.prototype._onClickLeft', function(callOriginal, ...args) {
     const result = callOriginal(...args)
     if (chainingActive) {
@@ -71,21 +38,9 @@ export function installWallToolsControls(menuStructure) {
     icon: 'fas fa-eraser',
     button: true,
     onClick: () => canvas.getLayer('WallsLayer')._onDeleteKey()
-  }, {
-    // This likely needs to move someplace else, but it's a useful touchscreen feature.
-    name: 'big',
-    title: 'TOUCHVTT.BigButton',
-    icon: 'fas fa-expand-alt',
-    visible: true,
-    toggle: true,
-    active: largeButtons,
-    onClick: toggled => {
-      updateButtonSize(toggled)
-    }
   })
 }
 
 export function initWallTools() {
-  createStyleElement()
-  registerSettings()
+  installChainingHook()
 }
