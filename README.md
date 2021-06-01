@@ -22,6 +22,35 @@ Primary use cases:
  - You and your group play in person and you want to use Foundry to visualize gameplay - just put a touchscreen 
    device in the middle of the table, install TouchVTT and you'll be good to go!
  - You like playing on your couch where a touch device is just so much more convenient than a laptop
+ 
+### Settings
+
+![TouchVTT Module Settings Screenshot](docs/module-settings.jpg)
+
+#### Zoom / Pan Gestures
+
+- **Zoom & Pan with 2 fingers:** Combined zooming and panning behavior. Should feel most natural and is thus the 
+    default. Due to the varying accuracy of touch sensors, you may experience some jittering while moving the 
+    camera using this mode - the less accurate your touch sensor, the more jitter you will have.
+- **Zoom with 2 fingers, pan with 3 fingers:** Pinch 2 fingers to zoom, move 3 fingers on the canvas to pan. 
+    Use this if you experience issues with the default mode (or just use if because you like it better :) )
+
+#### Direction arrows in HUD
+
+- **On:** Shows arrow buttons in a token's HUD (right-click menu) allowing users to change the direction the token 
+    is facing without the use of a keyboard:
+    ![Directional Arrows Screenshot](docs/directional-controls.png)
+- **Off:** Disables the above-mentioned arrows, shows the default token HUD
+
+This is a drop-down setting instead of a checkbox because there might be other methods to change token direction 
+in the future.
+
+#### Enlarge buttons in on-screen UI
+
+- **Checked:** Makes buttons in the left-hand menu structure easier to hit by making them larger:
+    ![Large Buttons Screenshot](docs/large-buttons.jpg)
+- **Unchecked:** Default button size
+    ![Small Buttons Screenshot](docs/small-buttons.jpg)
 
 ### Compatibility with other modules
 
