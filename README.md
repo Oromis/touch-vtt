@@ -34,6 +34,7 @@ when those features are locked in "Lock View".
 
 ### Changelog
 
+- **1.5.1:** Fixed players being able to rotate their token while the game is paused. Moved enlarge buttons feature from wall tools menu to module settings.
 - **1.5.0:** Added arrow buttons to the token HUD, allowing touchscreen users to rotate their token (long-press the token to activate the HUD). Added missing translation files.
 - **1.4.0:** Added snap-to-grid toggle for token movement controls
 - **1.3.1:** Fixed bug with compatibility between TouchVTT and LockView
