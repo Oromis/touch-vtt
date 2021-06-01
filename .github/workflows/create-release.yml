@@ -23,7 +23,7 @@ jobs:
         run: |
           npm install
           npm run build
-          zip touch-vtt.zip dist/touch-vtt.js dist/touch-vtt.css module.json
+          zip touch-vtt.zip module.json dist/* lang/*
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1

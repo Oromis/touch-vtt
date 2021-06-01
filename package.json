@@ -4,7 +4,7 @@
   "description": "Adds touch support to FoundryVTT",
   "main": "src/touch-vtt.js",
   "scripts": {
-    "build": "webpack --config webpack.config.js",
+    "build": "webpack --config webpack.config.js --mode production",
     "dev": "webpack --config webpack.config.js --watch --mode development --devtool inline-cheap-module-source-map",
     "version": "node automation/release.js && git add module.json",
     "postversion": "git push && git push --tags",
@@ -24,9 +24,9 @@
   },
   "homepage": "https://github.com/Oromis/touch-vtt#readme",
   "devDependencies": {
-    "css-loader": "^5.0.1",
-    "mini-css-extract-plugin": "^1.3.1",
-    "webpack": "^5.6.0",
-    "webpack-cli": "^4.2.0"
+    "css-loader": "^5.2.6",
+    "mini-css-extract-plugin": "^1.6.0",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0"
   }
 }
