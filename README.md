@@ -16,6 +16,7 @@ Features:
     adds an eraser tool to the measurement templates menu that can be used with touch controls. First tap 
     the eraser tool, then tap the template you want to remove.
  - Additional wall placement tools that work with touch controls
+ - Enlarge the menu buttons (on the left) to make them easier to use with touch controls
 
 Primary use cases:
  - You and your group play in person and you want to use Foundry to visualize gameplay - just put a touchscreen 
