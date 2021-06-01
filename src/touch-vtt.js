@@ -9,6 +9,7 @@ import {registerTouchSettings} from './config/TouchSettings.js'
 import {installSnapToGrid} from './tools/SnapToGridTool.js'
 import {initDirectionalArrows} from './logic/DirectionalArrows'
 import {initEnlargeButtonTool} from './tools/EnlargeButtonsTool'
+import {installDrawingToolsControls} from './tools/DrawingTools'
 
 function findCanvas() {
   return document.querySelector('canvas#board') ||
@@ -21,6 +22,7 @@ console.log(`${MODULE_DISPLAY_NAME} booting ...`)
 Hooks.on('getSceneControlButtons', (controls) => {
   installMeasurementTemplateEraser(controls)
   installWallToolsControls(controls)
+  installDrawingToolsControls(controls)
   installSnapToGrid(controls)
 })
 

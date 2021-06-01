@@ -15,6 +15,7 @@ function installChainingHook() { // Monkey patch click function to force this._c
 
 export function installWallToolsControls(menuStructure) {
   const wallCategory = menuStructure.find(c => c.name === 'walls')
+  if (wallCategory == null || !Array.isArray(wallCategory.tools)) return
 
   wallCategory.tools.push({
     // Simulates holding ctrl while drawing walls
