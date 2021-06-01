@@ -33,6 +33,7 @@ when those features are locked in "Lock View".
 
 ### Changelog
 
+- **1.5.0:** Added arrow buttons to the token HUD, allowing touchscreen users to rotate their token (long-press the token to activate the HUD). Added missing translation files.
 - **1.4.0:** Added snap-to-grid toggle for token movement controls
 - **1.3.1:** Fixed bug with compatibility between TouchVTT and LockView
 - **1.3.0:** Added setting to split zoom and pan gestures. 3 and 4 finger gestures now always pan the map. Added compatibility with [Lock View](https://foundryvtt.com/packages/LockView/).
