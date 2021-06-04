@@ -41,8 +41,8 @@ Hooks.on('ready', function () {
   try {
     const canvas = findCanvas()
     if (canvas) {
-      initMeasurementHud()
-      CanvasTouchToMouseAdapter.init(canvas)
+      const canvasTouchToMouseAdapter = CanvasTouchToMouseAdapter.init(canvas)
+      initMeasurementHud({ canvasTouchToMouseAdapter })
       WindowHeaderTouchToMouseAdapter.init(document.body)
       console.info(`${MODULE_DISPLAY_NAME} started successfully.`)
     } else {

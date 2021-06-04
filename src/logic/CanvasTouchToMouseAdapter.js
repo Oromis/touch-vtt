@@ -11,10 +11,16 @@ import {MODULE_NAME} from '../config/ModuleConstants.js'
 class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   constructor(canvas) {
     super(canvas)
+
+    this._forceForward = false
   }
 
   handleTouchMove(event) {
     this.updateActiveTouches(event)
+
+    if (this._forceForward) {
+      return this.forwardTouches(event)
+    }
 
     switch (this.touchIds.length) {
       case 2:
@@ -148,6 +154,14 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
 
   useSplitGestures() {
     return game.settings.get(MODULE_NAME, GESTURE_MODE_SETTING) === GESTURE_MODE_SPLIT
+  }
+
+  disableGestures() {
+    this._forceForward = true
+  }
+
+  enableGestures() {
+    this._forceForward = false
   }
 }
 

@@ -3,9 +3,10 @@ import {wrapMethod} from '../utils/Injection'
 import FoundryCanvas from '../foundryvtt/FoundryCanvas'
 
 class TouchMeasurementHud extends Application {
-  constructor() {
+  constructor({ canvasTouchToMouseAdapter }) {
     super()
 
+    this._canvasTouchToMouseAdapter = canvasTouchToMouseAdapter
     this._screenPosition = {}
   }
 
@@ -47,8 +48,10 @@ class TouchMeasurementHud extends Application {
     if (this._state <= states.NONE) {
       await this.render(true)
     } else {
-      await this.render(true)
+      await this.render(false)
     }
+
+    this._canvasTouchToMouseAdapter.disableGestures()
   }
 
   clear() {
@@ -58,16 +61,22 @@ class TouchMeasurementHud extends Application {
 
     this.element.hide()
     this._state = states.NONE
+
+    this._canvasTouchToMouseAdapter.enableGestures()
   }
 
   setScreenPosition({top, left}) {
     this._screenPosition = { top, left }
   }
+
+  get isActive() {
+    return this._state > this.constructor.RENDER_STATES.NONE
+  }
 }
 
-export function initMeasurementHud() {
+export function initMeasurementHud({ canvasTouchToMouseAdapter }) {
   if (canvas.hud.touchMeasurement == null) {
-    canvas.hud.touchMeasurement = new TouchMeasurementHud()
+    canvas.hud.touchMeasurement = new TouchMeasurementHud({ canvasTouchToMouseAdapter })
 
     wrapMethod('Ruler.prototype.measure', function (wrapped, ...args) {
       const segments = wrapped.call(this, ...args)
