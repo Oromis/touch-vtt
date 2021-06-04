@@ -9,6 +9,7 @@ Features:
  - Move tokens by dragging them with your finger - just as you would with the mouse
  - Move three fingers around on the canvas to pan the scene - no zooming in this mode.
  - Rotate tokens using the (optional) directional buttons added to the token right-click menu (HUD)
+ - Target hostile tokens quickly by tapping them.
  - Need to right-click to access the corresponding functionality on a game world entity? Just long-press (0.5s) 
     with your finger.
  - Move windows around and interact with their content intuitively
@@ -45,6 +46,12 @@ Primary use cases:
 This is a drop-down setting instead of a checkbox because there might be other methods to change token direction 
 in the future.
 
+#### Targeting behavior
+
+- **Off:** Targeting is unchanged from how FoundryVTT handles it natively
+- **Allow single target:** Tap a token you don't own to target it. Other targets will be released. Tap this token or any other token again to un-target it.
+- **Allow multiple targets:** Tap a token you don't own to target it in addition to any other targets you selected. Tap this token again to un-target it.
+
 #### Enlarge buttons in on-screen UI
 
 - **Checked:** Makes buttons in the left-hand menu structure easier to hit by making them larger:
@@ -64,6 +71,7 @@ when those features are locked in "Lock View".
 
 ### Changelog
 
+- **1.7.0:** Added ability to target unowned tokens by simply tapping them with your finger.
 - **1.6.0:** Added button to delete the currently selected drawing.
 - **1.5.1:** Fixed players being able to rotate their token while the game is paused. Moved enlarge buttons feature from wall tools menu to module settings.
 - **1.5.0:** Added arrow buttons to the token HUD, allowing touchscreen users to rotate their token (long-press the token to activate the HUD). Added missing translation files.
