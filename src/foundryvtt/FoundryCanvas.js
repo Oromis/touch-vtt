@@ -33,6 +33,10 @@ class FoundryCanvas {
     return this.worldTransform.apply({ x, y })
   }
 
+  worldToScreenLength(length) {
+    return this.worldTransform.apply({ x: length, y: 0 }).x - this.worldTransform.apply({ x: 0, y: 0 }).x
+  }
+
   getWorldTransformWith({ zoom }, { discrete = true } = {}) {
     const copy = ObjectUtils.cloneObject(this.worldTransform)
     if (discrete) {
@@ -42,6 +46,10 @@ class FoundryCanvas {
     // No rotation => we can just assign the zoom level to the matrix' diagonal
     copy.a = copy.d = zoom
     return copy
+  }
+
+  get gridSize() {
+    return this.raw.grid.size
   }
 
   toRelativeCoordinates({ x, y }) {

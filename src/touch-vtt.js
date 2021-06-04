@@ -11,6 +11,7 @@ import {initDirectionalArrows} from './logic/DirectionalArrows'
 import {initEnlargeButtonTool} from './tools/EnlargeButtonsTool'
 import {installDrawingToolsControls} from './tools/DrawingTools'
 import {initEasyTarget} from './logic/EasyTarget'
+import {initMeasurementHud} from './tools/MeasurementHud'
 
 function findCanvas() {
   return document.querySelector('canvas#board') ||
@@ -40,6 +41,7 @@ Hooks.on('ready', function () {
   try {
     const canvas = findCanvas()
     if (canvas) {
+      initMeasurementHud()
       CanvasTouchToMouseAdapter.init(canvas)
       WindowHeaderTouchToMouseAdapter.init(document.body)
       console.info(`${MODULE_DISPLAY_NAME} started successfully.`)
