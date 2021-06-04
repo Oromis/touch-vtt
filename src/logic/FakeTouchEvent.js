@@ -52,6 +52,8 @@ export function dispatchFakeEvent(originalEvent, touch, mouseButton, type, { tar
     simulatedEvent = new PointerEvent(type, pointerEventInit)
   }
 
+  simulatedEvent.originType = 'touch'
+
   // trackActivePointers(type, touch, mouseButton)
   target.dispatchEvent(simulatedEvent)
 }

@@ -121,9 +121,16 @@ export function initMeasurementHud({ canvasTouchToMouseAdapter }) {
   if (canvas.hud.touchMeasurement == null) {
     canvas.hud.touchMeasurement = new TouchMeasurementHud({ canvasTouchToMouseAdapter })
 
-    wrapMethod('Ruler.prototype.measure', function (wrapped, ...args) {
-      const segments = wrapped.call(this, ...args)
-      if (isOwnRuler(this) && isEnabled()) {
+    wrapMethod('Ruler.prototype._onMouseMove', function (wrapped, event, ...args) {
+      if (event.data != null && event.data.destination != null) {
+        event.data.destination.originType = event.data?.originalEvent?.originType
+      }
+      return wrapped.call(this, event, ...args)
+    })
+
+    wrapMethod('Ruler.prototype.measure', function (wrapped, destination, ...args) {
+      const segments = wrapped.call(this, destination, ...args)
+      if (isOwnRuler(this) && isEnabled() && destination?.originType === 'touch') {
         if (Array.isArray(segments) && segments.length > 0) {
           const lastSegment = segments[segments.length - 1]
           canvas.hud.touchMeasurement.show(lastSegment.ray.B)
