@@ -12,28 +12,28 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   constructor(canvas) {
     super(canvas)
 
-    this._forceForward = false
+    this._gesturesEnabled = true
   }
 
   handleTouchMove(event) {
     this.updateActiveTouches(event)
 
-    if (this._forceForward) {
-      return this.forwardTouches(event)
-    }
-
     switch (this.touchIds.length) {
       case 2:
-        if (this.useSplitGestures()) {
-          this.handleTwoFingerZoom(event)
-        } else {
-          this.handleTwoFingerZoomAndPan(event)
+        if (this._gesturesEnabled) {
+          if (this.useSplitGestures()) {
+            this.handleTwoFingerZoom(event)
+          } else {
+            this.handleTwoFingerZoomAndPan(event)
+          }
         }
         break
 
       case 3:
       case 4:
-        this.handleMultiFingerPan(event)
+        if (this._gesturesEnabled) {
+          this.handleMultiFingerPan(event)
+        }
         break
 
       default:
@@ -157,11 +157,17 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   disableGestures() {
-    this._forceForward = true
+    if (this._gesturesEnabled) {
+      console.log('Disabling gestures...')
+    }
+    this._gesturesEnabled = false
   }
 
   enableGestures() {
-    this._forceForward = false
+    if (!this._gesturesEnabled) {
+      console.log('Enabling gestures...')
+    }
+    this._gesturesEnabled = true
   }
 }
 

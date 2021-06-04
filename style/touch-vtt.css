@@ -45,5 +45,11 @@
     height: auto;
     width: auto;
     background: none;
-    transform: translate()
+}
+
+#touch-measurement-hud .waypoint {
+    transform: rotate(-90deg);
+    width: 60px;
+    flex-basis: 60px;
+    line-height: 60px;
 }
