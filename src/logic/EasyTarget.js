@@ -5,7 +5,7 @@ import {EASY_TARGET_OFF, EASY_TARGET_SETTING, EASY_TARGET_SINGLE} from '../confi
 export function initEasyTarget() {
   wrapMethod('MouseInteractionManager.prototype._handleClickLeft', function (originalMethod, event, ...args) {
     const token = event.currentTarget
-    if (isEasyTargetEnabled() && isSelectToolActive() && token instanceof Token && isUnownedToken(this, token)) {
+    if (isEasyTargetEnabled() && isSelectToolActive() && token instanceof Token && isUnownedToken(this, event)) {
       // The user usually cannot click this token => we'll select it
       targetToken(token)
     } else {
