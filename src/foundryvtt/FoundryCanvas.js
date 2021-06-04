@@ -94,6 +94,11 @@ class FoundryCanvas {
     }
     return !this.raw.scene.getFlag(LOCK_VIEW_KEY, 'lockPan')
   }
+
+  get ruler() {
+    const layer = canvas && canvas.getLayer('ControlsLayer')
+    return layer && layer.ruler
+  }
 }
 
 export default new FoundryCanvas()

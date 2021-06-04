@@ -1,8 +1,15 @@
 <div
-    id="{{id}}" style="top: {{top}}px; left: {{left}}px; transform: translate({{offsetX}}px, -140%)"
+    id="{{id}}" style="top: {{top}}px; left: {{left}}px; transform: translate({{offsetX}}px, calc(-100% - 20px))"
     class="placeable-hud"
 >
-    <div class="control-icon waypoint">
-        <i class="fas fa-shoe-prints"></i>
-    </div>
+    {{#if showMove}}
+        <div class="control-icon move">
+            <i class="fas fa-shoe-prints"></i>
+        </div>
+    {{/if}}
+    {{#if showRuler}}
+        <div class="control-icon waypoint">
+            <i class="fas fa-flag"></i>
+        </div>
+    {{/if}}
 </div>

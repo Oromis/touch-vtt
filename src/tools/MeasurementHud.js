@@ -1,12 +1,14 @@
 import {MODULE_NAME} from '../config/ModuleConstants'
 import {wrapMethod} from '../utils/Injection'
 import FoundryCanvas from '../foundryvtt/FoundryCanvas'
+import Vectors from '../logic/Vectors.js'
 
 class TouchMeasurementHud extends Application {
   constructor({ canvasTouchToMouseAdapter }) {
     super()
 
     this._canvasTouchToMouseAdapter = canvasTouchToMouseAdapter
+    this._worldPosition = null
     this._screenPosition = {}
   }
 
@@ -34,10 +36,29 @@ class TouchMeasurementHud extends Application {
     data.top = this._screenPosition.top
     data.left = this._screenPosition.left
     data.offsetX = FoundryCanvas.worldToScreenLength(FoundryCanvas.gridSize) * 0.75
+    data.showRuler = !Vectors.isEqual(this._worldPosition ?? {}, this.lastWaypoint)
+    data.showMove = this.canMoveToken()
     return data
   }
 
+  activateListeners(html) {
+    html.find('.waypoint').on('pointerdown', () => {
+      const ruler = FoundryCanvas.ruler
+      if (ruler != null && typeof ruler._addWaypoint === 'function') {
+        ruler._addWaypoint(this._worldPosition)
+      }
+    })
+
+    html.find('.move').on('pointerdown', () => {
+      const ruler = FoundryCanvas.ruler
+      if (ruler != null && typeof ruler.moveToken === 'function') {
+        ruler.moveToken()
+      }
+    })
+  }
+
   async show(worldPosition) {
+    this._worldPosition = worldPosition
     const screenPosition = FoundryCanvas.worldToScreen(worldPosition)
     this.setScreenPosition({
       left: screenPosition.x,
@@ -45,11 +66,7 @@ class TouchMeasurementHud extends Application {
     })
 
     const states = this.constructor.RENDER_STATES
-    if (this._state <= states.NONE) {
-      await this.render(true)
-    } else {
-      await this.render(false)
-    }
+    await this.render(this._state <= states.NONE)
 
     this._canvasTouchToMouseAdapter.disableGestures()
   }
@@ -69,8 +86,22 @@ class TouchMeasurementHud extends Application {
     this._screenPosition = { top, left }
   }
 
-  get isActive() {
-    return this._state > this.constructor.RENDER_STATES.NONE
+  get lastWaypoint() {
+    const ruler = FoundryCanvas.ruler
+    return (ruler && ruler.waypoints[ruler.waypoints.length - 1]) ?? {}
+  }
+
+  canMoveToken() {
+    const ruler = FoundryCanvas.ruler
+    if (ruler == null) {
+      return false
+    }
+    if (game.paused && !game.user.isGM) {
+      ui.notifications.warn("GAME.PausedWarning", {localize: true})
+      return false
+    }
+    if (!ruler.visible || !ruler.destination) return false
+    return ruler._getMovementToken() != null
   }
 }
 
@@ -80,19 +111,27 @@ export function initMeasurementHud({ canvasTouchToMouseAdapter }) {
 
     wrapMethod('Ruler.prototype.measure', function (wrapped, ...args) {
       const segments = wrapped.call(this, ...args)
-      if (Array.isArray(segments) && segments.length > 0) {
-        const lastSegment = segments[segments.length - 1]
-        canvas.hud.touchMeasurement.show(lastSegment.ray.B)
-      } else {
-        canvas.hud.touchMeasurement.clear()
+      if (isOwnRuler(this)) {
+        if (Array.isArray(segments) && segments.length > 0) {
+          const lastSegment = segments[segments.length - 1]
+          canvas.hud.touchMeasurement.show(lastSegment.ray.B)
+        } else {
+          canvas.hud.touchMeasurement.clear()
+        }
       }
       return segments
     })
 
     wrapMethod('Ruler.prototype.clear', function (wrapped, ...args) {
       const superResult = wrapped.call(this, ...args)
-      canvas.hud.touchMeasurement.clear()
+      if (isOwnRuler(this)) {
+        canvas.hud.touchMeasurement.clear()
+      }
       return superResult
     })
   }
+}
+
+function isOwnRuler(ruler) {
+  return FoundryCanvas.ruler === ruler
 }

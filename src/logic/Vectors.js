@@ -85,6 +85,10 @@ class Vectors {
       y: Math.abs(vector.y),
     }
   }
+
+  isEqual(a, b) {
+    return a.x === b.x && a.y === b.y
+  }
 }
 
 export default new Vectors()
