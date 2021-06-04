@@ -71,6 +71,7 @@ when those features are locked in "Lock View".
 
 ### Changelog
 
+- **1.7.1:** Restricted targeting to the select tool
 - **1.7.0:** Added ability to target unowned tokens by simply tapping them with your finger.
 - **1.6.0:** Added button to delete the currently selected drawing.
 - **1.5.1:** Fixed players being able to rotate their token while the game is paused. Moved enlarge buttons feature from wall tools menu to module settings.
