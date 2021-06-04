@@ -10,6 +10,7 @@ import {installSnapToGrid} from './tools/SnapToGridTool.js'
 import {initDirectionalArrows} from './logic/DirectionalArrows'
 import {initEnlargeButtonTool} from './tools/EnlargeButtonsTool'
 import {installDrawingToolsControls} from './tools/DrawingTools'
+import {initEasyTarget} from './logic/EasyTarget'
 
 function findCanvas() {
   return document.querySelector('canvas#board') ||
@@ -32,6 +33,7 @@ Hooks.once('init', () => {
   initDirectionalArrows()
   initMeasurementTemplateEraser()
   initWallTools()
+  initEasyTarget()
 })
 
 Hooks.on('ready', function () {
