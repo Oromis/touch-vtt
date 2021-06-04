@@ -10,6 +10,7 @@ Features:
  - Move three fingers around on the canvas to pan the scene - no zooming in this mode.
  - Rotate tokens using the (optional) directional buttons added to the token right-click menu (HUD)
  - Target hostile tokens quickly by tapping them.
+ - Use your ruler with waypoints and move your token along the measured path using a Touch-Only UI
  - Need to right-click to access the corresponding functionality on a game world entity? Just long-press (0.5s) 
     with your finger.
  - Move windows around and interact with their content intuitively
@@ -52,6 +53,15 @@ in the future.
 - **Allow single target:** Tap a token you don't own to target it. Other targets will be released. Tap this token or any other token again to un-target it.
 - **Allow multiple targets:** Tap a token you don't own to target it in addition to any other targets you selected. Tap this token again to un-target it.
 
+#### Measurement HUD
+
+- **Off:** No touch UI for setting ruler waypoints or moving your token along a measured path
+- **Show right:** Shows a touch-friendly UI to the top-right of where you currently drag your ruler. 
+    Use another finger to set waypoints (Flag icon) or to move your token (footprints icon). Recommended for right-handed people.
+- **Show left:** Same as `Show right`, just on the left-hand side, optimized for left-handed people.
+
+![Measurement HUD Screenshot](docs/measurement-hud.jpg)
+
 #### Enlarge buttons in on-screen UI
 
 - **Checked:** Makes buttons in the left-hand menu structure easier to hit by making them larger:
@@ -71,6 +81,7 @@ when those features are locked in "Lock View".
 
 ### Changelog
 
+- **1.8.0:** Added a Measurement HUD, a UI for the ruler allowing touch-based creation of waypoints and moving tokens along a measured path.
 - **1.7.2:** Fixed not being able to move tokens as a GM due to a conflict with the EasyTarget module
 - **1.7.1:** Restricted targeting to the select tool
 - **1.7.0:** Added ability to target unowned tokens by simply tapping them with your finger.
