@@ -71,6 +71,7 @@ when those features are locked in "Lock View".
 
 ### Changelog
 
+- **1.7.2:** Fixed not being able to move tokens as a GM due to a conflict with the EasyTarget module
 - **1.7.1:** Restricted targeting to the select tool
 - **1.7.0:** Added ability to target unowned tokens by simply tapping them with your finger.
 - **1.6.0:** Added button to delete the currently selected drawing.
