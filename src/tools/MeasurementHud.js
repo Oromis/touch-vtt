@@ -2,6 +2,7 @@ import {MODULE_NAME} from '../config/ModuleConstants'
 import {wrapMethod} from '../utils/Injection'
 import FoundryCanvas from '../foundryvtt/FoundryCanvas'
 import Vectors from '../logic/Vectors.js'
+import {MEASUREMENT_HUD_LEFT, MEASUREMENT_HUD_OFF, MEASUREMENT_HUD_SETTING} from '../config/TouchSettings.js'
 
 class TouchMeasurementHud extends Application {
   constructor({ canvasTouchToMouseAdapter }) {
@@ -35,7 +36,7 @@ class TouchMeasurementHud extends Application {
     data.id = this.options.id
     data.top = this._screenPosition.top
     data.left = this._screenPosition.left
-    data.offsetX = FoundryCanvas.worldToScreenLength(FoundryCanvas.gridSize) * 0.75
+    data.offsetX = this.calcOffsetX()
     data.showRuler = !Vectors.isEqual(this._worldPosition ?? {}, this.lastWaypoint)
     data.showMove = this.canMoveToken()
     return data
@@ -46,6 +47,7 @@ class TouchMeasurementHud extends Application {
       const ruler = FoundryCanvas.ruler
       if (ruler != null && typeof ruler._addWaypoint === 'function') {
         ruler._addWaypoint(this._worldPosition)
+        this.render()
       }
     })
 
@@ -53,6 +55,7 @@ class TouchMeasurementHud extends Application {
       const ruler = FoundryCanvas.ruler
       if (ruler != null && typeof ruler.moveToken === 'function') {
         ruler.moveToken()
+        this.render()
       }
     })
   }
@@ -103,6 +106,15 @@ class TouchMeasurementHud extends Application {
     if (!ruler.visible || !ruler.destination) return false
     return ruler._getMovementToken() != null
   }
+
+  calcOffsetX() {
+    const offset = FoundryCanvas.worldToScreenLength(FoundryCanvas.gridSize) * 0.75
+    if (getSettingValue() === MEASUREMENT_HUD_LEFT) {
+      return `calc(-100% - ${offset}px)`
+    } else {
+      return `${offset}px`
+    }
+  }
 }
 
 export function initMeasurementHud({ canvasTouchToMouseAdapter }) {
@@ -111,7 +123,7 @@ export function initMeasurementHud({ canvasTouchToMouseAdapter }) {
 
     wrapMethod('Ruler.prototype.measure', function (wrapped, ...args) {
       const segments = wrapped.call(this, ...args)
-      if (isOwnRuler(this)) {
+      if (isOwnRuler(this) && isEnabled()) {
         if (Array.isArray(segments) && segments.length > 0) {
           const lastSegment = segments[segments.length - 1]
           canvas.hud.touchMeasurement.show(lastSegment.ray.B)
@@ -134,4 +146,12 @@ export function initMeasurementHud({ canvasTouchToMouseAdapter }) {
 
 function isOwnRuler(ruler) {
   return FoundryCanvas.ruler === ruler
+}
+
+function getSettingValue() {
+  return game.settings.get(MODULE_NAME, MEASUREMENT_HUD_SETTING)
+}
+
+function isEnabled() {
+  return getSettingValue() !== MEASUREMENT_HUD_OFF
 }

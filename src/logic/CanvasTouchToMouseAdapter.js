@@ -157,16 +157,10 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   disableGestures() {
-    if (this._gesturesEnabled) {
-      console.log('Disabling gestures...')
-    }
     this._gesturesEnabled = false
   }
 
   enableGestures() {
-    if (!this._gesturesEnabled) {
-      console.log('Enabling gestures...')
-    }
     this._gesturesEnabled = true
   }
 }

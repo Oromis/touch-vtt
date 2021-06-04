@@ -16,6 +16,11 @@ export const EASY_TARGET_OFF = "off"
 export const EASY_TARGET_SINGLE = "single"
 export const EASY_TARGET_MULTIPLE = "multiple"
 
+export const MEASUREMENT_HUD_SETTING = "measurementHud"
+export const MEASUREMENT_HUD_OFF = "off"
+export const MEASUREMENT_HUD_RIGHT = "right"
+export const MEASUREMENT_HUD_LEFT = "left"
+
 export function registerTouchSettings() {
   game.settings.register(MODULE_NAME, GESTURE_MODE_SETTING, {
     name: "Zoom / Pan Gestures",
@@ -55,6 +60,20 @@ export function registerTouchSettings() {
       [EASY_TARGET_MULTIPLE]: "Allow multiple targets",
     },
     default: EASY_TARGET_SINGLE,
+  })
+
+  game.settings.register(MODULE_NAME, MEASUREMENT_HUD_SETTING, {
+    name: "Measurement HUD",
+    hint: "Shows a UI while measuring distance with the ruler, allowing you to set waypoints or move your token",
+    scope: "client",
+    config: true,
+    type: String,
+    choices: {
+      [MEASUREMENT_HUD_OFF]: "Disabled",
+      [MEASUREMENT_HUD_RIGHT]: "Show right",
+      [MEASUREMENT_HUD_LEFT]: "Show left",
+    },
+    default: MEASUREMENT_HUD_RIGHT,
   })
 
   game.settings.register(MODULE_NAME, LARGE_BUTTONS_SETTING, {
