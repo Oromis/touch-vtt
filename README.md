@@ -1,4 +1,4 @@
-![Foundry Version 0.8.6](https://img.shields.io/badge/Foundry%20Version-0.8.6-green)]
+![Foundry Version 0.8.6](https://img.shields.io/badge/Foundry%20Version-0.8.6-green)
 
 # TouchVTT
 
