@@ -1,0 +1,16 @@
+{
+  "TOUCHVTT.Erase": "Löschen",
+  "TOUCHVTT.ToggleWallChain": "Einschalten: Wand-Verkettung",
+  "TOUCHVTT.UndoWall": "Letzte Wand rückgängig machen",
+  "TOUCHVTT.DeleteWall": "Lösche letzte Wand",
+  "TOUCHVTT.DeleteDrawing": "Lösche gewählte Zeichnung",
+  "TOUCHVTT.SnapToGrid": "Token am Raster ausrichten",
+  "TOUCHVTT.Rotate0": "Drehen nach Oben",
+  "TOUCHVTT.Rotate45": "Drehen nach Oben-Rechts",
+  "TOUCHVTT.Rotate90": "Drehen nach Rechts",
+  "TOUCHVTT.Rotate135": "Drehen nach Unten-Rechts",
+  "TOUCHVTT.Rotate180": "Drehen nach Unten",
+  "TOUCHVTT.Rotate225": "Drehen nach Unten-Links",
+  "TOUCHVTT.Rotate270": "Drehen nach Links",
+  "TOUCHVTT.Rotate315": "Drehen nach Oben-Links"
+}
