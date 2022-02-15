@@ -96,7 +96,7 @@ class FoundryCanvas {
   }
 
   get ruler() {
-    const layer = canvas && canvas.getLayer('ControlsLayer')
+    const layer = canvas && canvas.controls
     return layer && layer.ruler
   }
 }

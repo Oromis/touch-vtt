@@ -8,6 +8,6 @@ export function installDrawingToolsControls(menuStructure) {
     title: 'TOUCHVTT.DeleteDrawing',
     icon: 'fas fa-eraser',
     button: true,
-    onClick: () => canvas.getLayer('DrawingsLayer')._onDeleteKey()
+    onClick: () => canvas.drawings._onDeleteKey()
   })
 }

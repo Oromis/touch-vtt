@@ -31,14 +31,14 @@ export function installWallToolsControls(menuStructure) {
     title: 'TOUCHVTT.UndoWall',
     icon: 'fas fa-undo',
     button: true,
-    onClick: () => canvas.getLayer('WallsLayer').undoHistory()
+    onClick: () => canvas.walls.undoHistory()
   }, {
     // Simulate hitting del with a wall selected
     name: 'Delete',
     title: 'TOUCHVTT.DeleteWall',
     icon: 'fas fa-eraser',
     button: true,
-    onClick: () => canvas.getLayer('WallsLayer')._onDeleteKey()
+    onClick: () => canvas.walls._onDeleteKey()
   })
 }
 
