@@ -11,7 +11,7 @@ export function initMeasurementTemplateEraser() {
   injectMethodCondition('TemplateLayer.prototype._onDragLeftCancel', isEraserInactive)
   wrapMethod('MeasuredTemplate.prototype._onClickLeft', function(callOriginal, ...args) {
     if (isEraserActive()) {
-      this.delete()
+      this.document.delete()
     } else {
       callOriginal(...args)
     }
