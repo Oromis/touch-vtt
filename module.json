@@ -32,10 +32,10 @@
       "path": "lang/de.json"
     }
   ],
-  "url": "https://github.com/inxaos/touch-vtt",
-  "download": "https://github.com/inxaos/touch-vtt/releases/download/v1.9.2/touch-vtt-v1.9.2.zip",
-  "manifest": "https://raw.githubusercontent.com/inxaos/touch-vtt/main/module.json",
+  "url": "https://github.com/Oromis/touch-vtt",
+  "download": "https://github.com/Oromis/touch-vtt/releases/download/v1.9.2/touch-vtt-v1.9.2.zip",
+  "manifest": "https://raw.githubusercontent.com/Oromis/touch-vtt/main/module.json",
   "license": "https://www.gnu.org/licenses/gpl-3.0.en.html",
   "readme": "README.md",
-  "bugs": "https://github.com/inxaos/touch-vtt/issues"
+  "bugs": "https://github.com/Oromis/touch-vtt/issues"
 }
