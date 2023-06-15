@@ -83,6 +83,7 @@ when those features are locked in "Lock View".
 
 ### Changelog
 
+- **1.10.0:** Compatibility with FoundryVTT version 10
 - **1.9.1:** Compatibility with FoundryVTT version 9
 - **1.8.1:** Fixed missing template for Measurement HUD, added German Translation files
 - **1.8.0:** Added a Measurement HUD, a UI for the ruler allowing touch-based creation of waypoints and moving tokens along a measured path.
