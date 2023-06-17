@@ -1,5 +1,5 @@
 {
-  "name": "touch-vtt",
+  "id": "touch-vtt",
   "title": "TouchVTT",
   "description": "Adds touch screen support to FoundryVTT",
   "authors": [
@@ -8,10 +8,9 @@
       "email": "david.bauske@googlemail.com"
     }
   ],
-  "version": "1.10.0",
+  "version": "1.11.01b",
   "compatibility": {
     "minimum": "0.5.0",
-    "maximum": "10",
     "verified": "10.291"
   },
   "scripts": [
