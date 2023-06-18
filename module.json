@@ -8,7 +8,7 @@
       "email": "david.bauske@googlemail.com"
     }
   ],
-  "version": "1.10.0",
+  "version": "1.11.0",
   "compatibility": {
     "minimum": "11",
     "verified": "11.302"
@@ -32,7 +32,7 @@
     }
   ],
   "url": "https://github.com/Oromis/touch-vtt",
-  "download": "https://github.com/Oromis/touch-vtt/releases/download/v1.10.0/touch-vtt-v1.10.0.zip",
+  "download": "https://github.com/Oromis/touch-vtt/releases/download/v1.11.0/touch-vtt-v1.11.0.zip",
   "manifest": "https://raw.githubusercontent.com/Oromis/touch-vtt/main/module.json",
   "license": "https://www.gnu.org/licenses/gpl-3.0.en.html",
   "readme": "README.md",
