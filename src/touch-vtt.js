@@ -37,6 +37,37 @@ Hooks.once('init', () => {
   initEasyTarget()
 })
 
+function _logoClicked() {
+  var elem = $("body.vtt")[0];
+  var d = document;
+  var isFullScreen = (d.fullscreenElement && d.fullscreenElement !== null) || (d.mozFullScreenElement && d.mozFullScreenElement !== null) || (d.webkitFullscreenEnabled && d.webkitFullscreenElement !== null)
+      || (d.msFullscreenElement && d.msFullscreenElement !== null);
+  if (!isFullScreen) {
+      if (elem.requestFullScreen) {
+          elem.requestFullScreen();
+      } else if (elem.mozRequestFullScreen) {
+          elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullScreen) {
+          elem.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+      } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+      }
+  } else {
+      if (d.cancelFullScreen) {
+          d.cancelFullScreen();
+      } else if (d.mozCancelFullScreen) {
+          d.mozCancelFullScreen();
+      } else if (d.webkitCancelFullScreen) {
+          d.webkitCancelFullScreen();
+      } else if (d.msExitFullscreen) {
+          d.msExitFullscreen();
+      }
+  }
+}
+Hooks.on('ready', () => {
+  $("img#logo").click(_logoClicked);
+});
+
 Hooks.on('ready', function () {
   try {
     const canvas = findCanvas()
