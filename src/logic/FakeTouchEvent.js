@@ -88,7 +88,22 @@ export function fakeTouchEvent(originalEvent, touch, mouseButton, eventMap, { ta
     console.warn(`Unmapped event type detected: ${originalEvent.type}`)
   } else {
     for (const type of types) {
-      dispatchFakeEvent(originalEvent, touch, mouseButton, type, { target: target || touch.target, shiftKey })
+      // Whoo boy. As a reminder, this entire module is v11 only.
+      // These are some wildly specific fixes for our mouse event dispatcher. Depending on which tool we are using,
+      // pointerdown and pointerup seem to need a slightly different treatment, and sometimes we don't want to forward them at all.
+      if (ui.controls.activeControl == "walls") {
+        if (type == "pointerdown") {
+          // skip
+        } else if (type == "pointerup") {
+          // skip
+        }
+      } else if (["select", "target"].includes(game.activeTool) && ["pointerdown", "pointerup"].includes(type)) {
+        dispatchFakeEvent(originalEvent, touch, -1, type, { target: target || touch.target, shiftKey })
+      } else  if (game.activeTool == "ruler" && ["pointerdown", "pointerup"].includes(type)) {
+        // skip
+      } else {
+        dispatchFakeEvent(originalEvent, touch, mouseButton, type, { target: target || touch.target, shiftKey })
+      }
     }
   }
 }

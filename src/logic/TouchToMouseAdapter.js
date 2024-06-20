@@ -52,26 +52,35 @@ class TouchToMouseAdapter {
 
   handleTouchStart(event) {
     this.updateActiveTouches(event)
-    this.forwardTouches(event)
+    if (parseInt(game.version) < 12) {
+      this.forwardTouches(event)
+    }
   }
 
   handleTouchMove(event) {
     this.updateActiveTouches(event)
-    this.forwardTouches(event)
+    if (parseInt(game.version) < 12) {
+      this.forwardTouches(event)
+    }
   }
 
   handleTouchEnd(event) {
-    this.forwardTouches(event)
+    if (parseInt(game.version) < 12) {
+      this.forwardTouches(event)
+    }
     this.cleanUpTouches(event)
   }
 
   handleEndAll(event) {
-    for (const touch of Object.values(this.touches)) {
-      this.forwardTouch(event, touch)
+  	if (parseInt(game.version) < 12) {
+      for (const touch of Object.values(this.touches)) {
+        this.forwardTouch(event, touch)
+      }
     }
     this.cleanUpAll()
   }
 
+  // not used in v12
   forwardTouches(event) {
     const touchInstance = this.getTouch(idOf(event))
     if (touchInstance != null) {
@@ -81,6 +90,7 @@ class TouchToMouseAdapter {
     }
   }
 
+  // not used in v12
   forwardTouch(event, touch) {
     if (touch.context.forwardsEvent(event)) {
       fakeTouchEvent(

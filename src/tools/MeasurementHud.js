@@ -54,6 +54,8 @@ class TouchMeasurementHud extends Application {
     html.find('.move').on('pointerdown', () => {
       const ruler = FoundryCanvas.ruler
       if (ruler != null && typeof ruler.moveToken === 'function') {
+        var token = ruler.token || ruler._getMovementToken()
+        token.document.locked = false
         ruler.moveToken()
         this.render()
       }
@@ -104,7 +106,7 @@ class TouchMeasurementHud extends Application {
       return false
     }
     if (!ruler.visible || !ruler.destination) return false
-    return ruler._getMovementToken() != null
+    return ruler._getMovementToken(ruler.origin) != null
   }
 
   calcOffsetX() {
@@ -122,16 +124,21 @@ export function initMeasurementHud({ canvasTouchToMouseAdapter }) {
     canvas.hud.touchMeasurement = new TouchMeasurementHud({ canvasTouchToMouseAdapter })
 
     wrapMethod('Ruler.prototype._onMouseMove', function (wrapped, event, ...args) {
-      if (event.data != null && event.data.destination != null) {
-        event.data.destination.originType = event.data?.originalEvent?.originType
+      // I think here we're storing "touch" or "mouse" somewhere in the interactionData so we can check it later
+      if (event.interactionData != null && event.interactionData.destination != null) {
+        if (parseInt(game.version) < 12) {
+          event.interactionData.destination.originType = event.nativeEvent.originType
+        } else {
+          event.interactionData.destination.originType = event.data?.originalEvent?.pointerType
+        }
       }
       return wrapped.call(this, event, ...args)
     })
 
     wrapMethod('Ruler.prototype.measure', function (wrapped, destination, ...args) {
       const segments = wrapped.call(this, destination, ...args)
-      if (isOwnRuler(this) && isEnabled() && destination?.originType === 'touch') {
-        if (Array.isArray(segments) && segments.length > 0) {
+      if (Array.isArray(segments) && isOwnRuler(this) && isEnabled() && destination?.originType === 'touch') {
+        if (segments.length > 0) {
           const lastSegment = segments[segments.length - 1]
           canvas.hud.touchMeasurement.show(lastSegment.ray.B)
         } else {

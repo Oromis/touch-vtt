@@ -36,7 +36,8 @@ class WindowHeaderTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   isInWindowTitle(element) {
-    return this.getParentByClass(element, 'window-title') != null
+    // Fix to include windows like a character sheet
+    return this.getParentByClass(element, 'window-title') != null || element.classList.contains('window-header')
   }
 
   getEventMap() {

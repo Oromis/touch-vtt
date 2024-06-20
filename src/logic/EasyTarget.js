@@ -1,23 +1,14 @@
-import {wrapMethod} from '../utils/Injection'
 import {MODULE_NAME} from '../config/ModuleConstants'
 import {EASY_TARGET_OFF, EASY_TARGET_SETTING, EASY_TARGET_SINGLE} from '../config/TouchSettings'
 
-export function initEasyTarget() {
-  // The _handleClickLeft is now private in FoundryVTT v11.
-  // This condition disables easy targeting for now until I find a solution how to override it.
-  if (typeof MouseInteractionManager.prototype._handleClickLeft !== 'function') {
-    return
-  }
-
-  wrapMethod('MouseInteractionManager.prototype._handleClickLeft', function (originalMethod, event, ...args) {
-    const token = event.currentTarget
-    if (isEasyTargetEnabled() && isSelectToolActive() && token instanceof Token && isUnownedToken(this, event)) {
+export function callbackForEasyTarget(event, events) {
+  if (event == "clickLeft") {
+    const token = events[0].target
+    if (isEasyTargetEnabled() && isSelectToolActive() && token instanceof Token && isUnownedToken(token.mouseInteractionManager, event)) {
       // The user usually cannot click this token => we'll select it
       targetToken(token)
-    } else {
-      return originalMethod.call(this, event, ...args)
     }
-  }, 'MIXED')
+  }
 }
 
 function targetToken(token) {

@@ -3,14 +3,23 @@ import {wrapMethod} from '../utils/Injection.js'
 // Local storage for GUI toggles, since they shouldn't be saved over reloads
 let chainingActive = false
 
-function installChainingHook() { // Monkey patch click function to force this._chain when chainingActive is set
-  wrapMethod('WallsLayer.prototype._onClickLeft', function(callOriginal, ...args) {
-    const result = callOriginal(...args)
-    if (chainingActive) {
-      this._chain = true
-    }
-    return result
-  })
+function installChainingHook() {
+  // Hook into the wall layer's listeners for some ugly fixes
+
+  // v11 only: Send a left click to the canvas at the end of every non-chained wall (don't even ask me why it works)
+  if (parseInt(game.version) < 12) {
+    wrapMethod('WallsLayer.prototype._onDragLeftCancel', function(callOriginal, ...args) {
+      setTimeout(() => { document.getElementById("board").dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2})) }, 0)
+      return callOriginal(...args)
+    })
+  }
+  // v12 only: Trigger a dragLeftStart after every clickLeft (for some reason it's not triggered automatically after finishing a chain)
+  if (parseInt(game.version) >= 12) {
+  	wrapMethod('WallsLayer.prototype._onClickLeft', function(callOriginal, ...args) {
+      callOriginal(...args)
+      return this._onDragLeftStart(...args)
+    })
+  }
 }
 
 export function installWallToolsControls(menuStructure) {
@@ -40,6 +49,12 @@ export function installWallToolsControls(menuStructure) {
     button: true,
     onClick: () => canvas.walls._onDeleteKey()
   })
+}
+
+export function callbackForWallTools(modifier) {
+  if (modifier === KeyboardManager.MODIFIER_KEYS.CONTROL && ui.controls.activeControl == "walls" && chainingActive) {
+    return true
+  }
 }
 
 export function initWallTools() {
