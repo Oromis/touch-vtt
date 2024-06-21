@@ -60,3 +60,17 @@
 #touch-measurement-hud.touch-measurement-hud-left {
 
 }
+
+#touch-vtt-controls {
+    pointer-events: all;
+    display: flex;
+    flex-direction: row;
+    margin-left: 12px;
+    margin-bottom: 12px;
+    width: 120px;
+}
+
+#touch-vtt-controls button {
+    line-height: 18px;
+    font-size: var(--font-size-10);
+}

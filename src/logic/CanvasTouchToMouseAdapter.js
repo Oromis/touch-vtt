@@ -5,7 +5,7 @@ import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
 import Screen from '../browser/Screen.js'
 import TouchContext from './TouchContext.js'
 import {idOf} from '../utils/EventUtils.js'
-import {GESTURE_MODE_SETTING, GESTURE_MODE_SPLIT} from '../config/TouchSettings.js'
+import {GESTURE_MODE_SETTING, GESTURE_MODE_SPLIT, GESTURE_MODE_OFF} from '../config/TouchSettings.js'
 import {MODULE_NAME} from '../config/ModuleConstants.js'
 
 class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
@@ -20,7 +20,7 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
 
     switch (this.touchIds.length) {
       case 2:
-        if (this._gesturesEnabled) {
+        if (this.gesturesEnabled()) {
           if (this.useSplitGestures()) {
             this.handleTwoFingerZoom(event)
           } else {
@@ -31,7 +31,7 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
 
       case 3:
       case 4:
-        if (this._gesturesEnabled) {
+        if (this.gesturesEnabled()) {
           this.handleMultiFingerPan(event)
         }
         break
@@ -46,35 +46,10 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   handleTwoFingerZoomAndPan() {
-    if (FoundryCanvas.isZoomAllowed() && FoundryCanvas.isPanAllowed()) {
-      // Use the first two touch points for gestures
-      const touchIds = this.touchIds
-      const firstTouch = this.touches[touchIds[0]]
-      const secondTouch = this.touches[touchIds[1]]
-
-      const zoomBefore = FoundryCanvas.worldTransform.a
-      const zoomAfter = this.calcZoom(firstTouch, secondTouch)
-      const zoomLevelChanges = MathUtils.roundToDecimals(zoomAfter, 2) !== zoomBefore
-
-      // There's some weirdness going on with how PIXI implements vectors / matrices: Zoom values are rounded to
-      // two decimal places. This messes with my calculations here, which is why I need the following line. I'm not
-      // entirely sure why it works, but it does work great :D
-      const adjustedZoom = zoomLevelChanges ? zoomBefore : zoomAfter
-      const adjustedTransform = FoundryCanvas.getWorldTransformWith({ zoom: adjustedZoom }, { discrete: true })
-      const correctionA = this.calcPanCorrection(adjustedTransform, firstTouch)
-      const correctionB = this.calcPanCorrection(adjustedTransform, secondTouch)
-      const panCorrection = Vectors.centerBetween(correctionA, correctionB)
-      const centerBefore = FoundryCanvas.screenToWorld(Screen.center)
-      const worldCenter = Vectors.subtract(centerBefore, panCorrection)
-
-      FoundryCanvas.pan({
-        x: worldCenter.x,
-        y: worldCenter.y,
-        zoom: zoomAfter
-      })
-    } else if (FoundryCanvas.isZoomAllowed()) {
+    if (FoundryCanvas.isZoomAllowed()) {
       this.handleTwoFingerZoom()
-    } else if (FoundryCanvas.isPanAllowed()) {
+    }
+    if (FoundryCanvas.isPanAllowed()) {
       this.handleMultiFingerPan()
     }
   }
@@ -99,19 +74,23 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
     const touchIds = this.touchIds
     const adjustedTransform = FoundryCanvas.worldTransform
 
-    let panCorrection
-    if (touchIds.length === 2) {
-      panCorrection = Vectors.centerBetween(
-        this.calcPanCorrection(adjustedTransform, this.touches[touchIds[0]]),
-        this.calcPanCorrection(adjustedTransform, this.touches[touchIds[1]]),
-      )
-    } else {
-      panCorrection = Vectors.centerOf(
-        this.calcPanCorrection(adjustedTransform, this.touches[touchIds[0]]),
-        this.calcPanCorrection(adjustedTransform, this.touches[touchIds[1]]),
-        this.calcPanCorrection(adjustedTransform, this.touches[touchIds[2]]),
-      )
-    }
+    //let panCorrection
+    //if (touchIds.length === 2) {
+    //  panCorrection = Vectors.centerBetween(
+    //    this.calcPanCorrection(adjustedTransform, this.touches[touchIds[0]]),
+    //    this.calcPanCorrection(adjustedTransform, this.touches[touchIds[1]]),
+    //  )
+    //} else {
+    //  panCorrection = Vectors.centerOf(
+    //    this.calcPanCorrection(adjustedTransform, this.touches[touchIds[0]]),
+    //    this.calcPanCorrection(adjustedTransform, this.touches[touchIds[1]]),
+    //    this.calcPanCorrection(adjustedTransform, this.touches[touchIds[2]]),
+    //  )
+    //}
+
+    // It seems to me that panning to the center between the touches is disorienting and creates unwanted movement
+    // I prefer trying out this version where we anchor to the first touch, I'll leave the existing above in case we want to revert 
+    let panCorrection = this.calcPanCorrection(adjustedTransform, this.touches[touchIds[0]])
 
     const centerBefore = FoundryCanvas.screenToWorld(Screen.center)
     const worldCenter = Vectors.subtract(centerBefore, panCorrection)
@@ -170,12 +149,20 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
     return game.settings.get(MODULE_NAME, GESTURE_MODE_SETTING) === GESTURE_MODE_SPLIT
   }
 
+  useNoGestures() {
+    return game.settings.get(MODULE_NAME, GESTURE_MODE_SETTING) === GESTURE_MODE_OFF
+  }
+
   disableGestures() {
     this._gesturesEnabled = false
   }
 
   enableGestures() {
     this._gesturesEnabled = true
+  }
+
+  gesturesEnabled() {
+    return this._gesturesEnabled && !this.useNoGestures()
   }
 }
 

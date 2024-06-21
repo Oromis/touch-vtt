@@ -6,7 +6,7 @@ export function initDirectionalArrows() {
   if (tokenHudExists()) {
     wrapMethod('TokenHUD.prototype.activateListeners', function (originalMethod, html, ...args) {
       const superResult = originalMethod(html, ...args)
-      if (areDirectionalArrowsEnabled()) {
+      if (areDirectionalArrowsEnabled() && !getActiveToken()?.document?.lockRotation) {
         injectArrowHtml(html)
       }
       return superResult

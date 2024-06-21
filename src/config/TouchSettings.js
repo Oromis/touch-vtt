@@ -2,6 +2,7 @@ import {MODULE_NAME} from './ModuleConstants.js'
 import {updateButtonSize} from '../tools/EnlargeButtonsTool'
 
 export const GESTURE_MODE_SETTING = "gestureMode"
+export const GESTURE_MODE_OFF = "off"
 export const GESTURE_MODE_COMBINED = "combined"
 export const GESTURE_MODE_SPLIT = "split"
 
@@ -31,6 +32,7 @@ export function registerTouchSettings() {
     choices: {
       [GESTURE_MODE_COMBINED]: "Zoom & Pan with 2 fingers",
       [GESTURE_MODE_SPLIT]: "Zoom with 2 fingers, pan with 3 fingers",
+      [GESTURE_MODE_OFF]: "No zoom or pan gestures",
     },
     default: GESTURE_MODE_COMBINED,
   })

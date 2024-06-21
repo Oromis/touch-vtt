@@ -10,11 +10,13 @@ import {registerTouchSettings} from './config/TouchSettings.js'
 import {installMeasurementTemplateEraser, initMeasurementTemplateEraser} from './tools/MeasurementTemplateEraser.js'
 import {callbackForWallTools, installWallToolsControls, initWallTools} from './tools/WallTools.js'
 import {callbackForSnapToGrid, installSnapToGrid} from './tools/SnapToGridTool.js'
+import {installTokenEraser} from './tools/TokenEraserTool.js'
 import {callbackForEasyTarget} from './logic/EasyTarget'
 import {initDirectionalArrows} from './logic/DirectionalArrows'
 import {initEnlargeButtonTool} from './tools/EnlargeButtonsTool'
 import {installDrawingToolsControls} from './tools/DrawingTools'
 import {initMeasurementHud} from './tools/MeasurementHud'
+import {installUtilityControls} from './tools/UtilityControls'
 
 function findCanvas() {
   return document.querySelector('canvas#board') ||
@@ -29,6 +31,11 @@ Hooks.on('getSceneControlButtons', (controls) => {
   installWallToolsControls(controls)
   installDrawingToolsControls(controls)
   installSnapToGrid(controls)
+  installTokenEraser(controls)
+})
+
+Hooks.once('renderSceneNavigation', (controls) => {
+  installUtilityControls()
 })
 
 Hooks.once('init', () => {
