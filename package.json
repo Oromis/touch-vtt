@@ -1,6 +1,6 @@
 {
   "name": "touch-vtt",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "description": "Adds touch support to FoundryVTT",
   "main": "src/touch-vtt.js",
   "scripts": {
@@ -17,7 +17,16 @@
   "keywords": [
     "FoundryVTT"
   ],
-  "author": "David Bauske <david.bauske@googlemail.com>",
+  "author": {
+    "name": "David Bauske",
+    "email": "david.bauske@googlemail.com"
+  },
+  "contributors": [
+    {
+      "name": "Aioros",
+      "email": "aioros83@gmail.com"
+    }
+  ],
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/Oromis/touch-vtt/issues"

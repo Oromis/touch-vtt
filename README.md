@@ -1,4 +1,4 @@
-![Foundry Version 0.8.6](https://img.shields.io/badge/Foundry%20Version-0.8.6-green)
+![Foundry Version 12](https://img.shields.io/badge/Foundry%20Version-12-green)
 
 # TouchVTT
 
@@ -83,6 +83,7 @@ when those features are locked in "Lock View".
 
 ### Changelog
 
+- **1.12.0:** Compatibility with FoundryVTT versions 11 and 12
 - **1.10.0:** Compatibility with FoundryVTT version 10
 - **1.9.1:** Compatibility with FoundryVTT version 9
 - **1.8.1:** Fixed missing template for Measurement HUD, added German Translation files
