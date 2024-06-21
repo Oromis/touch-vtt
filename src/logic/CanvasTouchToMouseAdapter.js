@@ -37,7 +37,11 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
         break
 
       default:
-        this.forwardTouches(event)
+        if (parseInt(game.version) < 12) {
+          // The entire forwarding/dispatching setup is not really necessary in v12 and should probably be cleaned up better
+          // Just a version check for now. See also TouchToMouseAdapter.js
+          this.forwardTouches(event)
+        }
     }
   }
 
@@ -142,13 +146,23 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   getEventMap() {
-    return {
-      // First simulate that the pointer moves to the specified location, then simulate the down event.
-      // Foundry won't take the "click" on the first try otherwise.
-      pointerdown: ['pointermove', 'pointerdown'],
-      pointermove: ['pointermove'],
-      pointerup: ['pointerup'],
-      pointercancel: ['pointercancel'],
+    if (parseInt(game.version) < 12) {
+      return {
+        // v11 only:
+        // First simulate that the pointer moves to the specified location, then simulate the down event.
+        // Foundry won't take the "click" on the first try otherwise.
+        pointerdown: ['pointermove', 'pointerdown'],
+        pointermove: ['pointermove'],
+        pointerup: ['pointerup'],
+        pointercancel: ['pointercancel'],
+      }
+    } else {
+      return {
+        pointerdown: ['pointerdown'],
+        pointermove: ['pointermove'],
+        pointerup: ['pointerup'],
+        pointercancel: ['pointercancel'],
+      }
     }
   }
 

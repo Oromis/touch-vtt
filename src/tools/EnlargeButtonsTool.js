@@ -2,14 +2,15 @@ import {MODULE_NAME} from '../config/ModuleConstants'
 import {LARGE_BUTTONS_SETTING} from '../config/TouchSettings'
 
 const STYLE_ID = `${MODULE_NAME}-bug_button_styles`
+// CSS needed to be more specific. Unsure if just using !important would be better
 const largeButtonStyle = `
-#controls .scene-control, #controls .control-tool {
+#controls ol.control-tools > li.scene-control, #controls ol.control-tools > li.control-tool {
     width: 50px;
     height: 50px;
     line-height: 50px;
     font-size: 28px;
 }
-#controls .control-tools {
+#controls ol.control-tools {
     left: 72px;
 }
 `
@@ -25,9 +26,9 @@ export function updateButtonSize(useLargeButtons) {
   const style = document.getElementById(STYLE_ID)
   if (style != null) {
     if (useLargeButtons) {
-      style.innerText = largeButtonStyle
+      style.innerHTML = largeButtonStyle
     } else {
-      style.innerText = ''
+      style.innerHTML = ''
     }
   }
 }

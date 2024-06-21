@@ -17,3 +17,12 @@ export function installSnapToGrid(menuStructure) {
     })
   }
 }
+
+// The logic for this was originally in the FakeTouchEvent module (not used in v12), having it here seems clearer anyway.
+export function callbackForSnapToGrid(event, events) {
+  if (event.startsWith("dragLeft") && !isActive) {
+    events.forEach(e => {
+      e.shiftKey = true
+    })
+  }
+}

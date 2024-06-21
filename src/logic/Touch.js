@@ -30,7 +30,15 @@ class Touch {
         this.changeContext(TouchContext.SECONDARY_CLICK)
       }
       this.longPressTimeout = null
-    }, 500)
+    }, 300)
+
+    this.pingTimeout = setTimeout(() => {
+      // Like the previous one, but to force a ping at location (seems to be missed otherwise)
+      if (this.movementDistance < 20 && this.context === TouchContext.SECONDARY_CLICK) {
+        canvas.ping(this.world)
+      }
+      this.pingTimeout = null
+    }, 1000)
   }
 
   get identifier() {
@@ -67,6 +75,10 @@ class Touch {
     if (this.longPressTimeout != null) {
       clearTimeout(this.longPressTimeout)
       this.longPressTimeout = null
+    }
+    if (this.pingTimeout != null) {
+      clearTimeout(this.pingTimeout)
+      this.pingTimeout = null
     }
   }
 }
