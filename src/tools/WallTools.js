@@ -15,7 +15,7 @@ function installChainingHook() {
   }
   // v12 only: Trigger a dragLeftStart after every clickLeft (for some reason it's not triggered automatically after finishing a chain)
   if (parseInt(game.version) >= 12) {
-  	wrapMethod('WallsLayer.prototype._onClickLeft', function(callOriginal, ...args) {
+    wrapMethod('WallsLayer.prototype._onClickLeft', function(callOriginal, ...args) {
       callOriginal(...args)
       return this._onDragLeftStart(...args)
     })

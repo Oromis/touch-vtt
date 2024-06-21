@@ -72,7 +72,7 @@ class TouchToMouseAdapter {
   }
 
   handleEndAll(event) {
-  	if (parseInt(game.version) < 12) {
+    if (parseInt(game.version) < 12) {
       for (const touch of Object.values(this.touches)) {
         this.forwardTouch(event, touch)
       }

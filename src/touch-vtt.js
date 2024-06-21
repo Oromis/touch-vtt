@@ -40,11 +40,11 @@ Hooks.once('init', () => {
 
   // This wrap gives us control over every MouseInteractionManager
   wrapMethod('MouseInteractionManager.prototype.callback', async function (originalMethod, event, ...args) {
-  	
-  	// v12 only: ugly patch to fix annoying issue in v12 where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
-  	// For example, you open an actor sheet, if something clickable is under your finger (icon, action, ability, etc.) it will get wrongly clicked.
-  	// What we do here is delay the sheet rendering a little bit, and also dispatch a right click on the canvas to avoid a lingering drag select on the placeable.
-  	if (parseInt(game.version) >= 12) {
+    
+    // v12 only: ugly patch to fix annoying issue in v12 where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
+    // For example, you open an actor sheet, if something clickable is under your finger (icon, action, ability, etc.) it will get wrongly clicked.
+    // What we do here is delay the sheet rendering a little bit, and also dispatch a right click on the canvas to avoid a lingering drag select on the placeable.
+    if (parseInt(game.version) >= 12) {
       if (event == "clickLeft2") {
         await new Promise(resolve => setTimeout(resolve, 100))
         document.getElementById("board").dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2}))

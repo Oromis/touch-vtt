@@ -146,7 +146,7 @@ class CanvasTouchToMouseAdapter extends TouchToMouseAdapter {
   }
 
   getEventMap() {
-  	if (parseInt(game.version) < 12) {  	
+    if (parseInt(game.version) < 12) {
       return {
         // v11 only:
         // First simulate that the pointer moves to the specified location, then simulate the down event.
