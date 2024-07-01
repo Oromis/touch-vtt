@@ -6,20 +6,22 @@ let chainingActive = false
 function installChainingHook() {
   // Hook into the wall layer's listeners for some ugly fixes
 
-  // v11 only: Send a left click to the canvas at the end of every non-chained wall (don't even ask me why it works)
+  // This is to stop an unwanted dragLeftCancel coming from an unwanted pointerup in v11
   if (parseInt(game.version) < 12) {
     wrapMethod('WallsLayer.prototype._onDragLeftCancel', function(callOriginal, ...args) {
-      setTimeout(() => { document.getElementById("board").dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2})) }, 0)
+      if (args[0] instanceof PointerEvent) {
+        args[0].preventDefault()
+        return
+      }
       return callOriginal(...args)
-    })
+    }, 'MIXED')
   }
-  // v12 only: Trigger a dragLeftStart after every clickLeft (for some reason it's not triggered automatically after finishing a chain)
-  if (parseInt(game.version) >= 12) {
-    wrapMethod('WallsLayer.prototype._onClickLeft', function(callOriginal, ...args) {
-      callOriginal(...args)
-      return this._onDragLeftStart(...args)
-    })
-  }
+
+  // Trigger a dragLeftStart after every clickLeft (for some reason it's not triggered automatically after finishing a chain)
+  wrapMethod('WallsLayer.prototype._onClickLeft', function(callOriginal, ...args) {
+    callOriginal(...args)
+    return this._onDragLeftStart(...args)
+  })
 }
 
 export function installWallToolsControls(menuStructure) {

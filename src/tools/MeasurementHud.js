@@ -5,10 +5,10 @@ import Vectors from '../logic/Vectors.js'
 import {MEASUREMENT_HUD_LEFT, MEASUREMENT_HUD_OFF, MEASUREMENT_HUD_SETTING} from '../config/TouchSettings.js'
 
 class TouchMeasurementHud extends Application {
-  constructor({ canvasTouchToMouseAdapter }) {
+  constructor({ touchPointerEventsManager }) {
     super()
 
-    this._canvasTouchToMouseAdapter = canvasTouchToMouseAdapter
+    this._touchPointerEventsManager = touchPointerEventsManager
     this._worldPosition = null
     this._screenPosition = {}
   }
@@ -73,7 +73,7 @@ class TouchMeasurementHud extends Application {
     const states = this.constructor.RENDER_STATES
     await this.render(this._state <= states.NONE)
 
-    this._canvasTouchToMouseAdapter.disableGestures()
+    this._touchPointerEventsManager.disableGestures()
   }
 
   clear() {
@@ -84,7 +84,7 @@ class TouchMeasurementHud extends Application {
     this.element.hide()
     this._state = states.NONE
 
-    this._canvasTouchToMouseAdapter.enableGestures()
+    this._touchPointerEventsManager.enableGestures()
   }
 
   setScreenPosition({top, left}) {
@@ -119,15 +119,15 @@ class TouchMeasurementHud extends Application {
   }
 }
 
-export function initMeasurementHud({ canvasTouchToMouseAdapter }) {
+export function initMeasurementHud({ touchPointerEventsManager }) {
   if (canvas.hud.touchMeasurement == null) {
-    canvas.hud.touchMeasurement = new TouchMeasurementHud({ canvasTouchToMouseAdapter })
+    canvas.hud.touchMeasurement = new TouchMeasurementHud({ touchPointerEventsManager })
 
     wrapMethod('Ruler.prototype._onMouseMove', function (wrapped, event, ...args) {
       // I think here we're storing "touch" or "mouse" somewhere in the interactionData so we can check it later
       if (event.interactionData != null && event.interactionData.destination != null) {
         if (parseInt(game.version) < 12) {
-          event.interactionData.destination.originType = event.nativeEvent.originType
+          event.interactionData.destination.originType = event.pointerType
         } else {
           event.interactionData.destination.originType = event.data?.originalEvent?.pointerType
         }

@@ -2,8 +2,8 @@ import {MODULE_DISPLAY_NAME} from './config/ModuleConstants.js'
 
 import {wrapMethod} from './utils/Injection'
 
-import CanvasTouchToMouseAdapter from './logic/CanvasTouchToMouseAdapter.js'
-import WindowHeaderTouchToMouseAdapter from './logic/WindowHeaderTouchToMouseAdapter.js'
+import TouchPointerEventsManager from './logic/TouchPointerEventsManager.js'
+import {dispatchModifiedEvent} from './logic/FakeTouchEvent.js'
 
 import '../style/touch-vtt.css'
 import {registerTouchSettings} from './config/TouchSettings.js'
@@ -14,6 +14,7 @@ import {installTokenEraser} from './tools/TokenEraserTool.js'
 import {callbackForEasyTarget} from './logic/EasyTarget'
 import {initDirectionalArrows} from './logic/DirectionalArrows'
 import {initEnlargeButtonTool} from './tools/EnlargeButtonsTool'
+import {initDraggableAppsTool} from './tools/DraggableAppsTool.js'
 import {installDrawingToolsControls} from './tools/DrawingTools'
 import {initMeasurementHud} from './tools/MeasurementHud'
 import {installUtilityControls} from './tools/UtilityControls'
@@ -23,6 +24,8 @@ function findCanvas() {
     document.querySelector('body > canvas') ||
     document.querySelector('canvas')
 }
+
+var canvasRightClickTimeout = null
 
 console.log(`${MODULE_DISPLAY_NAME} booting ...`)
 
@@ -41,14 +44,19 @@ Hooks.once('renderSceneNavigation', (controls) => {
 Hooks.once('init', () => {
   registerTouchSettings()
   initEnlargeButtonTool()
+  initDraggableAppsTool()
   initDirectionalArrows()
   initMeasurementTemplateEraser()
   initWallTools()
 
+  // We want a longer long press on our MouseInteractionManagers, we will use a shorter one for faking a right-click
+  MouseInteractionManager.LONG_PRESS_DURATION_MS = 1000
+
   // This wrap gives us control over every MouseInteractionManager
   wrapMethod('MouseInteractionManager.prototype.callback', async function (originalMethod, event, ...args) {
-    
-    // v12 only: ugly patch to fix annoying issue in v12 where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
+    console.log("MIM", this.object.constructor.name, event, ...args)
+
+    // v12 only: ugly patch to fix annoying issue where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
     // For example, you open an actor sheet, if something clickable is under your finger (icon, action, ability, etc.) it will get wrongly clicked.
     // What we do here is delay the sheet rendering a little bit, and also dispatch a right click on the canvas to avoid a lingering drag select on the placeable.
     if (parseInt(game.version) >= 12) {
@@ -57,6 +65,16 @@ Hooks.once('init', () => {
         document.getElementById("board").dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2}))
         return originalMethod.call(this, event, ...args)
       }
+    }
+
+    // This is for sending a right click on long press (doesn't happen by default on the canvas)
+    if (event == "clickLeft") {
+      clearTimeout(canvasRightClickTimeout);
+      canvasRightClickTimeout = setTimeout(() => {
+        dispatchModifiedEvent(args[0], "pointerdown", {button: 2, buttons: 2})
+      }, 400)
+    } else {
+      clearTimeout(canvasRightClickTimeout)
     }
     
     callbackForEasyTarget(event, args)
@@ -74,15 +92,25 @@ Hooks.once('init', () => {
 
 Hooks.on('ready', function () {
   try {
-    const canvas = findCanvas()
-    if (canvas) {
+    const canvasElem = findCanvas()
+    if (canvasElem) {
       // This sets up the main listener on the canvas
-      // For v11, this translates and adapts a lot of touch events into mouse events
-      // For v12, it's mostly just tracking touches and handling pan/zoom (I think), and is also used by the measurement HUD
-      const canvasTouchToMouseAdapter = CanvasTouchToMouseAdapter.init(canvas)
-      
-      initMeasurementHud({ canvasTouchToMouseAdapter })
-      WindowHeaderTouchToMouseAdapter.init(document.body)
+      // It keeps track of touches and handles pan/zoom gestures
+      const touchPointerEventsManager = TouchPointerEventsManager.init(canvasElem)
+      initMeasurementHud({ touchPointerEventsManager })
+
+      // This fixes an issue in v11 where a pen pointerdown would register as a pen input and a pointer input, creating a double click
+      if (parseInt(game.version) < 12) {
+        canvasElem.removeEventListener("pointerdown", canvas.app.renderer.events.onPointerDown, true)
+        wrapMethod('canvas.app.renderer.events.onPointerDown', function(originalMethod, ...args) {
+          if (args[0].pointerType == "pen") {
+            return
+          }
+          return originalMethod.call(this, ...args)
+        }, 'MIXED');
+        canvasElem.addEventListener("pointerdown", canvas.app.renderer.events.onPointerDown, true)
+      }
+
       console.info(`${MODULE_DISPLAY_NAME} started successfully.`)
     } else {
       console.warn(`Failed to find canvas element. ${MODULE_DISPLAY_NAME} will not be available.`)
