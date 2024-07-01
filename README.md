@@ -84,6 +84,7 @@ when those features are locked in "Lock View".
 
 ### Changelog
 
+- **2.0.1:** Added initial support for drag and drop
 - **2.0.0:** Large rework based on PointerEvents
 - **1.12.1:** Added option to disable pan/zoom gestures, added play/pause button, added Token eraser tool
 - **1.12.0:** Compatibility with FoundryVTT versions 11 and 12

@@ -3,6 +3,7 @@ import {MODULE_DISPLAY_NAME} from './config/ModuleConstants.js'
 import {wrapMethod} from './utils/Injection'
 
 import TouchPointerEventsManager from './logic/TouchPointerEventsManager.js'
+import WindowAppAdapter from './logic/WindowAppAdapter.js'
 import {dispatchModifiedEvent} from './logic/FakeTouchEvent.js'
 
 import '../style/touch-vtt.css'
@@ -14,7 +15,6 @@ import {installTokenEraser} from './tools/TokenEraserTool.js'
 import {callbackForEasyTarget} from './logic/EasyTarget'
 import {initDirectionalArrows} from './logic/DirectionalArrows'
 import {initEnlargeButtonTool} from './tools/EnlargeButtonsTool'
-import {initDraggableAppsTool} from './tools/DraggableAppsTool.js'
 import {installDrawingToolsControls} from './tools/DrawingTools'
 import {initMeasurementHud} from './tools/MeasurementHud'
 import {installUtilityControls} from './tools/UtilityControls'
@@ -44,7 +44,6 @@ Hooks.once('renderSceneNavigation', (controls) => {
 Hooks.once('init', () => {
   registerTouchSettings()
   initEnlargeButtonTool()
-  initDraggableAppsTool()
   initDirectionalArrows()
   initMeasurementTemplateEraser()
   initWallTools()
@@ -54,7 +53,7 @@ Hooks.once('init', () => {
 
   // This wrap gives us control over every MouseInteractionManager
   wrapMethod('MouseInteractionManager.prototype.callback', async function (originalMethod, event, ...args) {
-    console.log("MIM", this.object.constructor.name, event, ...args)
+    //console.log("MIM", this.object.constructor.name, event, ...args)
 
     // v12 only: ugly patch to fix annoying issue where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
     // For example, you open an actor sheet, if something clickable is under your finger (icon, action, ability, etc.) it will get wrongly clicked.
@@ -88,6 +87,10 @@ Hooks.once('init', () => {
     result ||= callbackForWallTools(modifier)
     return result
   }, 'MIXED')
+
+  // Adapter for various touch events in windows
+  const windowAppAdapter = WindowAppAdapter.init()
+
 })
 
 Hooks.on('ready', function () {

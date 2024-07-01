@@ -1,7 +1,7 @@
 // Used to dispatch an artificial PointerEvent based on an original one, with optional customized buttons and position offset
 // Starting from v1.13 the original event is not prevented anymore, we only do this as additions where necessary to fix stuff
 
-export function dispatchModifiedEvent(originalEvent, newEventType, {button = originalEvent.button, buttons = originalEvent.buttons} = {}, offset = 0) {
+export function dispatchModifiedEvent(originalEvent, newEventType = originalEvent.type, {button = originalEvent.button, buttons = originalEvent.buttons} = {}, offset = 0) {
   const mouseEventInitProperties = {
     clientX: originalEvent.clientX + offset,
     clientY: originalEvent.clientY + offset,
@@ -33,6 +33,6 @@ export function dispatchModifiedEvent(originalEvent, newEventType, {button = ori
   var target = originalEvent.nativeEvent ? originalEvent.nativeEvent.target : originalEvent.target
 
   const pointermoveEvent = new PointerEvent(newEventType, pointerEventInit)
-  console.log("dispatching", pointermoveEvent)
+  //console.log("dispatching", pointermoveEvent)
   target.dispatchEvent(pointermoveEvent)
 }
