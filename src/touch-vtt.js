@@ -69,7 +69,7 @@ Hooks.once('init', () => {
 
     // This is for sending a right click on long press (doesn't happen by default on the canvas)
     if (event == "clickLeft") {
-      clearTimeout(canvasRightClickTimeout);
+      clearTimeout(canvasRightClickTimeout)
       canvasRightClickTimeout = setTimeout(() => {
         dispatchModifiedEvent(args[0], "pointerdown", {button: 2, buttons: 2})
       }, 400)
@@ -107,7 +107,7 @@ Hooks.on('ready', function () {
             return
           }
           return originalMethod.call(this, ...args)
-        }, 'MIXED');
+        }, 'MIXED')
         canvasElem.addEventListener("pointerdown", canvas.app.renderer.events.onPointerDown, true)
       }
 

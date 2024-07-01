@@ -13,8 +13,8 @@ export function installUtilityControls() {
         } else {
           $(this).find("i").removeClass("fa-pause").addClass("fa-play")
         }
-          game.togglePause()
-        })
+        game.togglePause(!game.paused, true)
+      })
       .appendTo(controls)
     }
 

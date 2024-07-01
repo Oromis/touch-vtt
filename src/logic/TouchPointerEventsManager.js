@@ -32,8 +32,8 @@ class TouchPointerEventsManager {
         // This fixes the issue where a placeable is not selectable until is hovered, we need a move event in the area
         // Probably why the original module did the pointermove+pointerdown thing, might not be needed in v12
         // Had to add another move before to force a hover out and THEN the hover in
-        dispatchModifiedEvent(event, "pointermove", {button: -1, buttons: 0}, 200);
-        dispatchModifiedEvent(event, "pointermove", {button: -1, buttons: 0});
+        dispatchModifiedEvent(event, "pointermove", {button: -1, buttons: 0}, 200)
+        dispatchModifiedEvent(event, "pointermove", {button: -1, buttons: 0})
       }
     
       if (event.type == "pointerup" && event.isTrusted) {
