@@ -21,6 +21,7 @@ Features:
     the eraser tool, then tap the template you want to remove.
  - Additional wall placement tools that work with touch controls
  - Enlarge the menu buttons (on the left) to make them easier to use with touch controls
+ - Play/Pause button for GMs under Foundry logo
 
 Primary use cases:
  - You and your group play in person and you want to use Foundry to visualize gameplay - just put a touchscreen 
@@ -83,6 +84,8 @@ when those features are locked in "Lock View".
 
 ### Changelog
 
+- **2.0.0:** Large rework based on PointerEvents
+- **1.12.1:** Added option to disable pan/zoom gestures, added play/pause button, added Token eraser tool
 - **1.12.0:** Compatibility with FoundryVTT versions 11 and 12
 - **1.10.0:** Compatibility with FoundryVTT version 10
 - **1.9.1:** Compatibility with FoundryVTT version 9
