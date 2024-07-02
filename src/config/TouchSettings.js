@@ -1,5 +1,7 @@
-import {MODULE_NAME} from './ModuleConstants.js'
+import {MODULE_NAME, MODULE_DISPLAY_NAME} from './ModuleConstants.js'
 import {updateButtonSize} from '../tools/EnlargeButtonsTool'
+
+export const CORE_FUNCTIONALITY = "core"
 
 export const GESTURE_MODE_SETTING = "gestureMode"
 export const GESTURE_MODE_OFF = "off"
@@ -22,9 +24,183 @@ export const MEASUREMENT_HUD_OFF = "off"
 export const MEASUREMENT_HUD_RIGHT = "right"
 export const MEASUREMENT_HUD_LEFT = "left"
 
+export function getSetting(settingName) {
+  var overrideSettingValue = game.settings.get(MODULE_NAME, settingName + "_override")
+  if (overrideSettingValue == "override_off") {
+    return game.settings.get(MODULE_NAME, settingName)
+  }
+  if (game.settings.settings.get(MODULE_NAME + "." + settingName).type.name == "Boolean") {
+    overrideSettingValue = (overrideSettingValue == "on")
+  }
+  return overrideSettingValue  
+}
+
+class SettingsOverrideMenu extends FormApplication {
+  constructor(exampleOption) {
+    super();
+    this.exampleOption = exampleOption;
+  }
+
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      classes: ['form'],
+      popOut: true,
+      template: `/modules/${MODULE_NAME}/templates/settings-override.hbs`,
+      id: `${MODULE_NAME}-settings-override-form`,
+      title: `${MODULE_DISPLAY_NAME} - Settings Override`,
+    });
+  }
+
+  getData() {
+    var touchVttOverrideSettings = [...game.settings.settings].filter(s => s[0].startsWith(MODULE_NAME) && s[0].endsWith("_override"))
+    var data = {
+      settings: Object.fromEntries(
+        [...touchVttOverrideSettings]
+          .map(s => {
+            s[0] = s[0].split(".")[1]
+            var settingValue = game.settings.get(MODULE_NAME, s[0])
+            s[1].currentValue = settingValue
+            for (let choice in s[1].choices) {
+              if (typeof s[1].choices[choice] == "string") {
+                s[1].choices[choice] = {label: s[1].choices[choice]}
+              }
+              s[1].choices[choice].selected = (choice == settingValue)
+            }
+            return s
+          })
+      ),
+    }
+    // Send data to the template
+    return data
+  }
+
+  async _updateObject(event, formData) {
+    const data = expandObject(formData);
+    for (let setting in data) {
+      game.settings.set(MODULE_NAME, setting, data[setting]);
+    }
+    this.reloadConfirm()
+  }
+
+  async reloadConfirm() {
+    const reload = await Dialog.confirm({
+      title: game.i18n.localize("SETTINGS.ReloadPromptTitle"),
+      content: `<p>${game.i18n.localize("SETTINGS.ReloadPromptBody")}</p>`
+    })
+    if ( !reload ) return
+    if ( game.user.isGM ) game.socket.emit("reload")
+    foundry.utils.debouncedReload()
+  }
+
+  activateListeners(html) {
+    super.activateListeners(html)
+  }
+}
+
 export function registerTouchSettings() {
-  game.settings.register(MODULE_NAME, GESTURE_MODE_SETTING, {
+  // Overrides
+
+  game.settings.register(MODULE_NAME, CORE_FUNCTIONALITY + "_override", {
+    name: "Core Functionality",
+    hint: "Caution: disabling this option will remove all TouchVTT functionality, and other options will be ignored",
+    scope: "world",
+    config: false,
+    type: String,
+    choices: {
+      ["on"]: "On",
+      ["off"]: "Off",
+      ["override_off"]: "Don't override"
+    },
+    default: "override_off",
+  })
+
+  game.settings.register(MODULE_NAME, GESTURE_MODE_SETTING + "_override", {
     name: "Zoom / Pan Gestures",
+    hint: "Select the gesture to use for zooming & panning the game canvas",
+    scope: "world",
+    config: false,
+    type: String,
+    choices: {
+      [GESTURE_MODE_COMBINED]: "Zoom & Pan with 2 fingers",
+      [GESTURE_MODE_SPLIT]: "Zoom with 2 fingers, pan with 3 fingers",
+      [GESTURE_MODE_OFF]: "No zoom or pan gestures",
+      ["override_off"]: "Don't override"
+    },
+    default: "override_off",
+  })
+
+  game.settings.register(MODULE_NAME, DIRECTIONAL_ARROWS_SETTING + "_override", {
+    name: "Direction arrows in Token HUD",
+    hint: "Enables / disables the addition of arrow buttons used to rotate a token in the token's right-click menu",
+    scope: "world",
+    config: false,
+    type: String,
+    choices: {
+      [DIRECTIONAL_ARROWS_ON]: "On",
+      [DIRECTIONAL_ARROWS_OFF]: "Off",
+      ["override_off"]: "Don't override"
+    },
+    default: "override_off",
+  })
+
+  game.settings.register(MODULE_NAME, EASY_TARGET_SETTING + "_override", {
+    name: "Targeting behavior",
+    hint: "Controls if and how unowned tokens can be targeted via the touch interface",
+    scope: "world",
+    config: false,
+    type: String,
+    choices: {
+      [EASY_TARGET_OFF]: "Disabled",
+      [EASY_TARGET_SINGLE]: "Allow single target",
+      [EASY_TARGET_MULTIPLE]: "Allow multiple targets",
+      ["override_off"]: "Don't override"
+    },
+    default: "override_off",
+  })
+
+  game.settings.register(MODULE_NAME, MEASUREMENT_HUD_SETTING + "_override", {
+    name: "Measurement HUD",
+    hint: "Shows a UI while measuring distance with the ruler, allowing you to set waypoints or move your token",
+    scope: "world",
+    config: false,
+    type: String,
+    choices: {
+      [MEASUREMENT_HUD_OFF]: "Disabled",
+      [MEASUREMENT_HUD_RIGHT]: "Show right",
+      [MEASUREMENT_HUD_LEFT]: "Show left",
+      ["override_off"]: "Don't override"
+    },
+    default: "override_off",
+  })
+
+  game.settings.register(MODULE_NAME, LARGE_BUTTONS_SETTING + "_override", {
+    name: "Enlarge buttons in on-screen UI",
+    hint: "Increases the size of menu bar buttons to make them easier to use with touch controls",
+    scope: "world",
+    config: false,
+    type: String,
+    choices: {
+      ["on"]: "On",
+      ["off"]: "Off",
+      ["override_off"]: "Don't override"
+    },
+    default: "override_off",
+  })
+
+  // Client settings
+
+  game.settings.register(MODULE_NAME, CORE_FUNCTIONALITY, {
+    name: "Core Functionality",
+    hint: "Caution: disabling this option will remove all TouchVTT functionality, and other options will be ignored",
+    scope: "client",
+    config: true,
+    requiresReload: true,
+    type: Boolean,
+    default: true,
+  })
+
+  game.settings.register(MODULE_NAME, GESTURE_MODE_SETTING, {
+    name: "Zoom / Pan Gestures" + (game.settings.get(MODULE_NAME, GESTURE_MODE_SETTING + "_override") == "override_off" ? "" : " *"),
     hint: "Select the gesture to use for zooming & panning the game canvas",
     scope: "client",
     config: true,
@@ -38,7 +214,7 @@ export function registerTouchSettings() {
   })
 
   game.settings.register(MODULE_NAME, DIRECTIONAL_ARROWS_SETTING, {
-    name: "Direction arrows in Token HUD",
+    name: "Direction arrows in Token HUD" + (game.settings.get(MODULE_NAME, DIRECTIONAL_ARROWS_SETTING + "_override") == "override_off" ? "" : " *"),
     hint: "Enables / disables the addition of arrow buttons used to rotate a token in the token's right-click menu",
     scope: "client",
     config: true,
@@ -51,7 +227,7 @@ export function registerTouchSettings() {
   })
 
   game.settings.register(MODULE_NAME, EASY_TARGET_SETTING, {
-    name: "Targeting behavior",
+    name: "Targeting behavior" + (game.settings.get(MODULE_NAME, EASY_TARGET_SETTING + "_override") == "override_off" ? "" : " *"),
     hint: "Controls if and how unowned tokens can be targeted via the touch interface",
     scope: "client",
     config: true,
@@ -65,7 +241,7 @@ export function registerTouchSettings() {
   })
 
   game.settings.register(MODULE_NAME, MEASUREMENT_HUD_SETTING, {
-    name: "Measurement HUD",
+    name: "Measurement HUD" + (game.settings.get(MODULE_NAME, MEASUREMENT_HUD_SETTING + "_override") == "override_off" ? "" : " *"),
     hint: "Shows a UI while measuring distance with the ruler, allowing you to set waypoints or move your token",
     scope: "client",
     config: true,
@@ -79,7 +255,7 @@ export function registerTouchSettings() {
   })
 
   game.settings.register(MODULE_NAME, LARGE_BUTTONS_SETTING, {
-    name: "Enlarge buttons in on-screen UI",
+    name: "Enlarge buttons in on-screen UI" + (game.settings.get(MODULE_NAME, LARGE_BUTTONS_SETTING + "_override") == "override_off" ? "" : " *"),
     hint: "Increases the size of menu bar buttons to make them easier to use with touch controls",
     scope: "client",
     config: true,
@@ -87,4 +263,31 @@ export function registerTouchSettings() {
     default: false,
     onChange: enabled => updateButtonSize(enabled),
   })
+
+  // Override menu
+
+  game.settings.registerMenu(MODULE_NAME, "SettingsOverrideMenu", {
+    name: "Client Settings Overrides",
+    label: "Configure Overrides",
+    hint: "Configure which client settings are forced by the GM.",
+    icon: "fas fa-bars",
+    type: SettingsOverrideMenu,
+    restricted: true
+  });
+
+  // Hook to disable overridden settings
+  Hooks.on("renderSettingsConfig", (settingsConfig, settingsElem, settingsInfo) => {
+    var touchVttSettings = settingsInfo.categories.find(c => c.id == MODULE_NAME).settings
+    let overridePresent = false
+    touchVttSettings.forEach(setting => {
+      let overridden = setting.name.endsWith("*")
+      let input = settingsElem.find(`[name='${setting.id}']`)
+      input.prop("disabled", overridden)
+      overridePresent |= overridden
+    })
+    if (overridePresent) {
+      settingsElem.find(`[data-tab='${MODULE_NAME}'] h2`).after($("<small>").html("Some settings, indicated with an asterisk (*), are being overridden by the GM. The values selected here might not be accurate."))
+    }
+  })
+
 }

@@ -1,0 +1,18 @@
+<form class="flexcol">
+  <p><small>You can choose to force settings for all clients here. Selections on the client side will be ignored.</small></p>
+  {{#each settings}}
+    <div class="form-group">
+      <label for="{{@key}}">{{this.name}}</label>
+      <select name="{{@key}}">
+      {{#each this.choices}}
+        <option value="{{@key}}" {{#if this.selected}}selected="selected"{{/if}}>{{this.label}}</option>
+      {{/each}}
+      </select>
+  </div>
+  {{/each}}
+  <footer class="sheet-footer flexrow">
+    <button type="submit" name="submit">
+        <i class="fa fa-check"></i> OK
+    </button>
+  </footer>
+</form>

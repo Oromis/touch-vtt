@@ -1,5 +1,5 @@
 import {MODULE_NAME} from '../config/ModuleConstants'
-import {LARGE_BUTTONS_SETTING} from '../config/TouchSettings'
+import {getSetting, LARGE_BUTTONS_SETTING} from '../config/TouchSettings'
 
 const STYLE_ID = `${MODULE_NAME}-bug_button_styles`
 // CSS needed to be more specific. Unsure if just using !important would be better
@@ -35,5 +35,5 @@ export function updateButtonSize(useLargeButtons) {
 
 export function initEnlargeButtonTool() {
   createStyleElement()
-  updateButtonSize(game.settings.get(MODULE_NAME, LARGE_BUTTONS_SETTING) || false)
+  updateButtonSize(getSetting(LARGE_BUTTONS_SETTING) || false)
 }

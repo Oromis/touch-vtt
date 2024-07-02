@@ -3,8 +3,7 @@ import {dispatchModifiedEvent} from "./FakeTouchEvent"
 import Vectors from './Vectors.js'
 import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
 import Screen from '../browser/Screen.js'
-import {GESTURE_MODE_SETTING, GESTURE_MODE_SPLIT, GESTURE_MODE_OFF} from '../config/TouchSettings.js'
-import {MODULE_NAME} from '../config/ModuleConstants.js'
+import {getSetting, GESTURE_MODE_SETTING, GESTURE_MODE_SPLIT, GESTURE_MODE_OFF} from '../config/TouchSettings.js'
 
 // This class is similar in structure to the original CanvasTouchToMouseAdapter, but it doesn't capture/prevent events
 // It only hooks into the PointerEvents and tracks them for specific fixes (by dispatching additional events) and multi-touch management
@@ -230,11 +229,11 @@ class TouchPointerEventsManager {
   }
 
   useSplitGestures() {
-    return game.settings.get(MODULE_NAME, GESTURE_MODE_SETTING) === GESTURE_MODE_SPLIT
+    return getSetting(GESTURE_MODE_SETTING) === GESTURE_MODE_SPLIT
   }
 
   useNoGestures() {
-    return game.settings.get(MODULE_NAME, GESTURE_MODE_SETTING) === GESTURE_MODE_OFF
+    return getSetting(GESTURE_MODE_SETTING) === GESTURE_MODE_OFF
   }
 
   disableGestures() {

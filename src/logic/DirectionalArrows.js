@@ -1,6 +1,5 @@
 import {wrapMethod} from '../utils/Injection'
-import {MODULE_NAME} from '../config/ModuleConstants'
-import {DIRECTIONAL_ARROWS_ON, DIRECTIONAL_ARROWS_SETTING} from '../config/TouchSettings'
+import {getSetting, DIRECTIONAL_ARROWS_ON, DIRECTIONAL_ARROWS_SETTING} from '../config/TouchSettings'
 
 export function initDirectionalArrows() {
   if (tokenHudExists()) {
@@ -56,7 +55,7 @@ function getActiveToken() {
 }
 
 function areDirectionalArrowsEnabled() {
-  return game.settings.get(MODULE_NAME, DIRECTIONAL_ARROWS_SETTING) === DIRECTIONAL_ARROWS_ON
+  return getSetting(DIRECTIONAL_ARROWS_SETTING) === DIRECTIONAL_ARROWS_ON
 }
 
 function canControl(token) {

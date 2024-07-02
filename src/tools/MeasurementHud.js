@@ -2,7 +2,7 @@ import {MODULE_NAME} from '../config/ModuleConstants'
 import {wrapMethod} from '../utils/Injection'
 import FoundryCanvas from '../foundryvtt/FoundryCanvas'
 import Vectors from '../logic/Vectors.js'
-import {MEASUREMENT_HUD_LEFT, MEASUREMENT_HUD_OFF, MEASUREMENT_HUD_SETTING} from '../config/TouchSettings.js'
+import {getSetting, MEASUREMENT_HUD_LEFT, MEASUREMENT_HUD_OFF, MEASUREMENT_HUD_SETTING} from '../config/TouchSettings.js'
 
 class TouchMeasurementHud extends Application {
   constructor({ touchPointerEventsManager }) {
@@ -163,7 +163,7 @@ function isOwnRuler(ruler) {
 }
 
 function getSettingValue() {
-  return game.settings.get(MODULE_NAME, MEASUREMENT_HUD_SETTING)
+  return getSetting(MEASUREMENT_HUD_SETTING)
 }
 
 function isEnabled() {

@@ -1,5 +1,4 @@
-import {MODULE_NAME} from '../config/ModuleConstants'
-import {EASY_TARGET_OFF, EASY_TARGET_SETTING, EASY_TARGET_SINGLE} from '../config/TouchSettings'
+import {getSetting, EASY_TARGET_OFF, EASY_TARGET_SETTING, EASY_TARGET_SINGLE} from '../config/TouchSettings'
 
 export function callbackForEasyTarget(event, events) {
   if (event == "clickLeft") {
@@ -17,7 +16,7 @@ function targetToken(token) {
 }
 
 function getSettingValue() {
-  return game.settings.get(MODULE_NAME, EASY_TARGET_SETTING)
+  return getSetting(EASY_TARGET_SETTING)
 }
 
 function isEasyTargetEnabled() {
