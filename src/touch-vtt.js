@@ -53,32 +53,38 @@ Hooks.once('init', () => {
 
   // This wrap gives us control over every MouseInteractionManager
   wrapMethod('MouseInteractionManager.prototype.callback', async function (originalMethod, event, ...args) {
-    //console.log("MIM", this.object.constructor.name, event, ...args)
+    if (args[0].pointerType == "touch") {
 
-    // v12 only: ugly patch to fix annoying issue where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
-    // For example, you open an actor sheet, if something clickable is under your finger (icon, action, ability, etc.) it will get wrongly clicked.
-    // What we do here is delay the sheet rendering a little bit, and also dispatch a right click on the canvas to avoid a lingering drag select on the placeable.
-    if (parseInt(game.version) >= 12) {
-      if (event == "clickLeft2") {
-        await new Promise(resolve => setTimeout(resolve, 100))
-        document.getElementById("board").dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2}))
-        return originalMethod.call(this, event, ...args)
+      //console.log("MIM", this.object.constructor.name, event, ...args)
+
+      // v12 only: ugly patch to fix annoying issue where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
+      // For example, you open an actor sheet, if something clickable is under your finger (icon, action, ability, etc.) it will get wrongly clicked.
+      // What we do here is delay the sheet rendering a little bit, and also dispatch a right click on the canvas to avoid a lingering drag select on the placeable.
+      if (parseInt(game.version) >= 12) {
+        if (event == "clickLeft2") {
+          await new Promise(resolve => setTimeout(resolve, 100))
+          document.getElementById("board").dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2}))
+          return originalMethod.call(this, event, ...args)
+        }
       }
-    }
 
-    // This is for sending a right click on long press (doesn't happen by default on the canvas)
-    if (event == "clickLeft") {
-      clearTimeout(canvasRightClickTimeout)
-      canvasRightClickTimeout = setTimeout(() => {
-        dispatchModifiedEvent(args[0], "pointerdown", {button: 2, buttons: 2})
-      }, 400)
-    } else {
-      clearTimeout(canvasRightClickTimeout)
+      // This is for sending a right click on long press (doesn't happen by default on the canvas)
+      if (event == "clickLeft") {
+        clearTimeout(canvasRightClickTimeout)
+        canvasRightClickTimeout = setTimeout(() => {
+          dispatchModifiedEvent(args[0], "pointerdown", {button: 2, buttons: 2})
+        }, 400)
+      } else {
+        clearTimeout(canvasRightClickTimeout)
+      }
+      
+      callbackForEasyTarget(event, args)
+      callbackForSnapToGrid(event, args)
+    
     }
     
-    callbackForEasyTarget(event, args)
-    callbackForSnapToGrid(event, args)
     return originalMethod.call(this, event, ...args)
+
   }, 'MIXED')
 
   // This wrap is used for wall chaining: when the chain button is active, pretend we are holding Ctrl
