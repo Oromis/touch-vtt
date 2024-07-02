@@ -4,6 +4,7 @@
   "TOUCHVTT.UndoWall": "Undo Last Wall",
   "TOUCHVTT.DeleteWall": "Delete Selected Wall",
   "TOUCHVTT.DeleteDrawing": "Delete Selected Drawing",
+  "TOUCHVTT.DeleteToken": "Delete Selected Token",
   "TOUCHVTT.SnapToGrid": "Snap Tokens to Grid",
   "TOUCHVTT.Rotate0": "Rotate Up",
   "TOUCHVTT.Rotate45": "Rotate Up-Right",

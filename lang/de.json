@@ -4,6 +4,7 @@
   "TOUCHVTT.UndoWall": "Letzte Wand rückgängig machen",
   "TOUCHVTT.DeleteWall": "Lösche letzte Wand",
   "TOUCHVTT.DeleteDrawing": "Lösche gewählte Zeichnung",
+  "TOUCHVTT.DeleteToken": "Lösche gewählte Token",
   "TOUCHVTT.SnapToGrid": "Token am Raster ausrichten",
   "TOUCHVTT.Rotate0": "Drehen nach Oben",
   "TOUCHVTT.Rotate45": "Drehen nach Oben-Rechts",
