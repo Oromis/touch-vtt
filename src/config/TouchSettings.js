@@ -37,8 +37,8 @@ export function getSetting(settingName) {
 
 class SettingsOverrideMenu extends FormApplication {
   constructor(exampleOption) {
-    super();
-    this.exampleOption = exampleOption;
+    super()
+    this.exampleOption = exampleOption
   }
 
   static get defaultOptions() {
@@ -48,7 +48,7 @@ class SettingsOverrideMenu extends FormApplication {
       template: `/modules/${MODULE_NAME}/templates/settings-override.hbs`,
       id: `${MODULE_NAME}-settings-override-form`,
       title: `${MODULE_DISPLAY_NAME} - Settings Override`,
-    });
+    })
   }
 
   getData() {
@@ -75,9 +75,9 @@ class SettingsOverrideMenu extends FormApplication {
   }
 
   async _updateObject(event, formData) {
-    const data = expandObject(formData);
+    const data = expandObject(formData)
     for (let setting in data) {
-      game.settings.set(MODULE_NAME, setting, data[setting]);
+      game.settings.set(MODULE_NAME, setting, data[setting])
     }
     this.reloadConfirm()
   }
@@ -273,7 +273,7 @@ export function registerTouchSettings() {
     icon: "fas fa-bars",
     type: SettingsOverrideMenu,
     restricted: true
-  });
+  })
 
   // Hook to disable overridden settings
   Hooks.on("renderSettingsConfig", (settingsConfig, settingsElem, settingsInfo) => {
