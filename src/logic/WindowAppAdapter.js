@@ -8,7 +8,7 @@ import '../utils/DragDropTouch.js'
 const STYLE_ID = `${MODULE_NAME}-draggable_apps_styles`
 
 const draggableAppStyle = `
-.app {
+.app, .app .window-title {
   touch-action: none;
 }
 `
@@ -27,7 +27,7 @@ class WindowAppAdapter {
 
     // Artificial double clicks
     $(document.body).on("click", ".app", this.manageTouchDblClick.bind(this))
-
+    
     // Avoid error on Drag and Drop polyfill
     wrapMethod('DragDrop.prototype._handleDragStart', function(originalMethod, event) {
     if (event.dataTransfer.items) {
