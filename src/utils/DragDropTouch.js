@@ -258,7 +258,8 @@ let DragDropTouch;
                 // user clicked the element but didn't drag, so clear the source and simulate a click
                 if (!this._img) {
                     this._dragSource = null;
-                    this._dispatchEvent(this._lastTouch, 'click', e.target);
+                    // Updated 2024-07-08: seems like we don't need the fake click
+                    //this._dispatchEvent(this._lastTouch, 'click', e.target);
                     this._lastClick = Date.now();
                 }
                 // finish dragging
