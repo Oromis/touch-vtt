@@ -221,7 +221,7 @@ class TouchPointerEventsManager {
   }
 
   isTouchPointerEvent(event) {
-    return event instanceof PointerEvent && event.pointerType === "touch"
+    return event instanceof PointerEvent && ["touch", "pen"].includes(event.pointerType)
   }
 
   get touchIds() {
