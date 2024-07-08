@@ -7,7 +7,7 @@ import WindowAppAdapter from './logic/WindowAppAdapter.js'
 import {dispatchModifiedEvent} from './logic/FakeTouchEvent.js'
 
 import '../style/touch-vtt.css'
-import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY} from './config/TouchSettings.js'
+import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY, DEBUG_MODE_SETTING} from './config/TouchSettings.js'
 import {installMeasurementTemplateEraser, initMeasurementTemplateEraser} from './tools/MeasurementTemplateEraser.js'
 import {callbackForWallTools, installWallToolsControls, initWallTools} from './tools/WallTools.js'
 import {callbackForSnapToGrid, installSnapToGrid} from './tools/SnapToGridTool.js'
@@ -150,4 +150,13 @@ Hooks.on('ready', function () {
       console.error(`Failed to initialize ${MODULE_DISPLAY_NAME}: `, e)
     }
   }
+
+  if (getSetting(DEBUG_MODE_SETTING)) {
+    ["pointerdown", "pointermove", "pointerup", "pointercancel","touchstart", "touchmove", "touchend"].forEach(e => {
+      document.body.addEventListener(e, evt => {
+        console.log(MODULE_DISPLAY_NAME + ": " + evt.type, evt.pointerType, evt.isTrusted, evt)
+      })
+    })
+  }
+
 })

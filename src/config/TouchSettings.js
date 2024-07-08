@@ -24,8 +24,15 @@ export const MEASUREMENT_HUD_OFF = "off"
 export const MEASUREMENT_HUD_RIGHT = "right"
 export const MEASUREMENT_HUD_LEFT = "left"
 
+export const DEBUG_MODE_SETTING = "debugMode"
+
 export function getSetting(settingName) {
-  var overrideSettingValue = game.settings.get(MODULE_NAME, settingName + "_override")
+  let overrideSettingValue;
+  try {
+    overrideSettingValue = game.settings.get(MODULE_NAME, settingName + "_override")
+  } catch(e) {
+    overrideSettingValue = "override_off"
+  }
   if (overrideSettingValue == "override_off") {
     return game.settings.get(MODULE_NAME, settingName)
   }
@@ -262,6 +269,16 @@ export function registerTouchSettings() {
     type: Boolean,
     default: false,
     onChange: enabled => updateButtonSize(enabled),
+  })
+
+  game.settings.register(MODULE_NAME, DEBUG_MODE_SETTING, {
+    name: "Enable Debug Mode",
+    hint: "Sends additional log messages to the developer console",
+    scope: "client",
+    config: true,
+    requiresReload: true,
+    type: Boolean,
+    default: false,
   })
 
   // Override menu
