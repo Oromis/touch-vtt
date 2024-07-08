@@ -22,6 +22,12 @@ class TouchPointerEventsManager {
 
   handleTouch(event) {
 
+    if (!this.isTouchPointerEvent(event)) {
+      return
+    }
+
+    // Only touch-based events here, e.g. this excludes "pen"
+
     // Here we manage any of the up/down/move PointerEvents on the canvas
     // Some generic fixes go here
 
@@ -44,12 +50,6 @@ class TouchPointerEventsManager {
       }
       
     }
-
-    if (!this.isTouchPointerEvent(event)) {
-      return
-    }
-
-    // Only touch-based events here, e.g. this excludes "pen"
 
     if (this.shouldHandleEvent(event)) {
       // shouldHandleEvent excludes our fake events at this time
