@@ -67,7 +67,7 @@ Hooks.once('init', () => {
         // v12 only: ugly patch to fix annoying issue where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
         // For example, you open an actor sheet, if something clickable is under your finger (icon, action, ability, etc.) it will get wrongly clicked.
         // What we do here is delay the sheet rendering a little bit, and also dispatch a right click on the canvas to avoid a lingering drag select on the placeable.
-        if (parseInt(game.version) >= 12) {
+        if (game.release.generation >= 12) {
           if (event == "clickLeft2") {
             await new Promise(resolve => setTimeout(resolve, 100))
             document.getElementById("board").dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2}))
@@ -121,7 +121,7 @@ Hooks.on('ready', function () {
         initMeasurementHud({ touchPointerEventsManager })
 
         // This fixes an issue in v11 where a pen pointerdown would register as a pen input and a pointer input, creating a double click
-        if (parseInt(game.version) < 12) {
+        if (game.release.generation < 12) {
           canvasElem.removeEventListener("pointerdown", canvas.app.renderer.events.onPointerDown, true)
           wrapMethod('canvas.app.renderer.events.onPointerDown', function(originalMethod, ...args) {
             if (args[0].pointerType == "pen") {

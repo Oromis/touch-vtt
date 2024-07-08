@@ -126,7 +126,7 @@ export function initMeasurementHud({ touchPointerEventsManager }) {
     wrapMethod('Ruler.prototype._onMouseMove', function (wrapped, event, ...args) {
       // I think here we're storing "touch" or "mouse" somewhere in the interactionData so we can check it later
       if (event.interactionData != null && event.interactionData.destination != null) {
-        if (parseInt(game.version) < 12) {
+        if (game.release.generation < 12) {
           event.interactionData.destination.originType = event.pointerType
         } else {
           event.interactionData.destination.originType = event.data?.originalEvent?.pointerType

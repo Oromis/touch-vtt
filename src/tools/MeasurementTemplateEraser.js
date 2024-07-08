@@ -13,7 +13,7 @@ export function initMeasurementTemplateEraser() {
     if (isEraserActive()) {
       this.document.delete()
       // v11 only: we dispatch a left click on the canvas because the template shape was lingering while dragging after the deletion
-      if (parseInt(game.version) < 12) {
+      if (game.release.generation < 12) {
         setTimeout(() => { document.getElementById("board").dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2})) }, 0)
       }
     } else {

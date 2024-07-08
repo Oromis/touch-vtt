@@ -25,7 +25,7 @@ class TouchPointerEventsManager {
     // Here we manage any of the up/down/move PointerEvents on the canvas
     // Some generic fixes go here
 
-    if (parseInt(game.version) < 12) {
+    if (game.release.generation < 12) {
 
       if (event.type == "pointerdown" && event.isTrusted) {
         // This fixes the issue where a placeable is not selectable until is hovered, we need a move event in the area

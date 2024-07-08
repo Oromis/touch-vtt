@@ -7,7 +7,7 @@ function installChainingHook() {
   // Hook into the wall layer's listeners for some ugly fixes
 
   // This is to stop an unwanted dragLeftCancel coming from an unwanted pointerup in v11
-  if (parseInt(game.version) < 12) {
+  if (game.release.generation < 12) {
     wrapMethod('WallsLayer.prototype._onDragLeftCancel', function(callOriginal, ...args) {
       if (args[0] instanceof PointerEvent) {
         args[0].preventDefault()
