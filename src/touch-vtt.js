@@ -19,6 +19,8 @@ import {installDrawingToolsControls} from './tools/DrawingTools'
 import {initMeasurementHud} from './tools/MeasurementHud'
 import {installUtilityControls} from './tools/UtilityControls'
 
+import {TouchVTTMouseInteractionManager} from './logic/TouchVTTMouseInteractionManager.js'
+
 function findCanvas() {
   return document.querySelector('canvas#board') ||
     document.querySelector('body > canvas') ||
@@ -54,6 +56,11 @@ Hooks.once('init', () => {
     initDirectionalArrows()
     initMeasurementTemplateEraser()
     initWallTools()
+
+    if (game.release.generation < 12) {
+      // The only clean way I found to patch v11's MouseInteractionManager. The only difference is a listener for mouseupoutside is now pointerupoutside (see https://github.com/foundryvtt/foundryvtt/issues/10236)
+      MouseInteractionManager = TouchVTTMouseInteractionManager;
+    }
 
     // We want a longer long press on our MouseInteractionManagers, we will use a shorter one for faking a right-click
     MouseInteractionManager.LONG_PRESS_DURATION_MS = 1000
@@ -93,9 +100,16 @@ Hooks.once('init', () => {
         }
 
         callbackForEasyTarget(event, args)
+
         // For some reason we receive an empty origin for a touch/pen longPress, but we can get it from the event itself
         if (event == "longPress" && !args[1]) {
           args[1] = args[0].interactionData.origin
+        }
+
+        // To remove an unwanted dragLeftCancel (we do a similar thing for walls)
+        if (event == "dragLeftCancel" && args[0] instanceof PointerEvent) {
+          args[0].preventDefault()
+          return
         }
       
       }

@@ -24,15 +24,15 @@ export function dispatchModifiedEvent(originalEvent, newEventType = originalEven
   }
 
   const pointerEventInit = {
-    pointerId: originalEvent.identifier,
-    pointerType: 'mouse',
+    pointerId: null,
+    pointerType: "mouse",
     isPrimary: true,
     ...mouseEventInitProperties,
   }
 
   var target = originalEvent.nativeEvent ? originalEvent.nativeEvent.target : originalEvent.target
 
-  const pointermoveEvent = new PointerEvent(newEventType, pointerEventInit)
-  //console.log("dispatching", pointermoveEvent)
-  target.dispatchEvent(pointermoveEvent)
+  const pointerEvent = new PointerEvent(newEventType, pointerEventInit)
+  //console.log("dispatching", pointerEvent)
+  target.dispatchEvent(pointerEvent)
 }
