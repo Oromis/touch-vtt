@@ -26,7 +26,7 @@ class TouchPointerEventsManager {
       return
     }
 
-    // Only touch-based events here, e.g. this excludes "pen"
+    // Only touch-based events here
 
     // Here we manage any of the up/down/move PointerEvents on the canvas
     // Some generic fixes go here

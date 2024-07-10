@@ -27,7 +27,7 @@ export const MEASUREMENT_HUD_LEFT = "left"
 export const DEBUG_MODE_SETTING = "debugMode"
 
 export function getSetting(settingName) {
-  let overrideSettingValue;
+  let overrideSettingValue
   try {
     overrideSettingValue = game.settings.get(MODULE_NAME, settingName + "_override")
   } catch(e) {

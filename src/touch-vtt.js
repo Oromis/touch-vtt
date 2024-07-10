@@ -59,7 +59,7 @@ Hooks.once('init', () => {
 
     if (game.release.generation < 12) {
       // The only clean way I found to patch v11's MouseInteractionManager. The only difference is a listener for mouseupoutside is now pointerupoutside (see https://github.com/foundryvtt/foundryvtt/issues/10236)
-      MouseInteractionManager = TouchVTTMouseInteractionManager;
+      MouseInteractionManager = TouchVTTMouseInteractionManager
     }
 
     // We want a longer long press on our MouseInteractionManagers, we will use a shorter one for faking a right-click

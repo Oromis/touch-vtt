@@ -56,6 +56,8 @@ export function installWallToolsControls(menuStructure) {
 export function callbackForWallTools(modifier) {
   if (modifier === KeyboardManager.MODIFIER_KEYS.CONTROL && ui.controls.activeControl == "walls" && chainingActive) {
     return true
+  } else {
+    return false
   }
 }
 
