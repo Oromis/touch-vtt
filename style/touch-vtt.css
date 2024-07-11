@@ -36,7 +36,7 @@
 .directional-arrow.directional-arrow-315 { top: 0; left: 0; transform: translate(-100%, -100%); }
 .directional-arrow.directional-arrow-315 > i { transform: rotate(315deg); }
 
-#touch-measurement-hud {
+#touch-measurement-hud, #touch-measured-template-hud {
     z-index: 99;
     display: flex;
     flex-direction: column;
@@ -47,11 +47,15 @@
     background: none;
 }
 
+#touch-measured-template-hud {
+    height: 80px;
+}
+
 #touch-measurement-hud .move {
     transform: rotate(-90deg);
 }
 
-#touch-measurement-hud .control-icon {
+#touch-measurement-hud .control-icon, #touch-measured-template-hud .control-icon {
     width: 60px;
     flex-basis: 60px;
     line-height: 60px;

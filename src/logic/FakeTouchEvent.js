@@ -24,7 +24,7 @@ export function dispatchModifiedEvent(originalEvent, newEventType = originalEven
   }
 
   const pointerEventInit = {
-    pointerId: null,
+    pointerId: originalEvent.pointerId,
     pointerType: "mouse",
     isPrimary: true,
     ...mouseEventInitProperties,

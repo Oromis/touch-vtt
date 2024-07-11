@@ -8,7 +8,7 @@ import {dispatchModifiedEvent} from './logic/FakeTouchEvent.js'
 
 import '../style/touch-vtt.css'
 import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY, DEBUG_MODE_SETTING} from './config/TouchSettings.js'
-import {installMeasurementTemplateEraser, initMeasurementTemplateEraser} from './tools/MeasurementTemplateEraser.js'
+import {MeasuredTemplateManager, installMeasurementTemplateEraser} from './tools/MeasuredTemplateManagement.js'
 import {callbackForWallTools, installWallToolsControls, initWallTools} from './tools/WallTools.js'
 import {callbackForSnapToGrid, installSnapToGrid} from './tools/SnapToGridTool.js'
 import {installTokenEraser} from './tools/TokenEraserTool.js'
@@ -28,6 +28,7 @@ function findCanvas() {
 }
 
 var canvasRightClickTimeout = null
+const measuredTemplateManager = MeasuredTemplateManager.init()
 
 console.log(`${MODULE_DISPLAY_NAME} booting ...`)
 
@@ -54,7 +55,7 @@ Hooks.once('init', () => {
 
     initEnlargeButtonTool()
     initDirectionalArrows()
-    initMeasurementTemplateEraser()
+    measuredTemplateManager.initMeasuredTemplateManagement()
     initWallTools()
 
     if (game.release.generation < 12) {
@@ -144,6 +145,9 @@ Hooks.on('ready', function () {
         const touchPointerEventsManager = TouchPointerEventsManager.init(canvasElem)
         initMeasurementHud({ touchPointerEventsManager })
 
+        // This gives the user a touch-friendly UI for pre-made templates (like from an automatic "Place Measured Template" chat button, or MidiQOL)
+        measuredTemplateManager.initMeasuredTemplateHud(touchPointerEventsManager)
+
         // This fixes an issue in v11 where a pen pointerdown would register as a pen input and a pointer input, creating a double click
         if (game.release.generation < 12) {
           canvasElem.removeEventListener("pointerdown", canvas.app.renderer.events.onPointerDown, true)
@@ -166,10 +170,10 @@ Hooks.on('ready', function () {
   }
 
   if (getSetting(DEBUG_MODE_SETTING)) {
-    ["pointerdown", "pointermove", "pointerup", "pointercancel","touchstart", "touchmove", "touchend"].forEach(e => {
+    ["pointerdown", "pointermove", "pointerup", "pointercancel", "touchstart", "touchmove", "touchend"].forEach(e => {
       document.body.addEventListener(e, evt => {
         console.log(MODULE_DISPLAY_NAME + ": " + evt.type, evt.pointerType, evt.isTrusted, evt)
-      })
+      }, true)
     })
   }
 

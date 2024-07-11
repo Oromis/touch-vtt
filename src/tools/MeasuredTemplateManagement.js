@@ -1,0 +1,218 @@
+import {MODULE_NAME} from '../config/ModuleConstants'
+import FoundryCanvas from '../foundryvtt/FoundryCanvas'
+import {injectMethodCondition, wrapMethod} from '../utils/Injection.js'
+import {dispatchModifiedEvent} from '../logic/FakeTouchEvent.js'
+import {getSetting, MEASUREMENT_HUD_LEFT, MEASUREMENT_HUD_OFF, MEASUREMENT_HUD_SETTING} from '../config/TouchSettings.js'
+
+const TOOL_NAME_ERASE = 'erase'
+
+class TouchMeasuredTemplateHud extends Application {
+  constructor({ touchPointerEventsManager, templateManager }) {
+    super()
+
+    this._touchPointerEventsManager = touchPointerEventsManager
+    this._templateManager = templateManager
+    this._worldPosition = null
+    this._screenPosition = {}
+    this._currentTemplate = null
+  }
+
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      id: "touch-measured-template-hud",
+      template: `/modules/${MODULE_NAME}/templates/measured-template-hud.hbs`,
+      popOut: false,
+      width: 200,
+      height: 100,
+      left: 150,
+      top: 80,
+      scale: 1,
+      minimizable: false,
+      resizable: false,
+      dragDrop: [],
+      tabs: [],
+      scrollY: [],
+    })
+  }
+
+  getData(...args) {
+    const data = super.getData(...args)
+    data.id = this.options.id
+    data.top = this._screenPosition.top
+    data.left = this._screenPosition.left
+    data.offsetX = this.calcOffsetX()
+    data.showRotate = true
+    data.showConfirm = true
+    return data
+  }
+
+  activateListeners(html) {
+    html.find('.rotate').on('pointerdown', () => {
+      this._currentTemplate.document.updateSource({direction: this._currentTemplate.document.direction + 15})
+      this._currentTemplate.refresh()
+    })
+    
+    html.find('.confirm').on('pointerdown', () => {
+      this._templateManager.toggleMeasuredTemplateTouchManagementListeners(false)
+      this._templateManager._touchMode = false
+      // We send mousedown/mouseup events to be as close as possible to the expected behavior
+      document.getElementById("board").dispatchEvent(new PointerEvent("pointerdown", {pointerType: "mouse", isPrimary: true, clientX: this._screenPosition.left, clientY: this._screenPosition.top, button: 0, buttons: 1}))
+      document.getElementById("board").dispatchEvent(new PointerEvent("pointerup", {pointerType: "mouse", isPrimary: true, clientX: this._screenPosition.left, clientY: this._screenPosition.top, button: 0, buttons: 1}))
+      canvas.hud.touchMeasuredTemplate.clear()
+    })
+  }
+
+  async show(template) {
+    this._currentTemplate = template
+    const worldPosition = {x: template.document.x, y: template.document.y}
+    if (this._templateManager._touchMode) {
+      this._worldPosition = worldPosition
+      const screenPosition = FoundryCanvas.worldToScreen(worldPosition)
+      this.setScreenPosition({
+        left: screenPosition.x,
+        top: screenPosition.y,
+      })
+
+      const states = this.constructor.RENDER_STATES
+      await this.render(this._state <= states.NONE)
+
+      this._touchPointerEventsManager.disableGestures()
+    }
+  }
+
+  clear() {
+    const states = this.constructor.RENDER_STATES
+    if (this._state <= states.NONE) return
+    this._state = states.CLOSING
+
+    this.element.hide()
+    this._state = states.NONE
+
+    this._touchPointerEventsManager.enableGestures()
+  }
+
+  setScreenPosition({top, left}) {
+    this._screenPosition = { top, left }
+  }
+
+  calcOffsetX() {
+    const offset = FoundryCanvas.worldToScreenLength(FoundryCanvas.gridSize) * 0.75
+    if (getSetting(MEASUREMENT_HUD_SETTING) === MEASUREMENT_HUD_LEFT) {
+      return `calc(-100% - ${offset}px)`
+    } else {
+      return `${offset}px`
+    }
+  }
+}
+
+export class MeasuredTemplateManager {
+
+  constructor() {
+    this._touchMode = false
+    this._touchEventReplacer = this.touchEventReplacer.bind(this)
+  }
+
+  
+  initMeasuredTemplateHud(touchPointerEventsManager) {
+    if (canvas.hud.touchMeasuredTemplate == null) {
+      canvas.hud.touchMeasuredTemplate = new TouchMeasuredTemplateHud({ touchPointerEventsManager, templateManager: this })
+
+      wrapMethod("MeasuredTemplate.prototype._applyRenderFlags", function(originalMethod, flags) {
+        if (flags.refreshPosition) {
+          canvas.hud.touchMeasuredTemplate.show(this)
+        }
+        return originalMethod.call(this, flags)
+      })
+    }
+  }
+
+  touchEventReplacer(evt) {
+    // An event gets here if the listeners have been activated; we replace them all with pointermove until the template is confirmed
+    if (evt.isTrusted) {
+      if (evt instanceof TouchEvent || evt instanceof PointerEvent && ["touch", "pen"].includes(evt.pointerType)) {
+        this._touchMode = true
+      } else {
+        this._touchMode = false
+        return this.toggleMeasuredTemplateTouchManagementListeners(false)
+      }
+    }
+    if (this._touchMode && evt.isTrusted && evt.target.tagName == "CANVAS") {
+      evt.preventDefault()
+      evt.stopPropagation()
+      if (evt instanceof PointerEvent) {
+        dispatchModifiedEvent(evt, "pointermove", {button: -1, buttons: 0})
+      }
+      return false
+    } else {
+      return true
+    }
+  }
+
+  toggleMeasuredTemplateTouchManagementListeners(activate = true) {
+    // When, active, we capture all relevant events to see if they need to be replaced
+    if (activate) {
+      ["pointerdown", "pointerup", "pointermove", "touchstart", "touchend"].forEach(e => {
+        window.addEventListener(e, this._touchEventReplacer, true)
+      })
+    } else {
+      ["pointerdown", "pointerup", "pointermove", "touchstart", "touchend"].forEach(e => {
+        window.removeEventListener(e, this._touchEventReplacer, true)
+      })
+    }
+  }
+
+  initMeasuredTemplateManagement() {
+    const isEraserActive = () => game.activeTool === TOOL_NAME_ERASE
+    const isEraserInactive = () => !isEraserActive()
+
+    injectMethodCondition('TemplateLayer.prototype._onDragLeftStart', isEraserInactive)
+    injectMethodCondition('TemplateLayer.prototype._onDragLeftMove', isEraserInactive)
+    injectMethodCondition('TemplateLayer.prototype._onDragLeftDrop', isEraserInactive)
+    injectMethodCondition('TemplateLayer.prototype._onDragLeftCancel', isEraserInactive)
+
+    wrapMethod('MeasuredTemplate.prototype._onClickLeft', function(callOriginal, ...args) {
+      if (isEraserActive()) {
+        this.document.delete()
+        // v11 only: we dispatch a left click on the canvas because the template shape was lingering while dragging after the deletion
+        if (game.release.generation < 12) {
+          setTimeout(() => { document.getElementById("board").dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2})) }, 0)
+        }
+      } else {
+        callOriginal(...args)
+      }
+    }, 'MIXED')
+
+    Hooks.on("drawMeasuredTemplate", (template) => {
+      // Explaining the condition here for future reference:
+      // A pre-made template is a preview, doesn't have an id, and has a distance already set.
+      // A template created by dragging has two draws: on dragStart, it is a preview, doesn't have an id, and has distance 1; on confirmation, it's not a preview, has an id, has a set distance
+      // When you move an existing template, it is a preview, it has a set distance, it doesn't have an id
+      if (template.isPreview && !template.id) {
+        if (template.document.distance > 1) {
+          // This is a pre-made template that we want to place, so we activate our listeners
+          this.toggleMeasuredTemplateTouchManagementListeners(true)
+        }
+      }
+    })
+    
+  }
+
+}
+
+MeasuredTemplateManager.init = function init() {
+  return new MeasuredTemplateManager()
+}
+
+export function installMeasurementTemplateEraser(menuStructure) {
+  const measurementCategory = menuStructure.find(c => c.name === 'measure')
+  if (measurementCategory != null) {
+    const clearIndex = measurementCategory.tools.findIndex(t => t.name === 'clear')
+    if (clearIndex !== -1) {
+      measurementCategory.tools.splice(clearIndex, 0, {
+        name: TOOL_NAME_ERASE,
+        title: 'TOUCHVTT.Erase',
+        icon: 'fas fa-eraser'
+      })
+    }
+  }
+}

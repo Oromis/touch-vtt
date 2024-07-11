@@ -1,0 +1,19 @@
+<div
+    id="{{id}}" style="top: {{top}}px; left: {{left}}px; transform: translate({{offsetX}}, calc(-100% - 20px))"
+    class="placeable-hud touch-measured-template-hud-{{position}}"
+>
+    {{#if showRotate}}
+    <div class="col left">
+        <div class="control-icon rotate">
+            <i class="fas fa-rotate-right"></i>
+        </div>
+    </div>
+    {{/if}}
+    {{#if showConfirm}}
+    <div class="col middle">
+        <div class="control-icon confirm">
+            <i class="fas fa-check"></i>
+        </div>
+    </div>
+    {{/if}}
+</div>
