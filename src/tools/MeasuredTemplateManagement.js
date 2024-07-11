@@ -149,13 +149,13 @@ export class MeasuredTemplateManager {
   }
 
   toggleMeasuredTemplateTouchManagementListeners(activate = true) {
-    // When, active, we capture all relevant events to see if they need to be replaced
+    // When active, we capture all relevant events to see if they need to be replaced
     if (activate) {
-      ["pointerdown", "pointerup", "pointermove", "touchstart", "touchend"].forEach(e => {
+      ["pointerdown", "pointerup", "pointermove", "pointercancel", "touchstart", "touchmove", "touchend"].forEach(e => {
         window.addEventListener(e, this._touchEventReplacer, true)
       })
     } else {
-      ["pointerdown", "pointerup", "pointermove", "touchstart", "touchend"].forEach(e => {
+      ["pointerdown", "pointerup", "pointermove", "pointercancel", "touchstart", "touchmove", "touchend"].forEach(e => {
         window.removeEventListener(e, this._touchEventReplacer, true)
       })
     }
@@ -163,12 +163,12 @@ export class MeasuredTemplateManager {
 
   initMeasuredTemplateManagement() {
     const isEraserActive = () => game.activeTool === TOOL_NAME_ERASE
-    const isEraserInactive = () => !isEraserActive()
+    const shouldIgnoreEvent = () => !isEraserActive() && !this._touchMode
 
-    injectMethodCondition('TemplateLayer.prototype._onDragLeftStart', isEraserInactive)
-    injectMethodCondition('TemplateLayer.prototype._onDragLeftMove', isEraserInactive)
-    injectMethodCondition('TemplateLayer.prototype._onDragLeftDrop', isEraserInactive)
-    injectMethodCondition('TemplateLayer.prototype._onDragLeftCancel', isEraserInactive)
+    injectMethodCondition('TemplateLayer.prototype._onDragLeftStart', shouldIgnoreEvent)
+    injectMethodCondition('TemplateLayer.prototype._onDragLeftMove', shouldIgnoreEvent)
+    injectMethodCondition('TemplateLayer.prototype._onDragLeftDrop', shouldIgnoreEvent)
+    injectMethodCondition('TemplateLayer.prototype._onDragLeftCancel', shouldIgnoreEvent)
 
     wrapMethod('MeasuredTemplate.prototype._onClickLeft', function(callOriginal, ...args) {
       if (isEraserActive()) {
@@ -183,18 +183,21 @@ export class MeasuredTemplateManager {
     }, 'MIXED')
 
     Hooks.on("drawMeasuredTemplate", (template) => {
-      // Explaining the condition here for future reference:
-      // A pre-made template is a preview, doesn't have an id, and has a distance already set.
-      // A template created by dragging has two draws: on dragStart, it is a preview, doesn't have an id, and has distance 1; on confirmation, it's not a preview, has an id, has a set distance
-      // When you move an existing template, it is a preview, it has a set distance, it doesn't have an id
-      if (template.isPreview && !template.id) {
-        if (template.document.distance > 1) {
-          // This is a pre-made template that we want to place, so we activate our listeners
-          this.toggleMeasuredTemplateTouchManagementListeners(true)
-        }
+      if (this.isPremade(template)) {
+        // This is a pre-made template that we want to place, so we activate our listeners
+        this.toggleMeasuredTemplateTouchManagementListeners(true)
       }
     })
     
+  }
+
+  isPremade(template) {
+    // Explaining the condition here for future reference:
+    // A pre-made template doesn't have an id, and has a distance already set, usually larger than half a square.
+    // A template created by dragging triggers two draws: on dragStart, it doesn't have an id and has distance 1 (in v11) or half a square (in v12); on confirmation, it has an id, and has a set distance
+    // When you move an existing template, it doesn't have an id, and it has a set distance
+    const gridSize = game.release.generation < 12 ? canvas.grid.grid.options.dimensions.distance : canvas.grid.distance
+    return !template.id && template.document.distance > gridSize
   }
 
 }
