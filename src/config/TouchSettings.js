@@ -24,6 +24,8 @@ export const MEASUREMENT_HUD_OFF = "off"
 export const MEASUREMENT_HUD_RIGHT = "right"
 export const MEASUREMENT_HUD_LEFT = "left"
 
+export const ZOOM_SENSITIVITY_SETTING = "zoomSensitivity"
+
 export const DEBUG_MODE_SETTING = "debugMode"
 
 export function getSetting(settingName) {
@@ -218,6 +220,20 @@ export function registerTouchSettings() {
       [GESTURE_MODE_OFF]: "No zoom or pan gestures",
     },
     default: GESTURE_MODE_COMBINED,
+  })
+
+  game.settings.register(MODULE_NAME, ZOOM_SENSITIVITY_SETTING, {
+    name: "Zoom Sensitivity",
+    hint: "Sensitivity of the zoom gesture (if enabled)",
+    scope: "client",
+    config: true,
+    type: Number,
+    range: {
+      min: 0,
+      max: 2,
+      step: 0.1
+    },
+    default: 1,
   })
 
   game.settings.register(MODULE_NAME, DIRECTIONAL_ARROWS_SETTING, {

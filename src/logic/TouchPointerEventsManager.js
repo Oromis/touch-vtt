@@ -3,7 +3,7 @@ import {dispatchModifiedEvent} from "./FakeTouchEvent"
 import Vectors from './Vectors.js'
 import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
 import Screen from '../browser/Screen.js'
-import {getSetting, GESTURE_MODE_SETTING, GESTURE_MODE_SPLIT, GESTURE_MODE_OFF} from '../config/TouchSettings.js'
+import {getSetting, ZOOM_SENSITIVITY_SETTING, GESTURE_MODE_SETTING, GESTURE_MODE_SPLIT, GESTURE_MODE_OFF} from '../config/TouchSettings.js'
 
 // This class is similar in structure to the original CanvasTouchToMouseAdapter, but it doesn't capture/prevent events
 // It only hooks into the PointerEvents and tracks them for specific fixes (by dispatching additional events) and multi-touch management
@@ -101,12 +101,8 @@ class TouchPointerEventsManager {
   }
 
   handleTwoFingerZoomAndPan() {
-    if (FoundryCanvas.isZoomAllowed()) {
-      this.handleTwoFingerZoom()
-    }
-    if (FoundryCanvas.isPanAllowed()) {
-      this.handleMultiFingerPan()
-    }
+    this.handleTwoFingerZoom()
+    this.handleMultiFingerPan()
   }
 
   handleTwoFingerZoom() {
@@ -153,16 +149,18 @@ class TouchPointerEventsManager {
     FoundryCanvas.pan({ x: worldCenter.x, y: worldCenter.y })
   }
 
+  easeFactorBasedOnDistance(touchDistance, closeThreshold) {
+    // Sigmoid function, 0 to 1 for positive values, balanced around what we consider "close"
+    // We use it to basically decrease sensitivity as the touches get closer
+    return 2 / (1 + Math.E ** (-touchDistance/closeThreshold)) - 1
+  }
+
   calcZoom(firstTouch, secondTouch) {
-    const zoomVector = Vectors.divideElements(
-      Vectors.subtract(firstTouch.current, secondTouch.current),
-      Vectors.subtract(firstTouch.world, secondTouch.world),
-    )
-    const fingerLayout = Vectors.abs(Vectors.subtract(firstTouch.current, secondTouch.current))
-    const totalMovement = fingerLayout.x + fingerLayout.y
-    const factorX = fingerLayout.x / totalMovement
-    const factorY = fingerLayout.y / totalMovement
-    return (factorX * zoomVector.x) + (factorY * zoomVector.y)
+    const sensitivity = getSetting(ZOOM_SENSITIVITY_SETTING)
+    const lastDistance = Vectors.distance(firstTouch.last, secondTouch.last)
+    const currentDistance = Vectors.distance(firstTouch.current, secondTouch.current)
+    const normalizedDelta = (currentDistance - lastDistance) / lastDistance
+    return canvas.stage.scale.x * (1 + normalizedDelta * sensitivity * this.easeFactorBasedOnDistance(currentDistance, 100)) // assuming 100px distance is "close touches"
   }
 
   calcPanCorrection(transform, touch) {
