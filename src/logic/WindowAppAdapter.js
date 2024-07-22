@@ -23,7 +23,7 @@ function createStyleElement() {
 
 class WindowAppAdapter {
   constructor() {
-    this.lastClickInfo = {target: null, time: 0}
+    this.lastClickInfo = {target: null, time: 0, touch: false}
 
     /*** Double-click management - Start ***/
     // In both v11 and v12 (but in an especially weird way in v11) double clicks on app windows are triggered inconsistently for touch events
@@ -32,16 +32,17 @@ class WindowAppAdapter {
     // but after double touching a different section of the window, the behavior becomes the same as v12
     // The brutal approach here is to just hijack and cancel any dblclick event on an app, and create our own as best as we can
 
+    // Reminder: this would be cleaner using evt.sourceCapabilities.firesTouchEvents, but it's not supported by Firefox and Safari yet.
+    // If updated in the future, we don't need to keep track of lastClickInfo.touch anymore, and we just filter by that in both listeners.
+
     // Cancel any native dblclick event on apps
     document.body.addEventListener("dblclick", (evt) => {
-      if (evt.sourceCapabilities?.firesTouchEvents) { // We try to only do this for touch-based dblclick
-        const isInApp = !!evt.target.closest(".app")
-        if (evt.isTrusted && isInApp) {
-          evt.preventDefault()
-          evt.stopImmediatePropagation()
-          evt.stopPropagation()
-          return false
-        }
+      const isInApp = !!evt.target.closest(".app, .application")
+      if (evt.isTrusted && isInApp && this.lastClickInfo.touch) { // we only cancel native dblclick if the last click we received was touch-based
+        evt.preventDefault()
+        evt.stopImmediatePropagation()
+        evt.stopPropagation()
+        return false
       }
     }, true)
 
@@ -62,13 +63,12 @@ class WindowAppAdapter {
   }
 
   manageTouchDblClick(clickEvent) {
-    if (clickEvent.originalEvent.sourceCapabilities?.firesTouchEvents) { // We try to only do this for touch-based dblclick
-      if (clickEvent.pointerType == "touch" && Date.now() - this.lastClickInfo.time < 500 && clickEvent.target == this.lastClickInfo.target) {
-        dispatchModifiedEvent(clickEvent, "dblclick")
-        this.lastClickInfo = {target: null, time: 0}
-      }
-      this.lastClickInfo = {target: clickEvent.target, time: Date.now()}
+    const isTouch = ["touch", "pen"].includes(clickEvent.pointerType)
+    if (isTouch && Date.now() - this.lastClickInfo.time < 500 && clickEvent.target == this.lastClickInfo.target) {
+      dispatchModifiedEvent(clickEvent, "dblclick")
+      this.lastClickInfo = {target: null, time: 0, touch: isTouch}
     }
+    this.lastClickInfo = {target: clickEvent.target, time: Date.now(), touch: isTouch}
   }
 }
 
