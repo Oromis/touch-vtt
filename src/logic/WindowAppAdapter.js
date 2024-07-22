@@ -34,12 +34,14 @@ class WindowAppAdapter {
 
     // Cancel any native dblclick event on apps
     document.body.addEventListener("dblclick", (evt) => {
-      const isInApp = !!evt.target.closest(".app")
-      if (evt.isTrusted && isInApp) {
-        evt.preventDefault()
-        evt.stopImmediatePropagation()
-        evt.stopPropagation()
-        return false
+      if (evt.sourceCapabilities?.firesTouchEvents) { // We try to only do this for touch-based dblclick
+        const isInApp = !!evt.target.closest(".app")
+        if (evt.isTrusted && isInApp) {
+          evt.preventDefault()
+          evt.stopImmediatePropagation()
+          evt.stopPropagation()
+          return false
+        }
       }
     }, true)
 
@@ -60,11 +62,13 @@ class WindowAppAdapter {
   }
 
   manageTouchDblClick(clickEvent) {
-    if (clickEvent.pointerType == "touch" && Date.now() - this.lastClickInfo.time < 500 && clickEvent.target == this.lastClickInfo.target) {
-      dispatchModifiedEvent(clickEvent, "dblclick")
-      this.lastClickInfo = {target: null, time: 0}
+    if (clickEvent.originalEvent.sourceCapabilities?.firesTouchEvents) { // We try to only do this for touch-based dblclick
+      if (clickEvent.pointerType == "touch" && Date.now() - this.lastClickInfo.time < 500 && clickEvent.target == this.lastClickInfo.target) {
+        dispatchModifiedEvent(clickEvent, "dblclick")
+        this.lastClickInfo = {target: null, time: 0}
+      }
+      this.lastClickInfo = {target: clickEvent.target, time: Date.now()}
     }
-    this.lastClickInfo = {target: clickEvent.target, time: Date.now()}
   }
 }
 
