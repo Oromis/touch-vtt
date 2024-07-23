@@ -28,6 +28,7 @@ function findCanvas() {
 }
 
 var canvasRightClickTimeout = null
+var canvasLongPressTimeout = null
 const measuredTemplateManager = MeasuredTemplateManager.init()
 
 console.log(`${MODULE_DISPLAY_NAME} booting ...`)
@@ -63,9 +64,6 @@ Hooks.once('init', () => {
       MouseInteractionManager = TouchVTTMouseInteractionManager
     }
 
-    // We want a longer long press on our MouseInteractionManagers, we will use a shorter one for faking a right-click
-    MouseInteractionManager.LONG_PRESS_DURATION_MS = 1000
-
     // This wrap gives us control over every MouseInteractionManager
     wrapMethod('MouseInteractionManager.prototype.callback', async function (originalMethod, event, ...args) {
       
@@ -86,14 +84,21 @@ Hooks.once('init', () => {
             }
           }
 
-          // This is for sending a right click on long press (doesn't happen by default on the canvas)
+          // The right-click timeout is to send a right click on long press (doesn't happen by default on the canvas)
+          // The long press timeout is to send a long press event, mostly used for pinging
           if (event == "clickLeft") {
             clearTimeout(canvasRightClickTimeout)
+            clearTimeout(canvasLongPressTimeout)
             canvasRightClickTimeout = setTimeout(() => {
+              dispatchModifiedEvent(args[0], "pointerup")
               dispatchModifiedEvent(args[0], "pointerdown", {button: 2, buttons: 2})
             }, 400)
+            canvasLongPressTimeout = setTimeout(() => {
+              this.callbacks["longPress"](args[0], args[0].interactionData.origin)
+            }, 1000)
           } else {
             clearTimeout(canvasRightClickTimeout)
+            clearTimeout(canvasLongPressTimeout)
           }
           
           callbackForSnapToGrid(event, args)
