@@ -8,7 +8,7 @@ import '../utils/DragDropTouch.js'
 const STYLE_ID = `${MODULE_NAME}-draggable_apps_styles`
 
 const draggableAppStyle = `
-.app, .application, .app .window-header, .application .window-header, .app .window-title, .application .window-title {
+.app .window-header, .application .window-header, .app .window-title, .application .window-title {
   touch-action: none;
 }
 `
