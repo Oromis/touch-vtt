@@ -17,6 +17,7 @@ const appStyle = `
   position: sticky;
   bottom: 0;
   width: 100%;
+  z-index: 10;
 }
 
 body.touchvtt-using-touch .directory-list .scroll-buttons {
@@ -89,25 +90,28 @@ class WindowAppAdapter {
 
   addDirectoryScrollButtons(directory) {
     const directoryList = directory.element.find(".directory-list")
-    if (directoryList.get(0)?.scrollHeight <= directoryList.get(0)?.clientHeight) {
-      directoryList.find(".scroll-buttons").remove()
-    } else {
-      if (directoryList.find(".scroll-buttons").length == 0) {
-        const scrollUpButton = $("<button>")
-          .html(`<i class="fas fa-angle-up"></i>`)
-          .click(() => {
-            directoryList.get(0).scroll({top: directoryList.get(0).scrollTop - 50, left: 0, behavior: "smooth"})
-          })
-        const scrollDownButton = $("<button>")
-          .html(`<i class="fas fa-angle-down"></i>`)
-          .click(() => {
-            directoryList.get(0).scroll({top: directoryList.get(0).scrollTop + 50, left: 0, behavior: "smooth"})
-          })
-        const scrollButtonsArea = $("<div>")
-          .attr("class", "scroll-buttons")
-          .append(scrollUpButton)
-          .append(scrollDownButton)
-        directoryList.append(scrollButtonsArea)
+    if (directoryList.length > 0) {
+      const directoryListElem = directoryList.get(0)
+      if (directoryListElem.scrollHeight <= directoryListElem.clientHeight || directoryListElem.clientHeight == 0) {
+        directoryList.find(".scroll-buttons").remove()
+      } else {
+        if (directoryList.find(".scroll-buttons").length == 0) {
+          const scrollUpButton = $("<button>")
+            .html(`<i class="fas fa-angle-up"></i>`)
+            .click(() => {
+              directoryListElem.scroll({top: directoryListElem.scrollTop - 50, left: 0, behavior: "smooth"})
+            })
+          const scrollDownButton = $("<button>")
+            .html(`<i class="fas fa-angle-down"></i>`)
+            .click(() => {
+              directoryListElem.scroll({top: directoryListElem.scrollTop + 50, left: 0, behavior: "smooth"})
+            })
+          const scrollButtonsArea = $("<div>")
+            .attr("class", "scroll-buttons")
+            .append(scrollUpButton)
+            .append(scrollDownButton)
+          directoryList.append(scrollButtonsArea)
+        }
       }
     }
   }
