@@ -21,15 +21,26 @@ import {installUtilityControls} from './tools/UtilityControls'
 
 import {TouchVTTMouseInteractionManager} from './logic/TouchVTTMouseInteractionManager.js'
 
+let canvasRightClickTimeout = null
+let canvasLongPressTimeout = null
+const measuredTemplateManager = MeasuredTemplateManager.init()
+let windowAppAdapter = null
+let _usingTouch = false;
+
 function findCanvas() {
   return document.querySelector('canvas#board') ||
     document.querySelector('body > canvas') ||
     document.querySelector('canvas')
 }
 
-var canvasRightClickTimeout = null
-var canvasLongPressTimeout = null
-const measuredTemplateManager = MeasuredTemplateManager.init()
+function setUsingTouch(usingTouch) {
+  _usingTouch = usingTouch
+  if (usingTouch) {
+    document.body.classList.add("touchvtt-using-touch")
+  } else {
+    document.body.classList.remove("touchvtt-using-touch")
+  }
+}
 
 console.log(`${MODULE_DISPLAY_NAME} booting ...`)
 
@@ -53,6 +64,13 @@ Hooks.once('init', () => {
   registerTouchSettings()
 
   if (getSetting(CORE_FUNCTIONALITY) || false) {
+
+    Hooks.on("changeSidebarTab", function(directory) {
+      windowAppAdapter.addDirectoryScrollButtons(directory)
+    })
+    Hooks.on("renderDirectoryApplication", function(directory) {
+      windowAppAdapter.addDirectoryScrollButtons(directory)
+    })  
 
     initEnlargeButtonTool()
     initDirectionalArrows()
@@ -132,7 +150,7 @@ Hooks.once('init', () => {
     }, 'MIXED')
 
     // Adapter for various touch events in windows
-    const windowAppAdapter = WindowAppAdapter.init()
+    windowAppAdapter = WindowAppAdapter.init()
 
   } else {
     console.info(`${MODULE_DISPLAY_NAME} is active, but core functionality has been disabled in the settings.`)
@@ -169,6 +187,19 @@ Hooks.on('ready', function () {
       } else {
         console.warn(`Failed to find canvas element. ${MODULE_DISPLAY_NAME} will not be available.`)
       }
+
+      ["pointerdown", "pointerup"].forEach(e => {
+        document.body.addEventListener(e, evt => {
+          if (evt.isTrusted) {
+            if (evt.pointerType == "mouse") {
+              setUsingTouch(false)
+            } else if (["touch", "pen"].includes(evt.pointerType)) {
+              setUsingTouch(true)
+            }
+          }
+        }, true)
+      })
+
     } catch (e) {
       console.error(`Failed to initialize ${MODULE_DISPLAY_NAME}: `, e)
     }

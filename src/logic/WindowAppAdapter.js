@@ -7,16 +7,32 @@ import '../utils/DragDropTouch.js'
 
 const STYLE_ID = `${MODULE_NAME}-draggable_apps_styles`
 
-const draggableAppStyle = `
+const appStyle = `
 .app .window-header, .application .window-header, .app .window-title, .application .window-title {
   touch-action: none;
+}
+
+.directory-list .scroll-buttons {
+  display: none;
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+}
+
+body.touchvtt-using-touch .directory-list .scroll-buttons {
+  display: flex;
+}
+
+.scroll-buttons button {
+  line-height: normal;
+  padding-top: 4px;
 }
 `
 
 function createStyleElement() {
   const style = document.createElement('style')
   style.setAttribute('id', STYLE_ID)
-  style.innerHTML = draggableAppStyle
+  style.innerHTML = appStyle
   document.head.append(style)
   return style
 }
@@ -69,6 +85,31 @@ class WindowAppAdapter {
       this.lastClickInfo = {target: null, time: 0, touch: isTouch}
     }
     this.lastClickInfo = {target: clickEvent.target, time: Date.now(), touch: isTouch}
+  }
+
+  addDirectoryScrollButtons(directory) {
+    const directoryList = directory.element.find(".directory-list")
+    if (directoryList.get(0)?.scrollHeight <= directoryList.get(0)?.clientHeight) {
+      directoryList.find(".scroll-buttons").remove()
+    } else {
+      if (directoryList.find(".scroll-buttons").length == 0) {
+        const scrollUpButton = $("<button>")
+          .html(`<i class="fas fa-angle-up"></i>`)
+          .click(() => {
+            directoryList.get(0).scroll({top: directoryList.get(0).scrollTop - 50, left: 0, behavior: "smooth"})
+          })
+        const scrollDownButton = $("<button>")
+          .html(`<i class="fas fa-angle-down"></i>`)
+          .click(() => {
+            directoryList.get(0).scroll({top: directoryList.get(0).scrollTop + 50, left: 0, behavior: "smooth"})
+          })
+        const scrollButtonsArea = $("<div>")
+          .attr("class", "scroll-buttons")
+          .append(scrollUpButton)
+          .append(scrollDownButton)
+        directoryList.append(scrollButtonsArea)
+      }
+    }
   }
 }
 
