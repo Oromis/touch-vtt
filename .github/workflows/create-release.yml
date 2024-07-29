@@ -56,7 +56,7 @@ jobs:
         uses: restackio/update-json-file-action@2.1
         with:
           file: module.json
-          fields: "{\"version\": \"${{ steps.set_vars.outputs.VERSION }}\", \"download\": \"${{ steps.set_vars.outputs.ZIPURL }}\", \"manifest\": \"${{ steps.set_vars.outputs.MODULEJSONURL }}\"}"
+          fields: "{\"version\": \"${{ steps.set_vars.outputs.VERSION }}\", \"download\": \"${{ steps.set_vars.outputs.ZIPURL }}\"}"
       - name: Build Project
         run: |
           npm install
