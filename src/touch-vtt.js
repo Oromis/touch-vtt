@@ -65,12 +65,11 @@ Hooks.once('init', () => {
 
   if (getSetting(CORE_FUNCTIONALITY) || false) {
 
-    Hooks.on("changeSidebarTab", function(directory) {
-      windowAppAdapter.addDirectoryScrollButtons(directory)
+    ["renderDocumentDirectory", "renderDirectoryApplication", "changeSidebarTab"].forEach(hook => {
+      Hooks.on(hook, function(directory) {
+        windowAppAdapter.fixDirectoryScrolling(directory, _usingTouch)
+      })
     })
-    Hooks.on("renderDirectoryApplication", function(directory) {
-      windowAppAdapter.addDirectoryScrollButtons(directory)
-    })  
 
     initEnlargeButtonTool()
     initDirectionalArrows()

@@ -1,39 +1,14 @@
 on:
   push:
-    tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+    branches:
+      - develop
 
-name: Create Release
+name: Create Development Release
 
 jobs:
-  check_current_branch:
-    runs-on: ubuntu-latest
-    outputs:
-      branch: ${{ steps.check_step.outputs.branch }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Get current branch
-        id: check_step
-        # 1. Get the list of branches ref where this tag exists
-        # 2. Remove 'origin/' from that result
-        # 3. Put that string in output
-        # => We can now use function 'contains(list, item)''
-        run: |
-          raw=$(git branch -r --contains ${{ github.ref }})
-          branch="$(echo ${raw//origin\//} | tr -d '\n')"
-          echo "{name}=branch" >> $GITHUB_OUTPUT
-          echo "Branches where this tag exists : $branch."
-
   build:
-    name: Create Release
+    name: Create Development Release
     runs-on: ubuntu-latest
-    # Wait for check step to finish
-    needs: check_current_branch
-    # only run if tag is present on branch 'main'
-    if: contains(${{ needs.check_current_branch.outputs.branch }}, 'main')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -41,7 +16,7 @@ jobs:
           fetch-depth: 0
       - name: Get the version
         id: get_version
-        run: echo "FULLVERSION=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+        run: echo "FULLVERSION=`git describe`" >> "$GITHUB_OUTPUT"
       - id: set_vars
         run: |
           FULLVERSION=${{ steps.get_version.outputs.FULLVERSION }}
@@ -68,8 +43,10 @@ jobs:
         with:
           draft: false
           prerelease: false
+          target_commitish: develop
           tag_name: ${{ steps.get_version.outputs.FULLVERSION }}
           name: ${{ steps.get_version.outputs.FULLVERSION }}
           files: |
             touch-vtt-${{ steps.get_version.outputs.FULLVERSION }}.zip
             module.json
+  

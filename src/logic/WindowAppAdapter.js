@@ -12,21 +12,24 @@ const appStyle = `
   touch-action: none;
 }
 
-.directory-list .scroll-buttons {
+.directory-item .handlebar {
   display: none;
-  position: sticky;
-  bottom: 0;
-  width: 100%;
-  z-index: 10;
+  flex: 0 0 20px;
+  font-size: 1.6em;
 }
 
-body.touchvtt-using-touch .directory-list .scroll-buttons {
+.directory-item.document .handlebar {
+  height: var(--sidebar-item-height);
+  padding: 14px 0 0 4px;
+}
+
+.directory-item.folder .handlebar {
+  line-height: 24px;
+  margin: 0 4px 0 0;
+}
+
+body.touchvtt-using-touch .directory-item .handlebar {
   display: flex;
-}
-
-.scroll-buttons button {
-  line-height: normal;
-  padding-top: 4px;
 }
 `
 
@@ -88,33 +91,38 @@ class WindowAppAdapter {
     this.lastClickInfo = {target: clickEvent.target, time: Date.now(), touch: isTouch}
   }
 
-  addDirectoryScrollButtons(directory) {
+  fixDirectoryScrolling(directory, usingTouch) {
     const directoryList = directory.element.find(".directory-list")
     if (directoryList.length > 0) {
-      const directoryListElem = directoryList.get(0)
-      if (directoryListElem.scrollHeight <= directoryListElem.clientHeight || directoryListElem.clientHeight == 0) {
-        directoryList.find(".scroll-buttons").remove()
+      if (!usingTouch) {
+        directoryList.find(".directory-item .handlebar").remove()
+        directoryList.find(`li[draggable="false"].directory-item`).each(function(index, element) {
+          element.draggable = true
+        })
       } else {
-        if (directoryList.find(".scroll-buttons").length == 0) {
-          const scrollUpButton = $("<button>")
-            .html(`<i class="fas fa-angle-up"></i>`)
-            .click(() => {
-              directoryListElem.scroll({top: directoryListElem.scrollTop - 50, left: 0, behavior: "smooth"})
-            })
-          const scrollDownButton = $("<button>")
-            .html(`<i class="fas fa-angle-down"></i>`)
-            .click(() => {
-              directoryListElem.scroll({top: directoryListElem.scrollTop + 50, left: 0, behavior: "smooth"})
-            })
-          const scrollButtonsArea = $("<div>")
-            .attr("class", "scroll-buttons")
-            .append(scrollUpButton)
-            .append(scrollDownButton)
-          directoryList.append(scrollButtonsArea)
-        }
+        directoryList.find(`li[draggable="true"].directory-item`).each(function(index, element) {
+          element.draggable = false
+          let handlebar = document.createElement("i")
+          handlebar.className = "handlebar fas fa-grip-vertical";
+          handlebar.addEventListener("pointerdown", e => {
+            element.draggable = true
+          }, true)
+          handlebar.addEventListener("pointerup", e => {
+            if (["touch", "pen"].includes(e.pointerType)) {
+              element.draggable = false
+            }
+          }, true)
+          if (element.classList.contains("document")) {
+            element.prepend(handlebar)
+          } else if (element.classList.contains("folder")) {
+            element.getElementsByTagName("header")[0].prepend(handlebar);
+          }
+        })
       }
+
     }
   }
+
 }
 
 WindowAppAdapter.init = function init() {
