@@ -15,7 +15,9 @@ const appStyle = `
 .directory-item .handlebar {
   display: none;
   flex: 0 0 20px;
+  align-self: center;
   font-size: 1.6em;
+  z-index: 10;
 }
 
 .directory-item.document .handlebar {
@@ -26,6 +28,19 @@ const appStyle = `
 .directory-item.folder .handlebar {
   line-height: 24px;
   margin: 0 4px 0 0;
+}
+
+.directory-item.compendium .handlebar {
+  position: absolute;
+  left: 6px;
+}
+
+body.touchvtt-using-touch .directory-item.compendium {
+  flex-direction: row;
+}
+
+body.touchvtt-using-touch .directory-item.compendium .compendium-banner {
+  pointer-events: none;
 }
 
 body.touchvtt-using-touch .directory-item .handlebar {
@@ -112,10 +127,10 @@ class WindowAppAdapter {
               element.draggable = false
             }
           }, true)
-          if (element.classList.contains("document")) {
+          if (element.classList.contains("folder")) {
+            element.getElementsByTagName("header")[0].prepend(handlebar)
+          } else {
             element.prepend(handlebar)
-          } else if (element.classList.contains("folder")) {
-            element.getElementsByTagName("header")[0].prepend(handlebar);
           }
         })
       }

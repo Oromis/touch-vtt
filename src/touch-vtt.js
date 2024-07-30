@@ -25,7 +25,7 @@ let canvasRightClickTimeout = null
 let canvasLongPressTimeout = null
 const measuredTemplateManager = MeasuredTemplateManager.init()
 let windowAppAdapter = null
-let _usingTouch = false;
+let _usingTouch = false
 
 function findCanvas() {
   return document.querySelector('canvas#board') ||
