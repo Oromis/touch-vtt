@@ -1,4 +1,6 @@
 export function installUtilityControls() {
+  $("#touch-vtt-controls").remove()
+  
   var controls = $("<div>")
     .attr("id", "touch-vtt-controls")
 
@@ -18,5 +20,5 @@ export function installUtilityControls() {
       .appendTo(controls)
     }
 
-  $("#logo").after(controls)
+  $("#controls").prepend(controls)
 }

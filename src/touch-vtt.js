@@ -54,7 +54,7 @@ Hooks.on('getSceneControlButtons', (controls) => {
   }
 })
 
-Hooks.once('renderSceneNavigation', (controls) => {
+Hooks.on('renderSceneControls', (controls) => {
   if (getSetting(CORE_FUNCTIONALITY) || false) {
     installUtilityControls()
   }

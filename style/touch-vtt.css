@@ -65,16 +65,20 @@
 
 }
 
+#controls ol.control-tools {
+    margin-top: 30px;
+}
+
 #touch-vtt-controls {
     pointer-events: all;
     display: flex;
-    flex-direction: row;
-    margin-left: 12px;
-    margin-bottom: 12px;
-    width: 120px;
+    position: absolute;
+    width: 100%;
 }
 
 #touch-vtt-controls button {
     line-height: 18px;
     font-size: var(--font-size-10);
+    max-width: 110px;
+    height: 20px;
 }
