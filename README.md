@@ -1,4 +1,6 @@
 ![Foundry Version 12](https://img.shields.io/badge/Foundry%20Version-12-green)
+![Download Count](https://img.shields.io/github/downloads/Oromis/touch-vtt/total?color=purple&label=Downloads%20%28Total%29)
+![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Ftouch-vtt&colorB=4aa94a)
 
 # TouchVTT
 

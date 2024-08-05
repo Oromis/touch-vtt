@@ -1,6 +1,7 @@
 import {dispatchModifiedEvent} from './FakeTouchEvent.js'
 import {wrapMethod} from '../utils/Injection'
 import {MODULE_NAME} from '../config/ModuleConstants'
+import AppTouchPointerEventsManager from './AppTouchPointerEventsManager.js'
 
 // Drag and Drop polyfill for touch events (https://github.com/Bernardo-Castilho/dragdroptouch)
 import '../utils/DragDropTouch.js'
@@ -8,6 +9,10 @@ import '../utils/DragDropTouch.js'
 const STYLE_ID = `${MODULE_NAME}-draggable_apps_styles`
 
 const appStyle = `
+.app, .application {
+  touch-action: none;
+}
+
 .app .window-header, .application .window-header, .app .window-title, .application .window-title {
   touch-action: none;
 }
@@ -59,6 +64,7 @@ function createStyleElement() {
 class WindowAppAdapter {
   constructor() {
     this.lastClickInfo = {target: null, time: 0, touch: false}
+    this.touchManager = AppTouchPointerEventsManager.init(".app, .application")
 
     /*** Double-click management - Start ***/
     // In both v11 and v12 (but in an especially weird way in v11) double clicks on app windows are triggered inconsistently for touch events
@@ -82,7 +88,7 @@ class WindowAppAdapter {
     }, true)
 
     // Manage click events and decide if we trigger an artificial double click
-    $(document.body).on("click", ".app", this.manageTouchDblClick.bind(this))
+    $(document.body).on("click", ".app, .application", this.manageTouchDblClick.bind(this))
 
     /*** Double-click management - End ***/
     

@@ -2,7 +2,7 @@ import {MODULE_DISPLAY_NAME} from './config/ModuleConstants.js'
 
 import {wrapMethod} from './utils/Injection'
 
-import TouchPointerEventsManager from './logic/TouchPointerEventsManager.js'
+import CanvasTouchPointerEventsManager from './logic/CanvasTouchPointerEventsManager.js'
 import WindowAppAdapter from './logic/WindowAppAdapter.js'
 import {dispatchModifiedEvent} from './logic/FakeTouchEvent.js'
 
@@ -164,11 +164,11 @@ Hooks.on('ready', function () {
       if (canvasElem) {
         // This sets up the main listener on the canvas
         // It keeps track of touches and handles pan/zoom gestures
-        const touchPointerEventsManager = TouchPointerEventsManager.init(canvasElem)
-        initMeasurementHud({ touchPointerEventsManager })
+        const canvasTouchPointerEventsManager = CanvasTouchPointerEventsManager.init(canvasElem)
+        initMeasurementHud({ canvasTouchPointerEventsManager })
 
         // This gives the user a touch-friendly UI for pre-made templates (like from an automatic "Place Measured Template" chat button, or MidiQOL)
-        measuredTemplateManager.initMeasuredTemplateHud(touchPointerEventsManager)
+        measuredTemplateManager.initMeasuredTemplateHud(canvasTouchPointerEventsManager)
 
         // This fixes an issue in v11 where a pen pointerdown would register as a pen input and a pointer input, creating a double click
         if (game.release.generation < 12) {
