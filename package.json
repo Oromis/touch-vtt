@@ -1,6 +1,6 @@
 {
   "name": "touch-vtt",
-  "version": "2.1.3",
+  "version": "2.2.0",
   "description": "Adds touch support to FoundryVTT",
   "main": "src/touch-vtt.js",
   "scripts": {
