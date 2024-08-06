@@ -169,6 +169,7 @@ Hooks.on('ready', function () {
 
         // This gives the user a touch-friendly UI for pre-made templates (like from an automatic "Place Measured Template" chat button, or MidiQOL)
         measuredTemplateManager.initMeasuredTemplateHud(canvasTouchPointerEventsManager)
+        canvas.templates.preview.on("childAdded", measuredTemplateManager.onTemplatePreviewCreated.bind(measuredTemplateManager))
 
         // This fixes an issue in v11 where a pen pointerdown would register as a pen input and a pointer input, creating a double click
         if (game.release.generation < 12) {

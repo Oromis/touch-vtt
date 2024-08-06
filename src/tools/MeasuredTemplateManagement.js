@@ -161,6 +161,13 @@ export class MeasuredTemplateManager {
     }
   }
 
+  onTemplatePreviewCreated(template) {
+    if (this.isPremade(template)) {
+      // This is a pre-made template that we want to place, so we activate our listeners
+      this.toggleMeasuredTemplateTouchManagementListeners(true)
+    }
+  }
+
   initMeasuredTemplateManagement() {
     const isEraserActive = () => game.activeTool === TOOL_NAME_ERASE
     const shouldIgnoreEvent = () => !isEraserActive() && !this._touchMode
@@ -180,15 +187,7 @@ export class MeasuredTemplateManager {
       } else {
         callOriginal(...args)
       }
-    }, 'MIXED')
-
-    Hooks.on("drawMeasuredTemplate", (template) => {
-      if (this.isPremade(template)) {
-        // This is a pre-made template that we want to place, so we activate our listeners
-        this.toggleMeasuredTemplateTouchManagementListeners(true)
-      }
-    })
-    
+    }, 'MIXED')    
   }
 
   isPremade(template) {
