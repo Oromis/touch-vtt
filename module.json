@@ -13,10 +13,10 @@
       "discord": "MrAioros"
     }
   ],
-  "version": "2.2.0",
+  "version": "2.2.1",
   "compatibility": {
     "minimum": "11",
-    "verified": "12.329"
+    "verified": "12.330"
   },
   "scripts": [
     "dist/touch-vtt.js"
@@ -37,7 +37,7 @@
     }
   ],
   "url": "https://github.com/Oromis/touch-vtt",
-  "download": "https://github.com/Oromis/touch-vtt/releases/download/v2.2.0/touch-vtt-v2.2.0.zip",
+  "download": "https://github.com/Oromis/touch-vtt/releases/download/v2.2.1/touch-vtt-v2.2.1.zip",
   "manifest": "https://raw.githubusercontent.com/Oromis/touch-vtt/main/module.json",
   "license": "https://www.gnu.org/licenses/gpl-3.0.en.html",
   "readme": "README.md",
