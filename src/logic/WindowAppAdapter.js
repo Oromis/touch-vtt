@@ -88,7 +88,11 @@ class WindowAppAdapter {
     }, true)
 
     // Manage click events and decide if we trigger an artificial double click
-    $(document.body).on("click", ".app, .application", this.manageTouchDblClick.bind(this))
+    document.body.addEventListener("click", (evt) => {
+      if (!!evt.target.closest(".app, .application")) {
+        this.manageTouchDblClick.call(this, evt)
+      }
+    })
 
     /*** Double-click management - End ***/
     
