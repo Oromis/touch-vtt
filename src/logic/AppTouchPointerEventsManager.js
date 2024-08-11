@@ -39,16 +39,18 @@ class AppTouchPointerEventsManager extends TouchPointerEventsManager {
     const firstTouch = this.touches[touchIds[0]]
 
     const scrollable = this.findFirstScrollableParent(firstTouch.target)
-    if (!this.scrollStart) {
-      this.scrollStart = scrollable.scrollTop
+    if (scrollable) {
+      if (!this.scrollStart) {
+        this.scrollStart = scrollable.scrollTop
+      }
+      scrollable.scrollTop = this.scrollStart + firstTouch.start.y - firstTouch.current.y
     }
-    scrollable.scrollTop = this.scrollStart + firstTouch.start.y - firstTouch.current.y
   }
 
   findFirstScrollableParent(element) {
     let found = null
     while (!found && element?.closest(this.selector)) {
-      if (element.scrollHeight > element.clientHeight) {
+      if (element.scrollHeight > element.clientHeight + 50) {
         found = element
       }
       element = element.parentElement
