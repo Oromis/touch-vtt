@@ -102,7 +102,6 @@ class TouchMeasurementHud extends Application {
       return false
     }
     if (game.paused && !game.user.isGM) {
-      ui.notifications.warn("GAME.PausedWarning", {localize: true})
       return false
     }
     if (!ruler.visible || !ruler.destination) return false

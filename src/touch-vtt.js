@@ -165,7 +165,7 @@ Hooks.on('ready', function () {
         // This sets up the main listener on the canvas
         // It keeps track of touches and handles pan/zoom gestures
         const canvasTouchPointerEventsManager = CanvasTouchPointerEventsManager.init(canvasElem)
-        initMeasurementHud({ canvasTouchPointerEventsManager })
+        //initMeasurementHud({ touchPointerEventsManager: canvasTouchPointerEventsManager })
 
         // This gives the user a touch-friendly UI for pre-made templates (like from an automatic "Place Measured Template" chat button, or MidiQOL)
         measuredTemplateManager.initMeasuredTemplateHud(canvasTouchPointerEventsManager)
