@@ -206,7 +206,7 @@ Hooks.on('ready', function () {
   }
 
   if (getSetting(DEBUG_MODE_SETTING)) {
-    ["pointerdown", "pointermove", "pointerup", "pointercancel", "touchstart", "touchmove", "touchend"].forEach(e => {
+    ["pointerdown", "pointermove", "pointerup", "pointercancel", "touchstart", "touchmove", "touchend", "mousedown", "mouseup", "mousemove"].forEach(e => {
       document.body.addEventListener(e, evt => {
         console.log(MODULE_DISPLAY_NAME + ": " + evt.type, evt.pointerType, evt.isTrusted, evt)
       }, true)
