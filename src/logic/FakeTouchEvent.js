@@ -32,7 +32,13 @@ export function dispatchModifiedEvent(originalEvent, newEventType = originalEven
 
   var target = originalEvent.nativeEvent ? originalEvent.nativeEvent.target : originalEvent.target
 
-  const pointerEvent = new PointerEvent(newEventType, pointerEventInit)
-  //console.log("dispatching", pointerEvent)
+  let pointerEvent
+  if (newEventType.startsWith("mouse")) {
+    pointerEvent = new MouseEvent(newEventType, mouseEventInitProperties)
+  } else {
+    pointerEvent = new PointerEvent(newEventType, pointerEventInit)
+  }
+
+  //console.log("dispatching", pointerEvent, originalEvent)
   target.dispatchEvent(pointerEvent)
 }
