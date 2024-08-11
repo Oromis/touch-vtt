@@ -10,7 +10,6 @@ class TouchPointerEventsManager {
         element.addEventListener(eventType, touchHandler, this.getEventListenerOptions())
       } else {
         document.addEventListener(eventType, (event) => {
-          //console.log(eventType, event)
           if (event.target.closest(element)) {
             touchHandler(event)
           }
@@ -21,15 +20,19 @@ class TouchPointerEventsManager {
     this._gesturesEnabled = true
   }
 
-  preHandle(event) {}
+  preHandleAll(event) {}
+
+  preHandleTouch(event) {}
 
   handleTouch(event) {
+
+    this.preHandleAll(event)
 
     if (!this.isTouchPointerEvent(event)) {
       return
     }
 
-    this.preHandle(event)
+    this.preHandleTouch(event)
 
     if (this.shouldHandleEvent(event)) {
       // shouldHandleEvent excludes our fake events at this time
@@ -82,7 +85,9 @@ class TouchPointerEventsManager {
     if (this.touches[id] != null) {
       this.touches[id].update(event, event)
     } else {
-      this.touches[id] = new Touch(event, event)
+      if (event.type == "pointerdown" && event.pointerType != "pen") {
+        this.touches[id] = new Touch(event, event)
+      }
     }
   }
 

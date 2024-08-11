@@ -11,11 +11,26 @@ import TouchPointerEventsManager from './TouchPointerEventsManager.js'
 class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
   constructor(element) {
     super(element)
+
+    // Fix for some trackpads sending pointerdown of type mouse without any previous move event
+    document.body.addEventListener("pointerdown", evt => {  
+      if (evt.isTrusted && !evt.pressure && evt.target === element) {
+        evt.preventDefault()
+        evt.stopPropagation()
+        evt.stopImmediatePropagation()
+        dispatchModifiedEvent(evt, "pointermove")
+        dispatchModifiedEvent(evt, "pointerdown")
+        return false
+      }
+    }, {
+      capture: true,
+      passive: false,
+    })
   }
 
-  preHandle(event) {
+  preHandleTouch(event) {
     if (game.release.generation < 12) {
-
+    
       if (event.type == "pointerdown" && event.isTrusted) {
         // This fixes the issue where a placeable is not selectable until is hovered, we need a move event in the area
         // Probably why the original module did the pointermove+pointerdown thing, not needed in v12
