@@ -1,5 +1,6 @@
 import {MODULE_NAME, MODULE_DISPLAY_NAME} from './ModuleConstants.js'
 import {updateButtonSize} from '../tools/EnlargeButtonsTool'
+import {toggleUtilityControls} from '../tools/UtilityControls.js'
 
 export const CORE_FUNCTIONALITY = "core"
 
@@ -13,6 +14,8 @@ export const DIRECTIONAL_ARROWS_OFF = "off"
 export const DIRECTIONAL_ARROWS_ON = "on"
 
 export const LARGE_BUTTONS_SETTING = "largeButtons"
+
+export const PAUSE_BUTTON_SETTING = "pauseButton"
 
 export const EASY_TARGET_SETTING = "easyTarget"
 export const EASY_TARGET_OFF = "off"
@@ -196,6 +199,20 @@ export function registerTouchSettings() {
     default: "override_off",
   })
 
+  game.settings.register(MODULE_NAME, PAUSE_BUTTON_SETTING + "_override", {
+    name: "Show a play/pause button",
+    hint: "Adds a play/pause button to the UI controls",
+    scope: "world",
+    config: false,
+    type: String,
+    choices: {
+      ["on"]: "On",
+      ["off"]: "Off",
+      ["override_off"]: "Don't override"
+    },
+    default: "override_off",
+  })
+
   // Client settings
 
   game.settings.register(MODULE_NAME, CORE_FUNCTIONALITY, {
@@ -285,6 +302,16 @@ export function registerTouchSettings() {
     type: Boolean,
     default: false,
     onChange: enabled => updateButtonSize(enabled),
+  })
+
+  game.settings.register(MODULE_NAME, PAUSE_BUTTON_SETTING, {
+    name: "Show a play/pause button" + (game.settings.get(MODULE_NAME, PAUSE_BUTTON_SETTING + "_override") == "override_off" ? "" : " *"),
+    hint: "Adds a play/pause button to the UI controls",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: true,
+    onChange: enabled => toggleUtilityControls(enabled),
   })
 
   game.settings.register(MODULE_NAME, DEBUG_MODE_SETTING, {

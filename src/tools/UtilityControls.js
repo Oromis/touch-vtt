@@ -1,8 +1,11 @@
+import {getSetting, PAUSE_BUTTON_SETTING} from '../config/TouchSettings'
+
 export function installUtilityControls() {
   $("#touch-vtt-controls").remove()
   
-  var controls = $("<div>")
+  const controls = $("<div>")
     .attr("id", "touch-vtt-controls")
+  controls.toggleClass("hidden", !getSetting(PAUSE_BUTTON_SETTING))
 
   // Pause button (GM only)
   if (game.user.isGM) {
@@ -21,4 +24,8 @@ export function installUtilityControls() {
     }
 
   $("#controls").prepend(controls)
+}
+
+export function toggleUtilityControls(enabled) {
+  $("#touch-vtt-controls").toggleClass("hidden", !enabled)
 }

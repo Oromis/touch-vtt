@@ -76,6 +76,10 @@
     width: 100%;
 }
 
+#touch-vtt-controls.hidden {
+    display: none;
+}
+
 #touch-vtt-controls button {
     line-height: 18px;
     font-size: var(--font-size-10);
