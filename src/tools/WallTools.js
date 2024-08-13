@@ -6,22 +6,19 @@ let chainingActive = false
 function installChainingHook() {
   // Hook into the wall layer's listeners for some ugly fixes
 
-  // This is to stop an unwanted dragLeftCancel coming from an unwanted pointerup in v11
-  if (game.release.generation < 12) {
-    wrapMethod('WallsLayer.prototype._onDragLeftCancel', function(callOriginal, ...args) {
-      if (args[0] instanceof PointerEvent) {
-        args[0].preventDefault()
-        return
-      }
-      return callOriginal(...args)
-    }, 'MIXED')
-  }
+  // We do this because when we do a wall chain in the current solution, the combination of touchend and pointerups is messing stuff up
+  // In particular, the original method here calls .preventDefault() on one of these PIXI events and then for some reason it's stuck.
+  // Which means that all subsequent events are `defaultPrevented` and they misbehave.
+  // So what we do here is, when the wall/chain is done, literally set that field to false. Luckily this actually works.
+  // Even more luckily, this also fixes a similar issue in v12
+  wrapMethod('WallsLayer.prototype._onDragLeftCancel', function(callOriginal, ...args) {
+    const result = callOriginal(...args)
+    if (args[0] instanceof PIXI.FederatedEvent) {
+      args[0].defaultPrevented = false
+    }
+    return result
+  }, 'MIXED')
 
-  // Trigger a dragLeftStart after every clickLeft (for some reason it's not triggered automatically after finishing a chain)
-  wrapMethod('WallsLayer.prototype._onClickLeft', function(callOriginal, ...args) {
-    callOriginal(...args)
-    return this._onDragLeftStart(...args)
-  })
 }
 
 export function installWallToolsControls(menuStructure) {

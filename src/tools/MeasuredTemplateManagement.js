@@ -128,19 +128,19 @@ export class MeasuredTemplateManager {
 
   touchEventReplacer(evt) {
     // An event gets here if the listeners have been activated; we replace them all with pointermove until the template is confirmed
-    if (evt.isTrusted) {
-      if (evt instanceof TouchEvent || evt instanceof PointerEvent && ["touch", "pen"].includes(evt.pointerType)) {
+    if (evt.isTrusted || evt.touchvttTrusted) {
+      if (evt instanceof TouchEvent || evt instanceof PointerEvent && (["touch", "pen"].includes(evt.pointerType) || evt.touchvttTrusted)) {
         this._touchMode = true
       } else {
         this._touchMode = false
         return this.toggleMeasuredTemplateTouchManagementListeners(false)
       }
     }
-    if (this._touchMode && evt.isTrusted && evt.target.tagName == "CANVAS") {
+    if (this._touchMode && (evt.isTrusted || evt.touchvttTrusted) && evt.target.tagName == "CANVAS") {
       evt.preventDefault()
       evt.stopPropagation()
       if (evt instanceof PointerEvent) {
-        dispatchModifiedEvent(evt, "pointermove", {button: -1, buttons: 0})
+        dispatchModifiedEvent(evt, "pointermove", {trusted: false, button: -1, buttons: 0})
       }
       return false
     } else {
@@ -152,11 +152,11 @@ export class MeasuredTemplateManager {
     // When active, we capture all relevant events to see if they need to be replaced
     if (activate) {
       ["pointerdown", "pointerup", "pointermove", "pointercancel", "touchstart", "touchmove", "touchend"].forEach(e => {
-        window.addEventListener(e, this._touchEventReplacer, true)
+        window.document.addEventListener(e, this._touchEventReplacer, true)
       })
     } else {
       ["pointerdown", "pointerup", "pointermove", "pointercancel", "touchstart", "touchmove", "touchend"].forEach(e => {
-        window.removeEventListener(e, this._touchEventReplacer, true)
+        window.document.removeEventListener(e, this._touchEventReplacer, true)
       })
     }
   }

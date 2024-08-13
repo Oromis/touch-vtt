@@ -60,11 +60,14 @@ class TouchPointerEventsManager {
     }
   }
 
+  onStartMultiTouch(event) {
+
+  }
+
   handleTouchStart(event) {
     this.updateActiveTouch(event)
     if (this.touchIds.length > 1) {
-      // This is to cancel any drag-style action (usually a selection rectangle) when we start having multiple touches
-      dispatchModifiedEvent(event, "pointerup")
+      this.onStartMultiTouch(event)
     }
   }
 
@@ -85,7 +88,7 @@ class TouchPointerEventsManager {
     if (this.touches[id] != null) {
       this.touches[id].update(event, event)
     } else {
-      if (event.type == "pointerdown" && event.pointerType != "pen") {
+      if (event.type == "pointerdown" && event.buttons == 1 && event.pointerType != "pen") {
         this.touches[id] = new Touch(event, event)
       }
     }
@@ -111,7 +114,7 @@ class TouchPointerEventsManager {
   }
 
   shouldHandleEvent(event) {
-    return event.isTrusted
+    return event.isTrusted || event.touchvttTrusted
   }
 
   isTouchPointerEvent(event) {

@@ -23,6 +23,7 @@ import {TouchVTTMouseInteractionManager} from './logic/TouchVTTMouseInteractionM
 
 let canvasRightClickTimeout = null
 let canvasLongPressTimeout = null
+let canvasTouchPointerEventsManager = null
 const measuredTemplateManager = MeasuredTemplateManager.init()
 let windowAppAdapter = null
 let _usingTouch = false
@@ -84,9 +85,9 @@ Hooks.once('init', () => {
     // This wrap gives us control over every MouseInteractionManager
     wrapMethod('MouseInteractionManager.prototype.callback', async function (originalMethod, event, ...args) {
       
-      if (["touch", "pen"].includes(args[0].pointerType)) {
+      if (["touch", "pen"].includes(args[0].pointerType) || args[0].nativeEvent?.touchvttTrusted) {
 
-        if (args[0].pointerType == "touch") {
+        if (args[0].pointerType == "touch" || args[0].nativeEvent.touchvttTrusted) {
 
           //console.log("MIM", this.object.constructor.name, event, ...args)
 
@@ -107,13 +108,17 @@ Hooks.once('init', () => {
             clearTimeout(canvasRightClickTimeout)
             clearTimeout(canvasLongPressTimeout)
             canvasRightClickTimeout = setTimeout(() => {
-              dispatchModifiedEvent(args[0], "pointerup")
-              dispatchModifiedEvent(args[0], "pointerdown", {button: 2, buttons: 2})
+              if (canvasTouchPointerEventsManager.touchIds.length < 2) {
+                dispatchModifiedEvent(args[0], "pointerup")
+                dispatchModifiedEvent(args[0], "pointerdown", {button: 2, buttons: 2})
+              }
             }, 400)
             canvasLongPressTimeout = setTimeout(() => {
-              this.callbacks["longPress"](args[0], args[0].interactionData.origin)
+              if (canvasTouchPointerEventsManager.touchIds.length < 2) {
+                this.callbacks["longPress"](args[0], args[0].interactionData.origin)
+              }
             }, 1000)
-          } else {
+          } else if (!["clickRight", "hoverIn", "hoverOut"].includes(event)) {
             clearTimeout(canvasRightClickTimeout)
             clearTimeout(canvasLongPressTimeout)
           }
@@ -128,13 +133,7 @@ Hooks.once('init', () => {
         if (event == "longPress" && !args[1]) {
           args[1] = args[0].interactionData.origin
         }
-
-        // To remove an unwanted dragLeftCancel (we do a similar thing for walls)
-        if (event == "dragLeftCancel" && args[0] instanceof PointerEvent) {
-          args[0].preventDefault()
-          return
-        }
-      
+        
       }
       
       return originalMethod.call(this, event, ...args)
@@ -164,24 +163,12 @@ Hooks.on('ready', function () {
       if (canvasElem) {
         // This sets up the main listener on the canvas
         // It keeps track of touches and handles pan/zoom gestures
-        const canvasTouchPointerEventsManager = CanvasTouchPointerEventsManager.init(canvasElem)
-        //initMeasurementHud({ touchPointerEventsManager: canvasTouchPointerEventsManager })
+        canvasTouchPointerEventsManager = CanvasTouchPointerEventsManager.init(canvasElem)
+        initMeasurementHud({ touchPointerEventsManager: canvasTouchPointerEventsManager })
 
         // This gives the user a touch-friendly UI for pre-made templates (like from an automatic "Place Measured Template" chat button, or MidiQOL)
         measuredTemplateManager.initMeasuredTemplateHud(canvasTouchPointerEventsManager)
         canvas.templates.preview.on("childAdded", measuredTemplateManager.onTemplatePreviewCreated.bind(measuredTemplateManager))
-
-        // This fixes an issue in v11 where a pen pointerdown would register as a pen input and a pointer input, creating a double click
-        if (game.release.generation < 12) {
-          canvasElem.removeEventListener("pointerdown", canvas.app.renderer.events.onPointerDown, true)
-          wrapMethod('canvas.app.renderer.events.onPointerDown', function(originalMethod, ...args) {
-            if (args[0].pointerType == "pen") {
-              return
-            }
-            return originalMethod.call(this, ...args)
-          }, 'MIXED')
-          canvasElem.addEventListener("pointerdown", canvas.app.renderer.events.onPointerDown, true)
-        }
 
         console.info(`${MODULE_DISPLAY_NAME} started successfully.`)
       } else {

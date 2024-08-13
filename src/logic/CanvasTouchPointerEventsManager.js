@@ -1,4 +1,4 @@
-import {dispatchModifiedEvent} from "./FakeTouchEvent.js"
+import {dispatchCopy, dispatchModifiedEvent} from "./FakeTouchEvent.js"
 import Vectors from './Vectors.js'
 import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
 import Screen from '../browser/Screen.js'
@@ -26,18 +26,37 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
       capture: true,
       passive: false,
     })
+
+    // New v11 fix (started in v2.2.3): we completely block these events as soon as possible.
+    // We dispatch a pointermove to the location first, then we dispatch a clone of the original. Except touchstart, that one is gone.
+    if (game.release.generation < 12) {
+      ["pointerdown", "pointerup", "touchstart"].forEach(e => {
+        window.addEventListener(e, evt => {  
+          if (evt.isTrusted && (evt instanceof TouchEvent || ["touch", "pen"].includes(evt.pointerType)) && evt.target === element) {
+            evt.preventDefault()
+            evt.stopPropagation()
+            evt.stopImmediatePropagation()
+            
+            dispatchModifiedEvent(evt, "pointermove", {button: -1, buttons: 0})
+      
+            if (evt.type !== "touchstart") {
+              dispatchCopy(evt)
+            }
+            return false
+          }
+        }, {
+          capture: true,
+          passive: false,
+        })
+      })
+    }
+
   }
 
-  preHandleTouch(event) {
-    if (game.release.generation < 12) {
-    
-      if (event.type == "pointerdown" && event.isTrusted) {
-        // This fixes the issue where a placeable is not selectable until is hovered, we need a move event in the area
-        // Probably why the original module did the pointermove+pointerdown thing, not needed in v12
-        dispatchModifiedEvent(event, "pointermove", {button: -1, buttons: 0})
-      }
-      
-    }
+  onStartMultiTouch(event) {
+    // This is to cancel any drag-style action (usually a selection rectangle) when we start having multiple touches
+    const cancelEvent = new MouseEvent("contextmenu", {clientX: 0, clientY: 0, bubbles: true, cancelable: true, view: window, button: 2})
+    event.target.dispatchEvent(cancelEvent)
   }
 
   handleTouchMove(event) {
@@ -139,6 +158,10 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
 
   useNoGestures() {
     return getSetting(GESTURE_MODE_SETTING) === GESTURE_MODE_OFF
+  }
+
+  isTouchPointerEvent(event) {
+    return super.isTouchPointerEvent(event) || event.touchvttTrusted
   }
 
   gesturesEnabled() {

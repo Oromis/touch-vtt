@@ -104,7 +104,7 @@ export class TouchVTTMouseInteractionManager {
      * The number of milliseconds of mouse click depression to consider it a long press.
      * @type {number}
      */
-    static LONG_PRESS_DURATION_MS = 500;
+    static LONG_PRESS_DURATION_MS = 99999999;
   
     /**
      * Global timeout for the long-press event.
@@ -550,6 +550,10 @@ export class TouchVTTMouseInteractionManager {
      * @param {PIXI.FederatedEvent} event
      */
     #handleMouseUp(event) {
+      if (ui.controls.activeControl == "walls" && event.nativeEvent instanceof Touch) {
+        return true;
+      }
+
       clearTimeout(this.constructor.longPressTimeout);
       // If this is a touch hover event, treat it as a drag
       if ( (this.state === this.states.HOVER) && (event.pointerType === "touch") ) {

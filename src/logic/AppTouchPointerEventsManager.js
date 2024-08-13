@@ -12,6 +12,10 @@ class AppTouchPointerEventsManager extends TouchPointerEventsManager {
     e.stopPropagation()
   }
 
+  onStartMultiTouch(event) {
+    dispatchModifiedEvent(event, "pointerup")
+  }
+
   handleTouchMove(event) {
     this.updateActiveTouch(event)
 
