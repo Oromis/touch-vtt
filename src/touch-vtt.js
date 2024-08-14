@@ -21,6 +21,11 @@ import {installUtilityControls} from './tools/UtilityControls'
 
 import {TouchVTTMouseInteractionManager} from './logic/TouchVTTMouseInteractionManager.js'
 
+if (!window.TouchEvent) {
+  window.TouchEvent = function() {}
+  window.TouchEvent.prototype = {}
+}
+
 let canvasRightClickTimeout = null
 let canvasLongPressTimeout = null
 let canvasTouchPointerEventsManager = null
@@ -84,12 +89,17 @@ Hooks.once('init', () => {
 
     // This wrap gives us control over every MouseInteractionManager
     wrapMethod('MouseInteractionManager.prototype.callback', async function (originalMethod, event, ...args) {
-      
+      if (getSetting(DEBUG_MODE_SETTING)) {
+        console.log(
+          "TouchVTT: MIM:", this.object.constructor.name, event,
+          "; PIXI event:", args[0].constructor.name, args[0].pointerType, args[0].type, "defaultPrevented=" + args[0].defaultPrevented,
+          "; native event:", args[0].nativeEvent?.constructor.name, args[0].nativeEvent?.pointerType, args[0].nativeEvent?.type, args[0].nativeEvent?.touchvttTrusted, "defaultPrevented=" + args[0].nativeEvent?.defaultPrevented,
+        )
+      }
+
       if (["touch", "pen"].includes(args[0].pointerType) || args[0].nativeEvent?.touchvttTrusted) {
 
         if (args[0].pointerType == "touch" || args[0].nativeEvent.touchvttTrusted) {
-
-          //console.log("MIM", this.object.constructor.name, event, ...args)
 
           // v12 only: ugly patch to fix annoying issue where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
           // For example, you open an actor sheet, if something clickable is under your finger (icon, action, ability, etc.) it will get wrongly clicked.
@@ -195,7 +205,7 @@ Hooks.on('ready', function () {
   if (getSetting(DEBUG_MODE_SETTING)) {
     ["pointerdown", "pointermove", "pointerup", "pointercancel", "pointerleave", "touchstart", "touchmove", "touchend", "mousedown", "mouseup", "mousemove"].forEach(e => {
       document.body.addEventListener(e, evt => {
-        console.log(MODULE_DISPLAY_NAME + ": " + evt.type, evt.pointerType, evt.isTrusted, evt)
+        console.log(MODULE_DISPLAY_NAME + ": " + evt.type, evt.pointerType, evt.pointerId, "trusted:" + evt.isTrusted + "," + evt.touchvttTrusted, "buttons:" + evt.button + "," + evt.buttons, evt.clientX, evt.clientY)
       }, true)
     })
   }
