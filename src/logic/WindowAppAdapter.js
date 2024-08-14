@@ -69,6 +69,36 @@ class WindowAppAdapter {
 
     this.lastPointerDownCoords = null
 
+    /**** Fix for small touch movements when trying to click - START */
+    // This includes, for example, the pf2e combat tracker sortable
+    // We intercept/cancel touch move events between pointerdown and pointerup
+    const cancelMoveEvent = ((evt) => {
+      const evtCoords = {x: evt.clientX || evt.touches?.[0]?.clientX, y: evt.clientY || evt.touches?.[0]?.clientY}
+      if (Vectors.distance(evtCoords, this.lastPointerDownCoords) < 10) {
+        evt.preventDefault()
+        evt.stopPropagation()
+        evt.stopImmediatePropagation()
+        return false
+      }
+    }).bind(this)
+    document.addEventListener("pointerdown", evt => {
+      if (evt.target.closest(".app, .application")) {
+        this.lastPointerDownCoords = {x: evt.clientX, y: evt.clientY}
+        Array("pointermove", "touchmove", "mousemove").forEach(e => {
+          document.getElementById("combat-tracker").addEventListener(e, cancelMoveEvent, true)
+        })
+      }
+    }, true)
+    document.addEventListener("pointerup", evt => {
+      if (evt.target.closest(".app, .application")) {
+        this.lastPointerDownCoords = null
+        Array("pointermove", "touchmove", "mousemove").forEach(e => {
+          document.getElementById("combat-tracker").removeEventListener(e, cancelMoveEvent, true)
+        })
+      }
+    }, true)
+    /**** Fix for small touch movements when trying to click - END */
+    
     /*** Double-click management - Start ***/
     // In both v11 and v12 (but in an especially weird way in v11) double clicks on app windows are triggered inconsistently for touch events
     // In v12, touching a window header triggers a dblclick
@@ -109,34 +139,6 @@ class WindowAppAdapter {
     }
     }, 'MIXED')
 
-    /**** Fix for pf2e combat tracker sortable - START */
-    // We intercept/cancel touch move events between pointerdown and pointerup
-    const cancelMoveEvent = ((evt) => {
-      const evtCoords = {x: evt.clientX || evt.touches?.[0]?.clientX, y: evt.clientY || evt.touches?.[0]?.clientY}
-      if (Vectors.distance(evtCoords, this.lastPointerDownCoords) < 10) {
-        evt.preventDefault()
-        evt.stopPropagation()
-        evt.stopImmediatePropagation()
-        return false
-      }
-    }).bind(this)
-    document.addEventListener("pointerdown", evt => {
-      if (evt.target.closest("#combat-tracker")) {
-        this.lastPointerDownCoords = {x: evt.clientX, y: evt.clientY}
-        Array("pointermove", "touchmove", "mousemove").forEach(e => {
-          document.getElementById("combat-tracker").addEventListener(e, cancelMoveEvent, true)
-        })
-      }
-    }, true)
-    document.addEventListener("pointerup", evt => {
-      if (evt.target.closest("#combat-tracker")) {
-        this.lastPointerDownCoords = null
-        Array("pointermove", "touchmove", "mousemove").forEach(e => {
-          document.getElementById("combat-tracker").removeEventListener(e, cancelMoveEvent, true)
-        })
-      }
-    }, true)
-    /**** Fix for pf2e combat tracker sortable - END */
   }
 
   manageTouchDblClick(clickEvent) {
