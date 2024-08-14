@@ -79,9 +79,11 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
   }
 
   onStartMultiTouch(event) {
-    // This is to cancel any drag-style action (usually a selection rectangle) when we start having multiple touches
-    const cancelEvent = new MouseEvent("contextmenu", {clientX: 0, clientY: 0, bubbles: true, cancelable: true, view: window, button: 2})
-    event.target.dispatchEvent(cancelEvent)
+    if (this.gesturesEnabled()) {
+      // This is to cancel any drag-style action (usually a selection rectangle) when we start having multiple touches
+      const cancelEvent = new MouseEvent("contextmenu", {clientX: 0, clientY: 0, bubbles: true, cancelable: true, view: window, button: 2})
+      event.target.dispatchEvent(cancelEvent)
+    }
   }
 
   handleTouchMove(event) {
