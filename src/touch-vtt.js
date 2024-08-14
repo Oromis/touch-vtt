@@ -118,7 +118,7 @@ Hooks.once('init', () => {
                 this.callbacks["longPress"](args[0], args[0].interactionData.origin)
               }
             }, 1000)
-          } else if (!["clickRight", "hoverIn", "hoverOut"].includes(event)) {
+          } else if (!["clickRight"].includes(event)) {
             clearTimeout(canvasRightClickTimeout)
             clearTimeout(canvasLongPressTimeout)
           }
@@ -193,7 +193,7 @@ Hooks.on('ready', function () {
   }
 
   if (getSetting(DEBUG_MODE_SETTING)) {
-    ["pointerdown", "pointermove", "pointerup", "pointercancel", "touchstart", "touchmove", "touchend", "mousedown", "mouseup", "mousemove"].forEach(e => {
+    ["pointerdown", "pointermove", "pointerup", "pointercancel", "pointerleave", "touchstart", "touchmove", "touchend", "mousedown", "mouseup", "mousemove"].forEach(e => {
       document.body.addEventListener(e, evt => {
         console.log(MODULE_DISPLAY_NAME + ": " + evt.type, evt.pointerType, evt.isTrusted, evt)
       }, true)
