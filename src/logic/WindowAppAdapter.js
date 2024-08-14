@@ -98,7 +98,7 @@ class WindowAppAdapter {
       }
     }, true)
     /**** Fix for small touch movements when trying to click - END */
-    
+
     /*** Double-click management - Start ***/
     // In both v11 and v12 (but in an especially weird way in v11) double clicks on app windows are triggered inconsistently for touch events
     // In v12, touching a window header triggers a dblclick
@@ -171,7 +171,7 @@ class WindowAppAdapter {
               element.draggable = false
             }
           }, true)
-          if (element.classList.contains("folder")) {
+          if (element.classList.contains("folder") || element.classList.contains("folder-like")) {
             element.getElementsByTagName("header")[0].prepend(handlebar)
           } else {
             element.prepend(handlebar)
