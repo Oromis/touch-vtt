@@ -161,18 +161,17 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
     FoundryCanvas.pan({ x: worldCenter.x, y: worldCenter.y })
   }
 
-  easeFactorBasedOnDistance(touchDistance, closeThreshold) {
-    // Sigmoid function, 0 to 1 for positive values, balanced around what we consider "close"
-    // We use it to basically decrease sensitivity as the touches get closer
-    return 2 / (1 + Math.E ** (-touchDistance/closeThreshold)) - 1
-  }
-
   calcZoom(firstTouch, secondTouch) {
-    const sensitivity = getSetting(ZOOM_SENSITIVITY_SETTING)
-    const lastDistance = Vectors.distance(firstTouch.last, secondTouch.last)
-    const currentDistance = Vectors.distance(firstTouch.current, secondTouch.current)
-    const normalizedDelta = (currentDistance - lastDistance) / lastDistance
-    return canvas.stage.scale.x * (1 + normalizedDelta * sensitivity * this.easeFactorBasedOnDistance(currentDistance, 100)) // assuming 100px distance is "close touches"
+    const originalScreenDistance = Vectors.distance(firstTouch.start, secondTouch.start)
+    const originalWorldDistance = Vectors.distance(firstTouch.world, secondTouch.world)
+    const originalScale = originalScreenDistance / originalWorldDistance
+    const newScreenDistance = Vectors.distance(firstTouch.current, secondTouch.current)
+    const newScale = newScreenDistance / originalWorldDistance
+    if (Math.abs(newScale - originalScale) > 0.015) {
+      return newScale
+    } else {
+      return originalScale
+    }
   }
 
   calcPanCorrection(transform, touch) {

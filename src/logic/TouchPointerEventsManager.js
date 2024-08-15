@@ -46,7 +46,8 @@ class TouchPointerEventsManager {
           break
 
         case 'pointerup':
-          this.handleTouchEnd(event)
+          //this.handleTouchEnd(event)
+          this.handleEndAll(event)
           break
         
         case 'pointercancel':
