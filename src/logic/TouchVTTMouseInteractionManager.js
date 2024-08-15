@@ -17,16 +17,20 @@ export class TouchVTTMouseInteractionManager {
        * The current interaction state
        * @type {number}
        */
-      this._state = this.states.NONE;
-      Object.defineProperty(this, 'state', {
-        get() {
-          return this._state;
-        },
-        set(value) {
-          console.log(this.object.constructor.name, this._state + " -> " + value + " (" + (new Error()).stack?.split("\n")[2]?.trim().split(" ")[1] + ")")
-          this._state = value;
-        }
-      });
+      if (getSetting(DEBUG_MODE_SETTING)) {
+        this._state = this.states.NONE;
+        Object.defineProperty(this, 'state', {
+          get() {
+            return this._state;
+          },
+          set(value) {
+            console.log(this.object.constructor.name, this._state + " -> " + value + " (" + (new Error()).stack?.split("\n")[2]?.trim().split(" ")[1] + ")")
+            this._state = value;
+          }
+        });
+      } else {
+        this.state = this.states.NONE;
+      }
   
       /**
        * Bound interaction data object to populate with custom data.
