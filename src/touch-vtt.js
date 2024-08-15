@@ -113,7 +113,7 @@ Hooks.once('init', () => {
           if (game.release.generation >= 12) {
             if (event == "clickLeft2") {
               await new Promise(resolve => setTimeout(resolve, 100))
-              document.getElementById("board").dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2}))
+              canvas.app.view.dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2}))
               return originalMethod.call(this, event, ...args)
             }
           }

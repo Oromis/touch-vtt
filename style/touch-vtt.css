@@ -39,12 +39,8 @@
 #touch-measurement-hud, #touch-measured-template-hud {
     z-index: 99;
     display: flex;
-    flex-direction: column;
-    align-items: center;
     position: fixed;
-    height: auto;
-    width: auto;
-    background: none;
+    width: 200px;
 }
 
 #touch-measured-template-hud {

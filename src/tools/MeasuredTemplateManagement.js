@@ -43,6 +43,7 @@ class TouchMeasuredTemplateHud extends Application {
     data.offsetX = this.calcOffsetX()
     data.showRotate = true
     data.showConfirm = true
+    data.showCancel = true
     return data
   }
 
@@ -56,8 +57,15 @@ class TouchMeasuredTemplateHud extends Application {
       this._templateManager.toggleMeasuredTemplateTouchManagementListeners(false)
       this._templateManager._touchMode = false
       // We send mousedown/mouseup events to be as close as possible to the expected behavior
-      document.getElementById("board").dispatchEvent(new PointerEvent("pointerdown", {pointerType: "mouse", isPrimary: true, clientX: this._screenPosition.left, clientY: this._screenPosition.top, button: 0, buttons: 1}))
-      document.getElementById("board").dispatchEvent(new PointerEvent("pointerup", {pointerType: "mouse", isPrimary: true, clientX: this._screenPosition.left, clientY: this._screenPosition.top, button: 0, buttons: 1}))
+      canvas.app.view.dispatchEvent(new PointerEvent("pointerdown", {pointerType: "mouse", isPrimary: true, clientX: this._screenPosition.left, clientY: this._screenPosition.top, button: 0, buttons: 1}))
+      canvas.app.view.dispatchEvent(new PointerEvent("pointerup", {pointerType: "mouse", isPrimary: true, clientX: this._screenPosition.left, clientY: this._screenPosition.top, button: 0, buttons: 1}))
+      canvas.hud.touchMeasuredTemplate.clear()
+    })
+
+    html.find('.cancel').on('pointerdown', () => {
+      this._templateManager.toggleMeasuredTemplateTouchManagementListeners(false)
+      this._templateManager._touchMode = false
+      canvas.app.view.dispatchEvent(new MouseEvent("contextmenu", {clientX: 0, clientY: 0, bubbles: true, cancelable: true, view: window, button: 2}))
       canvas.hud.touchMeasuredTemplate.clear()
     })
   }
@@ -182,7 +190,7 @@ export class MeasuredTemplateManager {
         this.document.delete()
         // v11 only: we dispatch a left click on the canvas because the template shape was lingering while dragging after the deletion
         if (game.release.generation < 12) {
-          setTimeout(() => { document.getElementById("board").dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2})) }, 0)
+          setTimeout(() => { canvas.app.view.dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2})) }, 0)
         }
       } else {
         callOriginal(...args)
