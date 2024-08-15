@@ -89,10 +89,16 @@ Hooks.once('init', () => {
 
     // This wrap gives us control over every MouseInteractionManager
     wrapMethod('MouseInteractionManager.prototype.callback', async function (originalMethod, event, ...args) {
+      if (event == "clearTimeouts") {
+        clearTimeout(canvasRightClickTimeout)
+        clearTimeout(canvasLongPressTimeout)
+        return
+      }
+      
       if (getSetting(DEBUG_MODE_SETTING)) {
         console.log(
           "TouchVTT: MIM:", this.object.constructor.name, event,
-          "; PIXI event:", args[0].constructor.name, args[0].pointerType, args[0].type, "defaultPrevented=" + args[0].defaultPrevented,
+          "; PIXI event:", args[0].constructor.name, args[0].pointerType, args[0].type, "target=" + args[0].target.constructor.name,
           "; native event:", args[0].nativeEvent?.constructor.name, args[0].nativeEvent?.pointerType, args[0].nativeEvent?.type, args[0].nativeEvent?.touchvttTrusted, "defaultPrevented=" + args[0].nativeEvent?.defaultPrevented,
         )
       }
@@ -203,9 +209,13 @@ Hooks.on('ready', function () {
   }
 
   if (getSetting(DEBUG_MODE_SETTING)) {
-    ["pointerdown", "pointermove", "pointerup", "pointercancel", "pointerleave", "touchstart", "touchmove", "touchend", "mousedown", "mouseup", "mousemove"].forEach(e => {
+    [
+      "pointerdown", "pointerup", "pointermove", "pointercancel", "pointerenter", "pointerleave", "pointerover", "pointerout",
+      "touchstart", "touchmove", "touchend",
+      "mousedown", "mouseup", "mousemove", "mouseenter", "mouseleave", "mouseover", "mouseout"
+    ].forEach(e => {
       document.body.addEventListener(e, evt => {
-        console.log(MODULE_DISPLAY_NAME + ": " + evt.type, evt.pointerType, evt.pointerId, "trusted:" + evt.isTrusted + "," + evt.touchvttTrusted, "buttons:" + evt.button + "," + evt.buttons, evt.clientX, evt.clientY)
+        console.log(MODULE_DISPLAY_NAME + ": " + evt.target.tagName, evt.type, evt.pointerType, evt.pointerId, "trusted:" + evt.isTrusted + "," + evt.touchvttTrusted, "buttons:" + evt.button + "," + evt.buttons, evt.clientX, evt.clientY)
       }, true)
     })
   }

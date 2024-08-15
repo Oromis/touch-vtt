@@ -1,3 +1,5 @@
+import {getSetting, DEBUG_MODE_SETTING} from '../config/TouchSettings.js'
+
 export class TouchVTTMouseInteractionManager {
     constructor(object, layer, permissions={}, callbacks={}, options={}) {
       this.object = object;
@@ -15,7 +17,16 @@ export class TouchVTTMouseInteractionManager {
        * The current interaction state
        * @type {number}
        */
-      this.state = this.states.NONE;
+      this._state = this.states.NONE;
+      Object.defineProperty(this, 'state', {
+        get() {
+          return this._state;
+        },
+        set(value) {
+          console.log(this.object.constructor.name, this._state + " -> " + value + " (" + (new Error()).stack?.split("\n")[2]?.trim().split(" ")[1] + ")")
+          this._state = value;
+        }
+      });
   
       /**
        * Bound interaction data object to populate with custom data.
@@ -550,9 +561,19 @@ export class TouchVTTMouseInteractionManager {
      * @param {PIXI.FederatedEvent} event
      */
     #handleMouseUp(event) {
+      if (getSetting(DEBUG_MODE_SETTING)) {
+        console.log(this.object.constructor.name, "handleMouseUp from state " + this.state + ": ", event.target.constructor.name, event.constructor.name, event.type, event.pointerType,
+          event.nativeEvent?.constructor.name, event.nativeEvent?.target.tagName, event.nativeEvent?.type, event.nativeEvent?.pointerType, "trust:" + event.nativeEvent?.isTrusted + "," + event.nativeEvent?.touchvttTrusted
+        )
+      }
+      
       if (ui.controls.activeControl == "walls" && event.nativeEvent instanceof Touch) {
         return true;
       }
+
+      // We force clear timeouts (this callback is implemented in the wrapper in touch-vtt.js)
+      // Because in some mixed touch/mouse combos the combination of events doesn't trigger any useful interaction event to automatically reset them
+      this.callback("clearTimeouts");
 
       clearTimeout(this.constructor.longPressTimeout);
       // If this is a touch hover event, treat it as a drag
