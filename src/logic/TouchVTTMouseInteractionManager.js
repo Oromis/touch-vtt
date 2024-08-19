@@ -1,3 +1,4 @@
+import {MODULE_DISPLAY_NAME} from '../config/ModuleConstants.js'
 import {getSetting, DEBUG_MODE_SETTING} from '../config/TouchSettings.js'
 
 export class TouchVTTMouseInteractionManager {
@@ -24,7 +25,7 @@ export class TouchVTTMouseInteractionManager {
             return this._state;
           },
           set(value) {
-            console.log(this.object.constructor.name, this._state + " -> " + value + " (" + (new Error()).stack?.split("\n")[2]?.trim().split(" ")[1] + ")")
+            console.log(MODULE_DISPLAY_NAME + ": " + this.object.constructor.name, this._state + " -> " + value + " (" + (new Error()).stack?.split("\n")[2]?.trim().split(" ")[1] + ")")
             this._state = value;
           }
         });
@@ -566,7 +567,7 @@ export class TouchVTTMouseInteractionManager {
      */
     #handleMouseUp(event) {
       if (getSetting(DEBUG_MODE_SETTING)) {
-        console.log(this.object.constructor.name, "handleMouseUp from state " + this.state + ": ", event.target.constructor.name, event.constructor.name, event.type, event.pointerType,
+        console.log(MODULE_DISPLAY_NAME + ": " + this.object.constructor.name, "handleMouseUp from state " + this.state + ": ", event.target.constructor.name, event.constructor.name, event.type, event.pointerType,
           event.nativeEvent?.constructor.name, event.nativeEvent?.target.tagName, event.nativeEvent?.type, event.nativeEvent?.pointerType, "trust:" + event.nativeEvent?.isTrusted + "," + event.nativeEvent?.touchvttTrusted
         )
       }

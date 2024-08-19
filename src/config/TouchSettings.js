@@ -1,6 +1,7 @@
 import {MODULE_NAME, MODULE_DISPLAY_NAME} from './ModuleConstants.js'
 import {updateButtonSize} from '../tools/EnlargeButtonsTool'
 import {toggleUtilityControls} from '../tools/UtilityControls.js'
+import {GestureCalibrationMenu} from './GestureCalibrationMenu.js'
 
 export const CORE_FUNCTIONALITY = "core"
 
@@ -27,7 +28,8 @@ export const MEASUREMENT_HUD_OFF = "off"
 export const MEASUREMENT_HUD_RIGHT = "right"
 export const MEASUREMENT_HUD_LEFT = "left"
 
-export const ZOOM_SENSITIVITY_SETTING = "zoomSensitivity"
+export const ZOOM_THRESHOLD_SETTING = "zoomThreshold"
+export const PAN_THRESHOLD_SETTING = "panThreshold"
 
 export const DEBUG_MODE_SETTING = "debugMode"
 
@@ -48,9 +50,8 @@ export function getSetting(settingName) {
 }
 
 class SettingsOverrideMenu extends FormApplication {
-  constructor(exampleOption) {
+  constructor() {
     super()
-    this.exampleOption = exampleOption
   }
 
   static get defaultOptions() {
@@ -64,20 +65,14 @@ class SettingsOverrideMenu extends FormApplication {
   }
 
   getData() {
-    var touchVttOverrideSettings = [...game.settings.settings].filter(s => s[0].startsWith(MODULE_NAME) && s[0].endsWith("_override"))
-    var data = {
+    const touchVttOverrideSettings = [...game.settings.settings].filter(s => s[0].startsWith(MODULE_NAME) && s[0].endsWith("_override"))
+    const data = {
       settings: Object.fromEntries(
         [...touchVttOverrideSettings]
           .map(s => {
             s[0] = s[0].split(".")[1]
             var settingValue = game.settings.get(MODULE_NAME, s[0])
             s[1].currentValue = settingValue
-            for (let choice in s[1].choices) {
-              if (typeof s[1].choices[choice] == "string") {
-                s[1].choices[choice] = {label: s[1].choices[choice]}
-              }
-              s[1].choices[choice].selected = (choice == settingValue)
-            }
             return s
           })
       ),
@@ -216,7 +211,7 @@ export function registerTouchSettings() {
   // Client settings
 
   game.settings.register(MODULE_NAME, CORE_FUNCTIONALITY, {
-    name: "Core Functionality",
+    name: "Core Functionality" + (game.settings.get(MODULE_NAME, CORE_FUNCTIONALITY + "_override") == "override_off" ? "" : " *"),
     hint: "Caution: disabling this option will remove all TouchVTT functionality, and other options will be ignored",
     scope: "client",
     config: true,
@@ -239,18 +234,32 @@ export function registerTouchSettings() {
     default: GESTURE_MODE_COMBINED,
   })
 
-  game.settings.register(MODULE_NAME, ZOOM_SENSITIVITY_SETTING, {
+  game.settings.register(MODULE_NAME, ZOOM_THRESHOLD_SETTING, {
     name: "Zoom Sensitivity",
     hint: "Sensitivity of the zoom gesture (if enabled)",
     scope: "client",
-    config: true,
+    config: false,
     type: Number,
     range: {
       min: 0,
-      max: 2,
-      step: 0.1
+      max: 100,
+      step: 1
     },
-    default: 1,
+    default: 100,
+  })
+
+  game.settings.register(MODULE_NAME, PAN_THRESHOLD_SETTING, {
+    name: "Pan Sensitivity",
+    hint: "Sensitivity of the pan gesture (if enabled)",
+    scope: "client",
+    config: false,
+    type: Number,
+    range: {
+      min: 0,
+      max: 100,
+      step: 1
+    },
+    default: 100,
   })
 
   game.settings.register(MODULE_NAME, DIRECTIONAL_ARROWS_SETTING, {
@@ -325,13 +334,22 @@ export function registerTouchSettings() {
   })
 
   // Override menu
-
   game.settings.registerMenu(MODULE_NAME, "SettingsOverrideMenu", {
     name: "Client Settings Overrides",
     label: "Configure Overrides",
     hint: "Configure which client settings are forced by the GM.",
     icon: "fas fa-bars",
     type: SettingsOverrideMenu,
+    restricted: true
+  })
+
+  // Testing new calibration menu
+  game.settings.registerMenu(MODULE_NAME, "GestureCalibrationMenu", {
+    name: "Touch Gesture Calibration",
+    label: "Calibrate Touch Gestures",
+    hint: "Gesture detection can be influenced by your display size and resolution. Use this tool to calibrate if you have issues with sensitivity.",
+    icon: "fas fa-wrench",
+    type: GestureCalibrationMenu,
     restricted: true
   })
 

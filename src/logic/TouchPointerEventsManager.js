@@ -1,5 +1,6 @@
+import {MODULE_DISPLAY_NAME} from '../config/ModuleConstants.js'
+import {getSetting, DEBUG_MODE_SETTING} from '../config/TouchSettings.js'
 import Touch from './Touch.js'
-import {dispatchModifiedEvent} from "./FakeTouchEvent.js"
 
 class TouchPointerEventsManager {
   constructor(element) {
@@ -25,6 +26,7 @@ class TouchPointerEventsManager {
   preHandleTouch(event) {}
 
   handleTouch(event) {
+    const preLength = this.touchIds.length
 
     this.preHandleAll(event)
 
@@ -46,8 +48,8 @@ class TouchPointerEventsManager {
           break
 
         case 'pointerup':
-          //this.handleTouchEnd(event)
-          this.handleEndAll(event)
+          this.handleTouchEnd(event)
+          //this.handleEndAll(event)
           break
         
         case 'pointercancel':
@@ -59,15 +61,27 @@ class TouchPointerEventsManager {
           break
       }
     }
+    if (preLength != this.touchIds.length && getSetting(DEBUG_MODE_SETTING)) {
+      console.log(MODULE_DISPLAY_NAME + ": touches changed: " + preLength + " -> " + this.touchIds.length)
+    }
   }
 
   onStartMultiTouch(event) {
 
   }
 
+  onTouchAdded(event) {
+
+  }
+
+  onTouchRemoved(event) {
+
+  }
+
   handleTouchStart(event) {
+    const prevTouches = this.touchIds.length
     this.updateActiveTouch(event)
-    if (this.touchIds.length > 1) {
+    if (prevTouches <= 1 && this.touchIds.length > 1) {
       this.onStartMultiTouch(event)
     }
   }
@@ -91,16 +105,19 @@ class TouchPointerEventsManager {
     } else {
       if (event.type == "pointerdown" && event.buttons == 1 && event.pointerType != "pen") {
         this.touches[id] = new Touch(event, event)
+        this.onTouchAdded(event)
       }
     }
   }
 
   cleanUpAll() {
     this.touches = {}
+    this.onTouchRemoved(event)
   }
 
   cleanUpTouch(event) {
     delete this.touches[event.pointerId]
+    this.onTouchRemoved(event)
   }
 
   getEventListenerOptions() {

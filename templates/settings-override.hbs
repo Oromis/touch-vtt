@@ -4,11 +4,9 @@
     <div class="form-group">
       <label for="{{@key}}">{{this.name}}</label>
       <select name="{{@key}}">
-      {{#each this.choices}}
-        <option value="{{@key}}" {{#if this.selected}}selected="selected"{{/if}}>{{this.label}}</option>
-      {{/each}}
+        {{selectOptions this.choices selected=this.currentValue}}
       </select>
-  </div>
+    </div>
   {{/each}}
   <footer class="sheet-footer flexrow">
     <button type="submit" name="submit">

@@ -82,3 +82,25 @@
     max-width: 110px;
     height: 20px;
 }
+
+#touch-vtt-gesture-calibration-form {
+    mix-blend-mode: hard-light;
+}
+
+#touch-vtt-gesture-calibration-form .window-content {
+    background: white;
+}
+
+#touch-vtt-gesture-calibration-form .window-content form.flexcol > *{
+    flex: 0;
+}
+
+#touch-vtt-calibration {
+    flex: 1 !important;
+    background: gray;
+}
+
+#touch-vtt-calibration canvas {
+    width: 100%;
+    height: 100%;
+}

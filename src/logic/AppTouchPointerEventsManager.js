@@ -1,4 +1,5 @@
 import TouchPointerEventsManager from './TouchPointerEventsManager.js'
+import {dispatchModifiedEvent} from "./FakeTouchEvent.js"
 
 class AppTouchPointerEventsManager extends TouchPointerEventsManager {
   constructor(selector) {

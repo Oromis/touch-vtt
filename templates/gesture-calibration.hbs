@@ -1,0 +1,26 @@
+<form class="flexcol">
+  <p><small>These setting determine how much your fingers need to move before a gesture is activated. If you have too much unwanted zoom/pan, try lowering these values and try it out in this window. Click OK to save your preferences.</small></p>
+  <div>
+    <div class="form-group" data-setting-id="touch-vtt.zoomThreshold">
+      <label>Zoom Sensitivity</label>
+      <div class="form-fields">
+        <input type="range" name="zoomThreshold" data-dtype="Number" value="{{zoomThresholdSetting}}" min="0" max="100" step="1">
+        <span class="range-value">{{zoomThresholdSetting}}</span>
+      </div>
+    </div>
+    <div class="form-group" data-setting-id="touch-vtt.panThreshold">
+      <label>Pan Sensitivity</label>
+      <div class="form-fields">
+        <input type="range" name="panThreshold" data-dtype="Number" value="{{panThresholdSetting}}" min="0" max="100" step="1">
+        <span class="range-value">{{panThresholdSetting}}</span>
+      </div>
+    </div>
+  </div>
+  <div id="touch-vtt-calibration">
+  </div>
+  <footer class="sheet-footer flexrow">
+    <button type="submit" name="submit">
+        <i class="fa fa-check"></i> OK
+    </button>
+  </footer>
+</form>
