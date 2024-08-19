@@ -20,6 +20,7 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
     this._zoomGesture = {
       status: this.GESTURE_STATUSES.NONE,
       initiatingCoords: null,
+      initiatingWorldCoords: null,
       activationCoords: null,
       activationWorldCoords: null
     }
@@ -120,6 +121,7 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
     this._zoomGesture = {
       status: this.GESTURE_STATUSES.NONE,
       initiatingCoords: null,
+      initiatingWorldCoords: null,
       activationCoords: null,
       activationWorldCoords: null
     }
@@ -171,6 +173,7 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
 
     if (this._zoomGesture.status == this.GESTURE_STATUSES.NONE) {
       this._zoomGesture.initiatingCoords = [{...firstTouch.current}, {...secondTouch.current}]
+      this._zoomGesture.initiatingWorldCoords = [FoundryCanvas.screenToWorld({...firstTouch.current}), FoundryCanvas.screenToWorld({...secondTouch.current})]
       this._zoomGesture.status = this.GESTURE_STATUSES.WAITING
     }
     const initiatingDistance = Vectors.distance(this._zoomGesture.initiatingCoords[0], this._zoomGesture.initiatingCoords[1])
@@ -192,9 +195,10 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
 
   calcZoom() {
     const touchIds = this.touchIds
-    const originalWorldDistance = Vectors.distance(this._zoomGesture.activationWorldCoords[0], this._zoomGesture.activationWorldCoords[1])
+    const initiatingWorldDistance = Vectors.distance(this._zoomGesture.initiatingWorldCoords[0], this._zoomGesture.initiatingWorldCoords[1])
+    const activationWorldDistance = Vectors.distance(this._zoomGesture.activationWorldCoords[0], this._zoomGesture.activationWorldCoords[1])
     const newScreenDistance = Vectors.distance(this.touches[touchIds[0]].current, this.touches[touchIds[1]].current)
-    const newScale = newScreenDistance / originalWorldDistance    
+    const newScale = newScreenDistance / ((initiatingWorldDistance + activationWorldDistance) / 2)
     return newScale
   }
 

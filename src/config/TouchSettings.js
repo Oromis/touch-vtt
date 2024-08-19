@@ -345,12 +345,12 @@ export function registerTouchSettings() {
 
   // Testing new calibration menu
   game.settings.registerMenu(MODULE_NAME, "GestureCalibrationMenu", {
-    name: "Touch Gesture Calibration",
+    name: "Gesture Sensitivity Calibration",
     label: "Calibrate Touch Gestures",
     hint: "Gesture detection can be influenced by your display size and resolution. Use this tool to calibrate if you have issues with sensitivity.",
     icon: "fas fa-wrench",
     type: GestureCalibrationMenu,
-    restricted: true
+    restricted: false
   })
 
   // Hook to disable overridden settings

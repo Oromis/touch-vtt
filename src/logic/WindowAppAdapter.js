@@ -65,7 +65,7 @@ function createStyleElement() {
 class WindowAppAdapter {
   constructor() {
     this.lastClickInfo = {target: null, time: 0, touch: false}
-    this.touchManager = AppTouchPointerEventsManager.init(".app, .application")
+    this.touchManager = AppTouchPointerEventsManager.init(".app:not(#touch-vtt-gesture-calibration-form), .application:not(#touch-vtt-gesture-calibration-form)")
 
     this.lastPointerDownCoords = null
 

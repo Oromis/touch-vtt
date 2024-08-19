@@ -42,8 +42,14 @@ function findCanvas() {
 function setUsingTouch(usingTouch) {
   _usingTouch = usingTouch
   if (usingTouch) {
+    if (game.release.generation < 12) {
+      MouseInteractionManager.LONG_PRESS_DURATION_MS = 99999999
+    }
     document.body.classList.add("touchvtt-using-touch")
   } else {
+    if (game.release.generation < 12) {
+      MouseInteractionManager.LONG_PRESS_DURATION_MS = 500
+    }
     document.body.classList.remove("touchvtt-using-touch")
   }
 }
@@ -125,7 +131,8 @@ Hooks.once('init', () => {
             clearTimeout(canvasLongPressTimeout)
             canvasRightClickTimeout = setTimeout(() => {
               if (canvasTouchPointerEventsManager.touchIds.length < 2) {
-                dispatchModifiedEvent(args[0], "pointerup")
+                // We used to dispatch the pointerup for the original touch, but that clears the timeouts for right-click/longpress. Seems to be ok like this.
+                //dispatchModifiedEvent(args[0], "pointerup")
                 dispatchModifiedEvent(args[0], "pointerdown", {button: 2, buttons: 2})
               }
             }, 400)
