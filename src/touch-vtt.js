@@ -138,6 +138,7 @@ Hooks.once('init', () => {
             }, 400)
             canvasLongPressTimeout = setTimeout(() => {
               if (canvasTouchPointerEventsManager.touchIds.length < 2) {
+                canvas.currentMouseManager = this
                 this.callbacks["longPress"](args[0], args[0].interactionData.origin)
               }
             }, 1000)
