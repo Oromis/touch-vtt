@@ -86,6 +86,11 @@ when those features are locked in "Lock View".
 
 ### Changelog
 
+- **2.2.8:** Added zoom/pan gesture sensitivity calibration in the settings
+- **2.2.0:** Added two-finger scrolling gesture in all application windows
+- **2.1.0:** Added scroll support for directories with draggable items
+- **2.0.7:** Added support for placing and rotating pre-made Measured Templates
+- **2.0.3:** Added settings to enable/disable core functionality, and GM overrides for client settings
 - **2.0.1:** Added initial support for drag and drop
 - **2.0.0:** Large rework based on PointerEvents
 - **1.12.1:** Added option to disable pan/zoom gestures, added play/pause button, added Token eraser tool
