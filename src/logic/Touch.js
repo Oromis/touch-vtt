@@ -17,7 +17,9 @@ class Touch {
     this.target = event.target
     this.latestEvent = event
 
-    this.world = FoundryCanvas.screenToWorld(this.current)  //< Position in the world where the user touched
+    if (canvas.app) {
+      this.world = FoundryCanvas.screenToWorld(this.current)  //< Position in the world where the user touched
+    }
     this.movementDistance = 0
     this.movement = Vectors.zero
 
