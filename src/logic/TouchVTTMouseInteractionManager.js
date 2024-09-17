@@ -572,7 +572,7 @@ export class TouchVTTMouseInteractionManager {
         )
       }
       
-      if (ui.controls.activeControl == "walls" && event.nativeEvent instanceof Touch) {
+      if (ui.controls.activeControl == "walls" && typeof window.Touch !== "undefined" && event.nativeEvent instanceof Touch) {
         return true;
       }
 
