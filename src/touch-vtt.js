@@ -180,6 +180,11 @@ Hooks.once('init', () => {
 
 })
 
+Hooks.on("canvasReady", function() {
+  // This (together with the hud init in the ready hook) gives the user a touch-friendly UI for pre-made templates (like from an automatic "Place Measured Template" chat button, or MidiQOL)
+  canvas.templates.preview.on("childAdded", measuredTemplateManager.onTemplatePreviewCreated.bind(measuredTemplateManager))
+})
+
 Hooks.on('ready', function () {
   if (getSetting(CORE_FUNCTIONALITY) || false) {
     try {
@@ -190,9 +195,8 @@ Hooks.on('ready', function () {
         canvasTouchPointerEventsManager = CanvasTouchPointerEventsManager.init(canvasElem)
         initMeasurementHud({ touchPointerEventsManager: canvasTouchPointerEventsManager })
 
-        // This gives the user a touch-friendly UI for pre-made templates (like from an automatic "Place Measured Template" chat button, or MidiQOL)
+        // The measured template hud mentioned in the canvasReady hook
         measuredTemplateManager.initMeasuredTemplateHud(canvasTouchPointerEventsManager)
-        canvas.templates.preview.on("childAdded", measuredTemplateManager.onTemplatePreviewCreated.bind(measuredTemplateManager))
 
         console.info(`${MODULE_DISPLAY_NAME} started successfully.`)
       } else {
