@@ -7,7 +7,7 @@ import WindowAppAdapter from './logic/WindowAppAdapter.js'
 import {dispatchModifiedEvent} from './logic/FakeTouchEvent.js'
 
 import '../style/touch-vtt.css'
-import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY, DEBUG_MODE_SETTING} from './config/TouchSettings.js'
+import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY, DEBUG_MODE_SETTING, REMOVE_HOVER_EFFECTS} from './config/TouchSettings.js'
 import {MeasuredTemplateManager, installMeasurementTemplateEraser} from './tools/MeasuredTemplateManagement.js'
 import {callbackForWallTools, installWallToolsControls, initWallTools} from './tools/WallTools.js'
 import {callbackForSnapToGrid, installSnapToGrid} from './tools/SnapToGridTool.js'
@@ -46,6 +46,25 @@ function setUsingTouch(usingTouch) {
       MouseInteractionManager.LONG_PRESS_DURATION_MS = 99999999
     }
     document.body.classList.add("touchvtt-using-touch")
+    
+    if (getSetting(REMOVE_HOVER_EFFECTS) || false) {
+      try {
+        for (let styleSheet of document.styleSheets) {
+          if (!styleSheet.cssRules) continue
+    
+          for (var ri = styleSheet.cssRules.length - 1; ri >= 0; ri--) {
+            let selectorText = styleSheet.cssRules[ri].selectorText
+            if (!selectorText) continue
+    
+            if (selectorText.match(':hover') && !selectorText.match('.control-tools')) {
+              styleSheet.deleteRule(ri)
+            }
+          }
+        }
+
+      } catch (ex) {}
+    }
+
   } else {
     if (game.release.generation < 12) {
       MouseInteractionManager.LONG_PRESS_DURATION_MS = 500

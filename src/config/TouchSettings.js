@@ -18,6 +18,8 @@ export const LARGE_BUTTONS_SETTING = "largeButtons"
 
 export const PAUSE_BUTTON_SETTING = "pauseButton"
 
+export const REMOVE_HOVER_EFFECTS = "removeHover"
+
 export const EASY_TARGET_SETTING = "easyTarget"
 export const EASY_TARGET_OFF = "off"
 export const EASY_TARGET_SINGLE = "single"
@@ -208,6 +210,20 @@ export function registerTouchSettings() {
     default: "override_off",
   })
 
+  game.settings.register(MODULE_NAME, REMOVE_HOVER_EFFECTS + "_override", {
+    name: "Remove hover effects",
+    hint: "Disable hover effects on touch devices",
+    scope: "world",
+    config: false,
+    type: String,
+    choices: {
+      ["on"]: "On",
+      ["off"]: "Off",
+      ["override_off"]: "Don't override"
+    },
+    default: "override_off",
+  })
+
   // Client settings
 
   game.settings.register(MODULE_NAME, CORE_FUNCTIONALITY, {
@@ -321,6 +337,16 @@ export function registerTouchSettings() {
     type: Boolean,
     default: true,
     onChange: enabled => toggleUtilityControls(enabled),
+  })
+
+  game.settings.register(MODULE_NAME, REMOVE_HOVER_EFFECTS, {
+    name: "Remove hover effects" + (game.settings.get(MODULE_NAME, PAUSE_BUTTON_SETTING + "_override") == "override_off" ? "" : " *"),
+    hint: "Don't disable hover effects on touch devices",
+    scope: "client",
+    config: true,
+    requiresReload: true,
+    type: Boolean,
+    default: false,
   })
 
   game.settings.register(MODULE_NAME, DEBUG_MODE_SETTING, {
