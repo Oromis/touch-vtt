@@ -341,7 +341,7 @@ export function registerTouchSettings() {
 
   game.settings.register(MODULE_NAME, REMOVE_HOVER_EFFECTS, {
     name: "Remove hover effects" + (game.settings.get(MODULE_NAME, PAUSE_BUTTON_SETTING + "_override") == "override_off" ? "" : " *"),
-    hint: "Don't disable hover effects on touch devices",
+    hint: "Disable hover effects on touch devices",
     scope: "client",
     config: true,
     requiresReload: true,
