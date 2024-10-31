@@ -3,6 +3,7 @@ import FoundryCanvas from '../foundryvtt/FoundryCanvas'
 import {injectMethodCondition, wrapMethod} from '../utils/Injection.js'
 import {dispatchModifiedEvent} from '../logic/FakeTouchEvent.js'
 import {getSetting, MEASUREMENT_HUD_LEFT, MEASUREMENT_HUD_OFF, MEASUREMENT_HUD_SETTING} from '../config/TouchSettings.js'
+import {addSceneControlButton} from '../foundryvtt/FoundryUtils'
 
 const TOOL_NAME_ERASE = 'erase'
 
@@ -120,12 +121,18 @@ export class MeasuredTemplateManager {
     this._touchEventReplacer = this.touchEventReplacer.bind(this)
   }
 
-  
+  get templateLayerPath() {
+    return game.release.generation < 13 ? "TemplateLayer" : "foundry.canvas.layers.TemplateLayer"
+  }
+  get measuredTemplatePath() {
+    return game.release.generation < 13 ? "MeasuredTemplate" : "foundry.canvas.placeables.MeasuredTemplate"
+  }
+
   initMeasuredTemplateHud(touchPointerEventsManager) {
     if (canvas.hud.touchMeasuredTemplate == null) {
       canvas.hud.touchMeasuredTemplate = new TouchMeasuredTemplateHud({ touchPointerEventsManager, templateManager: this })
 
-      wrapMethod("MeasuredTemplate.prototype._applyRenderFlags", function(originalMethod, flags) {
+      wrapMethod(`${this.measuredTemplatePath}.prototype._applyRenderFlags`, function(originalMethod, flags) {
         if (flags.refreshPosition) {
           canvas.hud.touchMeasuredTemplate.show(this)
         }
@@ -178,14 +185,14 @@ export class MeasuredTemplateManager {
 
   initMeasuredTemplateManagement() {
     const isEraserActive = () => game.activeTool === TOOL_NAME_ERASE
-    const shouldIgnoreEvent = () => !isEraserActive() && !this._touchMode
+    const shouldIgnoreEvent = () => !isEraserActive() && !this._touchMode 
 
-    injectMethodCondition('TemplateLayer.prototype._onDragLeftStart', shouldIgnoreEvent)
-    injectMethodCondition('TemplateLayer.prototype._onDragLeftMove', shouldIgnoreEvent)
-    injectMethodCondition('TemplateLayer.prototype._onDragLeftDrop', shouldIgnoreEvent)
-    injectMethodCondition('TemplateLayer.prototype._onDragLeftCancel', shouldIgnoreEvent)
+    injectMethodCondition(`${this.templateLayerPath}.prototype._onDragLeftStart`, shouldIgnoreEvent)
+    injectMethodCondition(`${this.templateLayerPath}.prototype._onDragLeftMove`, shouldIgnoreEvent)
+    injectMethodCondition(`${this.templateLayerPath}.prototype._onDragLeftDrop`, shouldIgnoreEvent)
+    injectMethodCondition(`${this.templateLayerPath}.prototype._onDragLeftCancel`, shouldIgnoreEvent)
 
-    wrapMethod('MeasuredTemplate.prototype._onClickLeft', function(callOriginal, ...args) {
+    wrapMethod(`${this.measuredTemplatePath}.prototype._onClickLeft`, function(callOriginal, ...args) {
       if (isEraserActive()) {
         this.document.delete()
         // v11 only: we dispatch a left click on the canvas because the template shape was lingering while dragging after the deletion
@@ -214,15 +221,9 @@ MeasuredTemplateManager.init = function init() {
 }
 
 export function installMeasurementTemplateEraser(menuStructure) {
-  const measurementCategory = menuStructure.find(c => c.name === 'measure')
-  if (measurementCategory != null) {
-    const clearIndex = measurementCategory.tools.findIndex(t => t.name === 'clear')
-    if (clearIndex !== -1) {
-      measurementCategory.tools.splice(clearIndex, 0, {
-        name: TOOL_NAME_ERASE,
-        title: 'TOUCHVTT.Erase',
-        icon: 'fas fa-eraser'
-      })
-    }
-  }
+  addSceneControlButton(menuStructure, "templates", {
+    name: TOOL_NAME_ERASE,
+    title: 'TOUCHVTT.Erase',
+    icon: 'fas fa-eraser'
+  })
 }

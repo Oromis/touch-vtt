@@ -45,6 +45,7 @@
 
 #touch-measured-template-hud {
     height: 80px;
+    --sidebar-width: 50px;
 }
 
 #touch-measurement-hud .move {
@@ -61,7 +62,8 @@
 
 }
 
-#controls ol.control-tools {
+#controls ol.control-tools,
+#scene-controls menu {
     margin-top: 30px;
 }
 
@@ -79,6 +81,7 @@
 #touch-vtt-controls button {
     line-height: 18px;
     font-size: var(--font-size-10);
+    width: 100%;
     max-width: 110px;
     height: 20px;
 }

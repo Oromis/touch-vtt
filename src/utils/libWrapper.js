@@ -15,7 +15,7 @@ Hooks.once('init', () => {
   libWrapper = class {
     static get is_fallback() {
       return true
-    };
+    }
 
     static register(module, target, fn, type = 'MIXED') {
       const is_setter = target.endsWith('#set')

@@ -102,7 +102,7 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
       // This is to cancel any drag-style action (usually a selection rectangle) when we start having multiple touches
       const cancelEvent = new MouseEvent("contextmenu", {clientX: 0, clientY: 0, bubbles: true, cancelable: true, view: window, button: 2})
       event.target.dispatchEvent(cancelEvent)
-      canvas.mouseInteractionManager.callback("clearTimeouts");
+      canvas.mouseInteractionManager.callback("clearTimeouts")
     }
   }
 
@@ -118,7 +118,7 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
         console.log(MODULE_DISPLAY_NAME + ": enabled gestures")
       }
     }
-    canvas.mouseInteractionManager.callback("clearTimeouts");
+    canvas.mouseInteractionManager.callback("clearTimeouts")
 
     this._zoomGesture = {
       status: this.GESTURE_STATUSES.NONE,

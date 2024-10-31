@@ -27,7 +27,7 @@ if (!window.TouchEvent) {
 }
 
 let canvasRightClickTimeout = null
-let canvasLongPressTimeout = null
+//let canvasLongPressTimeout = null
 let canvasTouchPointerEventsManager = null
 const measuredTemplateManager = MeasuredTemplateManager.init()
 let windowAppAdapter = null
@@ -113,10 +113,11 @@ Hooks.once('init', () => {
     }
 
     // This wrap gives us control over every MouseInteractionManager
-    wrapMethod('MouseInteractionManager.prototype.callback', async function (originalMethod, event, ...args) {
+    const mouseInteractionManagerPath = game.release.generation < 13 ? "MouseInteractionManager" : "foundry.canvas.interaction.MouseInteractionManager"
+    wrapMethod(`${mouseInteractionManagerPath}.prototype.callback`, async function (originalMethod, event, ...args) {
       if (event == "clearTimeouts") {
         clearTimeout(canvasRightClickTimeout)
-        clearTimeout(canvasLongPressTimeout)
+      //  clearTimeout(canvasLongPressTimeout)
         return
       }
       
@@ -127,12 +128,12 @@ Hooks.once('init', () => {
           "; native event:", args[0].nativeEvent?.constructor.name, args[0].nativeEvent?.pointerType, args[0].nativeEvent?.type, args[0].nativeEvent?.touchvttTrusted, "defaultPrevented=" + args[0].nativeEvent?.defaultPrevented,
         )
       }
-
+      
       if (["touch", "pen"].includes(args[0].pointerType) || args[0].nativeEvent?.touchvttTrusted) {
-
+      
         if (args[0].pointerType == "touch" || args[0].nativeEvent.touchvttTrusted) {
-
-          // v12 only: ugly patch to fix annoying issue where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
+      
+          // v12+ only: ugly patch to fix annoying issue where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
           // For example, you open an actor sheet, if something clickable is under your finger (icon, action, ability, etc.) it will get wrongly clicked.
           // What we do here is delay the sheet rendering a little bit, and also dispatch a right click on the canvas to avoid a lingering drag select on the placeable.
           if (game.release.generation >= 12) {
@@ -142,12 +143,12 @@ Hooks.once('init', () => {
               return originalMethod.call(this, event, ...args)
             }
           }
-
+      
           // The right-click timeout is to send a right click on long press (doesn't happen by default on the canvas)
           // The long press timeout is to send a long press event, mostly used for pinging
           if (event == "clickLeft") {
             clearTimeout(canvasRightClickTimeout)
-            clearTimeout(canvasLongPressTimeout)
+          //  clearTimeout(canvasLongPressTimeout)
             canvasRightClickTimeout = setTimeout(() => {
               if (canvasTouchPointerEventsManager.touchIds.length < 2) {
                 // We used to dispatch the pointerup for the original touch, but that clears the timeouts for right-click/longpress. Seems to be ok like this.
@@ -155,23 +156,23 @@ Hooks.once('init', () => {
                 dispatchModifiedEvent(args[0], "pointerdown", {button: 2, buttons: 2})
               }
             }, 400)
-            canvasLongPressTimeout = setTimeout(() => {
-              if (canvasTouchPointerEventsManager.touchIds.length < 2) {
-                canvas.currentMouseManager = this
-                this.callbacks["longPress"](args[0], args[0].interactionData.origin)
-              }
-            }, 1000)
+          //  canvasLongPressTimeout = setTimeout(() => {
+          //    if (canvasTouchPointerEventsManager.touchIds.length < 2) {
+          //      canvas.currentMouseManager = this
+          //      this.callbacks["longPress"](args[0], args[0].interactionData.origin)
+          //    }
+          //  }, 1000)
           } else if (!["clickRight"].includes(event)) {
             clearTimeout(canvasRightClickTimeout)
-            clearTimeout(canvasLongPressTimeout)
+          //  clearTimeout(canvasLongPressTimeout)
           }
           
           callbackForSnapToGrid(event, args)
-
+      
         }
-
+      
         callbackForEasyTarget(event, args)
-
+      
         // For some reason we receive an empty origin for a touch/pen longPress, but we can get it from the event itself
         if (event == "longPress" && !args[1]) {
           args[1] = args[0].interactionData.origin
@@ -212,7 +213,7 @@ Hooks.on('ready', function () {
         // This sets up the main listener on the canvas
         // It keeps track of touches and handles pan/zoom gestures
         canvasTouchPointerEventsManager = CanvasTouchPointerEventsManager.init(canvasElem)
-        initMeasurementHud({ touchPointerEventsManager: canvasTouchPointerEventsManager })
+        //initMeasurementHud({ touchPointerEventsManager: canvasTouchPointerEventsManager })
 
         // The measured template hud mentioned in the canvasReady hook
         measuredTemplateManager.initMeasuredTemplateHud(canvasTouchPointerEventsManager)

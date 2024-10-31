@@ -3,7 +3,7 @@ import {getSetting, EASY_TARGET_OFF, EASY_TARGET_SETTING, EASY_TARGET_SINGLE} fr
 export function callbackForEasyTarget(event, events) {
   if (event == "clickLeft") {
     const token = events[0].target
-    if (isEasyTargetEnabled() && isSelectToolActive() && token instanceof Token && isUnownedToken(token.mouseInteractionManager, event)) {
+    if (isEasyTargetEnabled() && isSelectToolActive() && token instanceof CONFIG.Token.objectClass && isUnownedToken(token.mouseInteractionManager, event)) {
       // The user usually cannot click this token => we'll select it
       targetToken(token)
     }

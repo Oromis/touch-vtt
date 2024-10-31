@@ -93,7 +93,11 @@ class TouchMeasurementHud extends Application {
 
   get lastWaypoint() {
     const ruler = FoundryCanvas.ruler
-    return (ruler && ruler.waypoints[ruler.waypoints.length - 1]) ?? {}
+    if (game.release.generation <= 12) {
+      return (ruler?.waypoints[ruler.waypoints.length - 1]) ?? {}
+    } else {
+      return (ruler?.destination) ?? {}
+    }
   }
 
   canMoveToken() {
@@ -121,8 +125,9 @@ class TouchMeasurementHud extends Application {
 export function initMeasurementHud({ touchPointerEventsManager }) {
   if (canvas.hud.touchMeasurement == null) {
     canvas.hud.touchMeasurement = new TouchMeasurementHud({ touchPointerEventsManager })
+    const rulerPath = game.release.generation < 13 ? "Ruler" : "foundry.canvas.interaction.Ruler"
 
-    wrapMethod('Ruler.prototype._onMouseMove', function (wrapped, event, ...args) {
+    wrapMethod(`${rulerPath}.prototype._onMouseMove`, function (wrapped, event, ...args) {
       // I think here we're storing "touch" or "mouse" somewhere in the interactionData so we can check it later
       if (event.interactionData != null && event.interactionData.destination != null) {
         if (game.release.generation < 12) {
@@ -134,7 +139,28 @@ export function initMeasurementHud({ touchPointerEventsManager }) {
       return wrapped.call(this, event, ...args)
     })
 
-    wrapMethod('Ruler.prototype.measure', function (wrapped, destination, ...args) {
+    //wrapMethod(`${rulerPath}.prototype.measure`, function (wrapped, destination, ...args) {
+    //  const segments = wrapped.call(this, destination, ...args)
+    //  if (Array.isArray(segments) && isOwnRuler(this) && isEnabled() && destination?.originType === 'touch') {
+    //    if (segments.length > 0) {
+    //      const lastSegment = segments[segments.length - 1]
+    //      canvas.hud.touchMeasurement.show(lastSegment.ray.B)
+    //    } else {
+    //      canvas.hud.touchMeasurement.clear()
+    //    }
+    //  }
+    //  return segments
+    //})
+
+    wrapMethod(`${rulerPath}.prototype._onPathChange`, function (wrapped) {
+      console.log(this, this.path)
+
+      if (this.path.length > 0) {
+        canvas.hud.touchMeasurement.show(this.destination)
+      }
+
+      return wrapped()
+
       const segments = wrapped.call(this, destination, ...args)
       if (Array.isArray(segments) && isOwnRuler(this) && isEnabled() && destination?.originType === 'touch') {
         if (segments.length > 0) {
@@ -147,7 +173,7 @@ export function initMeasurementHud({ touchPointerEventsManager }) {
       return segments
     })
 
-    wrapMethod('Ruler.prototype.clear', function (wrapped, ...args) {
+    wrapMethod(`${rulerPath}.prototype.clear`, function (wrapped, ...args) {
       const superResult = wrapped.call(this, ...args)
       if (isOwnRuler(this)) {
         canvas.hud.touchMeasurement.clear()

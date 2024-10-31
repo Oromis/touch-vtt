@@ -13,6 +13,9 @@ const largeButtonStyle = `
 #controls ol.control-tools {
     left: 72px;
 }
+#ui-left, #ui-left .ui-control {
+  --control-size: 50px;
+}
 `
 
 function createStyleElement() {
