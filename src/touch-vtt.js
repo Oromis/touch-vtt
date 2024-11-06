@@ -7,7 +7,7 @@ import WindowAppAdapter from './logic/WindowAppAdapter.js'
 import {dispatchModifiedEvent} from './logic/FakeTouchEvent.js'
 
 import '../style/touch-vtt.css'
-import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY, DEBUG_MODE_SETTING, REMOVE_HOVER_EFFECTS} from './config/TouchSettings.js'
+import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY, DEBUG_MODE_SETTING, REMOVE_HOVER_EFFECTS, CANVAS_LONG_PRESS_TIMEOUT, CANVAS_RIGHT_CLICK_TIMEOUT} from './config/TouchSettings.js'
 import {MeasuredTemplateManager, installMeasurementTemplateEraser} from './tools/MeasuredTemplateManagement.js'
 import {callbackForWallTools, installWallToolsControls, initWallTools} from './tools/WallTools.js'
 import {callbackForSnapToGrid, installSnapToGrid} from './tools/SnapToGridTool.js'
@@ -42,9 +42,7 @@ function findCanvas() {
 function setUsingTouch(usingTouch) {
   _usingTouch = usingTouch
   if (usingTouch) {
-    if (game.release.generation < 12) {
-      MouseInteractionManager.LONG_PRESS_DURATION_MS = 99999999
-    }
+    MouseInteractionManager.LONG_PRESS_DURATION_MS = 99999999
     document.body.classList.add("touchvtt-using-touch")
     
     if (getSetting(REMOVE_HOVER_EFFECTS) || false) {
@@ -66,9 +64,7 @@ function setUsingTouch(usingTouch) {
     }
 
   } else {
-    if (game.release.generation < 12) {
-      MouseInteractionManager.LONG_PRESS_DURATION_MS = 500
-    }
+    MouseInteractionManager.LONG_PRESS_DURATION_MS = 500
     document.body.classList.remove("touchvtt-using-touch")
   }
 }
@@ -154,13 +150,13 @@ Hooks.once('init', () => {
                 //dispatchModifiedEvent(args[0], "pointerup")
                 dispatchModifiedEvent(args[0], "pointerdown", {button: 2, buttons: 2})
               }
-            }, 400)
+            }, getSetting(CANVAS_RIGHT_CLICK_TIMEOUT))
             canvasLongPressTimeout = setTimeout(() => {
               if (canvasTouchPointerEventsManager.touchIds.length < 2) {
                 canvas.currentMouseManager = this
                 this.callbacks["longPress"](args[0], args[0].interactionData.origin)
               }
-            }, 1000)
+            }, getSetting(CANVAS_LONG_PRESS_TIMEOUT))
           } else if (!["clickRight"].includes(event)) {
             clearTimeout(canvasRightClickTimeout)
             clearTimeout(canvasLongPressTimeout)
