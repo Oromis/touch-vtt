@@ -30,6 +30,9 @@ export const MEASUREMENT_HUD_OFF = "off"
 export const MEASUREMENT_HUD_RIGHT = "right"
 export const MEASUREMENT_HUD_LEFT = "left"
 
+export const CANVAS_RIGHT_CLICK_TIMEOUT = "canvasRightClickTimeout"
+export const CANVAS_LONG_PRESS_TIMEOUT = "canvasLongPressTimeout"
+
 export const ZOOM_THRESHOLD_SETTING = "zoomThreshold"
 export const PAN_THRESHOLD_SETTING = "panThreshold"
 
@@ -224,6 +227,34 @@ export function registerTouchSettings() {
     default: "override_off",
   })
 
+  game.settings.register(MODULE_NAME, CANVAS_RIGHT_CLICK_TIMEOUT + "_override", {
+    name: "Canvas right-click timer (ms)",
+    hint: "How long a touch on the canvas takes to become a right click",
+    scope: "world",
+    config: false,
+    type: String,
+    choices: {
+      ["on"]: "On",
+      ["off"]: "Off",
+      ["override_off"]: "Don't override"
+    },
+    default: "override_off",
+  })
+
+  game.settings.register(MODULE_NAME, CANVAS_LONG_PRESS_TIMEOUT + "_override", {
+    name: "Canvas ping timer (ms)",
+    hint: "How long a touch on the canvas takes to become a ping",
+    scope: "world",
+    config: false,
+    type: String,
+    choices: {
+      ["on"]: "On",
+      ["off"]: "Off",
+      ["override_off"]: "Don't override"
+    },
+    default: "override_off",
+  })
+
   // Client settings
 
   game.settings.register(MODULE_NAME, CORE_FUNCTIONALITY, {
@@ -340,13 +371,41 @@ export function registerTouchSettings() {
   })
 
   game.settings.register(MODULE_NAME, REMOVE_HOVER_EFFECTS, {
-    name: "Remove hover effects" + (game.settings.get(MODULE_NAME, PAUSE_BUTTON_SETTING + "_override") == "override_off" ? "" : " *"),
+    name: "Remove hover effects" + (game.settings.get(MODULE_NAME, REMOVE_HOVER_EFFECTS + "_override") == "override_off" ? "" : " *"),
     hint: "Disable hover effects on touch devices",
     scope: "client",
     config: true,
     requiresReload: true,
     type: Boolean,
     default: false,
+  })
+
+  game.settings.register(MODULE_NAME, CANVAS_RIGHT_CLICK_TIMEOUT, {
+    name: "Canvas right-click timer (ms)" + (game.settings.get(MODULE_NAME, CANVAS_RIGHT_CLICK_TIMEOUT + "_override") == "override_off" ? "" : " *"),
+    hint: "How long a touch on the canvas takes to become a right click",
+    scope: "client",
+    config: true,
+    type: Number,
+    range: {
+      min: 100,
+      step: 50,
+      max: 3000
+    },
+    default: 400,
+  })
+
+  game.settings.register(MODULE_NAME, CANVAS_LONG_PRESS_TIMEOUT, {
+    name: "Canvas ping timer (ms)" + (game.settings.get(MODULE_NAME, CANVAS_LONG_PRESS_TIMEOUT + "_override") == "override_off" ? "" : " *"),
+    hint: "How long a touch on the canvas takes to become a ping",
+    scope: "client",
+    config: true,
+    type: Number,
+    range: {
+      min: 100,
+      step: 50,
+      max: 3000
+    },
+    default: 1000,
   })
 
   game.settings.register(MODULE_NAME, DEBUG_MODE_SETTING, {

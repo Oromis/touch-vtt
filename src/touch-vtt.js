@@ -7,7 +7,7 @@ import WindowAppAdapter from './logic/WindowAppAdapter.js'
 import {dispatchModifiedEvent} from './logic/FakeTouchEvent.js'
 
 import '../style/touch-vtt.css'
-import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY, DEBUG_MODE_SETTING, REMOVE_HOVER_EFFECTS} from './config/TouchSettings.js'
+import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY, DEBUG_MODE_SETTING, REMOVE_HOVER_EFFECTS, CANVAS_LONG_PRESS_TIMEOUT, CANVAS_RIGHT_CLICK_TIMEOUT} from './config/TouchSettings.js'
 import {MeasuredTemplateManager, installMeasurementTemplateEraser} from './tools/MeasuredTemplateManagement.js'
 import {callbackForWallTools, installWallToolsControls, initWallTools} from './tools/WallTools.js'
 import {callbackForSnapToGrid, installSnapToGrid} from './tools/SnapToGridTool.js'
@@ -27,7 +27,7 @@ if (!window.TouchEvent) {
 }
 
 let canvasRightClickTimeout = null
-//let canvasLongPressTimeout = null
+let canvasLongPressTimeout = null
 let canvasTouchPointerEventsManager = null
 const measuredTemplateManager = MeasuredTemplateManager.init()
 let windowAppAdapter = null
@@ -42,9 +42,7 @@ function findCanvas() {
 function setUsingTouch(usingTouch) {
   _usingTouch = usingTouch
   if (usingTouch) {
-    if (game.release.generation < 12) {
-      MouseInteractionManager.LONG_PRESS_DURATION_MS = 99999999
-    }
+    MouseInteractionManager.LONG_PRESS_DURATION_MS = 99999999
     document.body.classList.add("touchvtt-using-touch")
     
     if (getSetting(REMOVE_HOVER_EFFECTS) || false) {
@@ -66,9 +64,7 @@ function setUsingTouch(usingTouch) {
     }
 
   } else {
-    if (game.release.generation < 12) {
-      MouseInteractionManager.LONG_PRESS_DURATION_MS = 500
-    }
+    MouseInteractionManager.LONG_PRESS_DURATION_MS = 500
     document.body.classList.remove("touchvtt-using-touch")
   }
 }
@@ -117,7 +113,7 @@ Hooks.once('init', () => {
     wrapMethod(`${mouseInteractionManagerPath}.prototype.callback`, async function (originalMethod, event, ...args) {
       if (event == "clearTimeouts") {
         clearTimeout(canvasRightClickTimeout)
-      //  clearTimeout(canvasLongPressTimeout)
+        clearTimeout(canvasLongPressTimeout)
         return
       }
       
@@ -148,23 +144,23 @@ Hooks.once('init', () => {
           // The long press timeout is to send a long press event, mostly used for pinging
           if (event == "clickLeft") {
             clearTimeout(canvasRightClickTimeout)
-          //  clearTimeout(canvasLongPressTimeout)
+            clearTimeout(canvasLongPressTimeout)
             canvasRightClickTimeout = setTimeout(() => {
               if (canvasTouchPointerEventsManager.touchIds.length < 2) {
                 // We used to dispatch the pointerup for the original touch, but that clears the timeouts for right-click/longpress. Seems to be ok like this.
                 //dispatchModifiedEvent(args[0], "pointerup")
                 dispatchModifiedEvent(args[0], "pointerdown", {button: 2, buttons: 2})
               }
-            }, 400)
-          //  canvasLongPressTimeout = setTimeout(() => {
-          //    if (canvasTouchPointerEventsManager.touchIds.length < 2) {
-          //      canvas.currentMouseManager = this
-          //      this.callbacks["longPress"](args[0], args[0].interactionData.origin)
-          //    }
-          //  }, 1000)
+            }, getSetting(CANVAS_RIGHT_CLICK_TIMEOUT))
+            canvasLongPressTimeout = setTimeout(() => {
+              if (canvasTouchPointerEventsManager.touchIds.length < 2) {
+                canvas.currentMouseManager = this
+                this.callbacks["longPress"](args[0], args[0].interactionData.origin)
+              }
+            }, getSetting(CANVAS_LONG_PRESS_TIMEOUT))
           } else if (!["clickRight"].includes(event)) {
             clearTimeout(canvasRightClickTimeout)
-          //  clearTimeout(canvasLongPressTimeout)
+            clearTimeout(canvasLongPressTimeout)
           }
           
           callbackForSnapToGrid(event, args)

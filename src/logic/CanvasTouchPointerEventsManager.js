@@ -31,6 +31,14 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
     }
 
     // Fix for some trackpads sending pointerdown of type mouse without any previous move event
+    const trackPadPointerUp = (evt) => {
+      evt.preventDefault()
+      evt.stopPropagation()
+      evt.stopImmediatePropagation()
+      document.body.removeEventListener("pointerup", trackPadPointerUp)
+      dispatchModifiedEvent(evt, "pointerup")
+      return false
+    };
     document.body.addEventListener("pointerdown", evt => {  
       if (evt.isTrusted && !evt.pressure && evt.target === element) {
         evt.preventDefault()
@@ -38,6 +46,7 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
         evt.stopImmediatePropagation()
         dispatchModifiedEvent(evt, "pointermove")
         dispatchModifiedEvent(evt, "pointerdown")
+        document.body.addEventListener("pointerup", trackPadPointerUp)
         return false
       }
     }, {
