@@ -1,6 +1,6 @@
-import {MODULE_DISPLAY_NAME} from '../config/ModuleConstants.js'
-import {getSetting, DEBUG_MODE_SETTING} from '../config/TouchSettings.js'
-import Touch from './Touch.js'
+import {MODULE_DISPLAY_NAME} from "../config/ModuleConstants.js"
+import {getSetting, DEBUG_MODE_SETTING} from "../config/TouchSettings.js"
+import Touch from "./Touch.js"
 
 class TouchPointerEventsManager {
   constructor(element) {
@@ -39,20 +39,20 @@ class TouchPointerEventsManager {
     if (this.shouldHandleEvent(event)) {
       // shouldHandleEvent excludes our fake events at this time
       switch (event.type) {
-        case 'pointerdown':
+        case "pointerdown":
           this.handleTouchStart(event)
           break
 
-        case 'pointermove':
+        case "pointermove":
           this.handleTouchMove(event)
           break
 
-        case 'pointerup':
+        case "pointerup":
           this.handleTouchEnd(event)
           //this.handleEndAll(event)
           break
         
-        case 'pointercancel':
+        case "pointercancel":
           this.handleEndAll(event)
           break
 
@@ -128,7 +128,7 @@ class TouchPointerEventsManager {
   }
 
   getListenerEvents() {
-    return ['pointerdown', 'pointermove', 'pointerup', 'pointercancel']
+    return ["pointerdown", "pointermove", "pointerup", "pointercancel"]
   }
 
   shouldHandleEvent(event) {

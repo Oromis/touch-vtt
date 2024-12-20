@@ -4,7 +4,7 @@
 // A shim for the libWrapper library
 export let libWrapper = undefined
 
-Hooks.once('init', () => {
+Hooks.once("init", () => {
   // Check if the real module is already loaded - if so, use it
   if (globalThis.libWrapper && !(globalThis.libWrapper.is_fallback ?? true)) {
     libWrapper = globalThis.libWrapper
@@ -17,17 +17,17 @@ Hooks.once('init', () => {
       return true
     }
 
-    static register(module, target, fn, type = 'MIXED') {
-      const is_setter = target.endsWith('#set')
+    static register(module, target, fn, type = "MIXED") {
+      const is_setter = target.endsWith("#set")
       target = !is_setter ? target : target.slice(0, -4)
-      const split = target.split('.')
+      const split = target.split(".")
       const fn_name = split.pop()
       const root_nm = split.splice(0, 1)[0]
       const _eval = eval // The browser doesn't expose all global variables (e.g. 'Game') inside globalThis, but it does to an eval. We copy it to a variable to have it run in global scope.
       const obj = split.reduce((x, y) => x[y], globalThis[root_nm] || _eval(root_nm))
 
       let original = null
-      const wrapper = (type === 'OVERRIDE') ? function () {
+      const wrapper = (type === "OVERRIDE") ? function () {
         return fn.call(this, ...arguments)
       } : function () {
         return fn.call(this, original.bind(this), ...arguments)
@@ -50,7 +50,7 @@ Hooks.once('init', () => {
         }
         descriptor.configurable = true
         Object.defineProperty(obj, fn_name, descriptor)
-      } else if (typeof obj[fn_name] === 'function') {
+      } else if (typeof obj[fn_name] === "function") {
         original = obj[fn_name]
         obj[fn_name] = wrapper
       } else {

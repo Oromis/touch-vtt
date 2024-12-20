@@ -1,4 +1,4 @@
-import {getSetting, EASY_TARGET_OFF, EASY_TARGET_SETTING, EASY_TARGET_SINGLE} from '../config/TouchSettings'
+import {getSetting, EASY_TARGET_OFF, EASY_TARGET_SETTING, EASY_TARGET_SINGLE} from "../config/TouchSettings"
 
 export function callbackForEasyTarget(event, events) {
   if (event == "clickLeft") {
@@ -24,9 +24,9 @@ function isEasyTargetEnabled() {
 }
 
 function isSelectToolActive() {
-  return game.activeTool === 'select'
+  return game.activeTool === "select"
 }
 
 function isUnownedToken(mouseInteractionManager, event) {
-  return typeof mouseInteractionManager.can === 'function' && !mouseInteractionManager.can('clickLeft', event)
+  return typeof mouseInteractionManager.can === "function" && !mouseInteractionManager.can("clickLeft", event)
 }

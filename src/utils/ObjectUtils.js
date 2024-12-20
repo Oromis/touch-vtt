@@ -1,5 +1,5 @@
 function cloneObject(obj) {
-  obj = obj && obj instanceof Object ? obj : ''
+  obj = obj && obj instanceof Object ? obj : ""
 
   // Handle Date (return new Date object with old value)
   if (obj instanceof Date) {
@@ -26,7 +26,7 @@ function cloneObject(obj) {
     return copy
   }
 
-  throw new Error('Unable to copy obj! Its type isn\'t supported.')
+  throw new Error("Unable to copy obj! Its type isn\'t supported.")
 }
 
 export default {

@@ -1,11 +1,11 @@
-import {MODULE_NAME} from '../config/ModuleConstants'
-import FoundryCanvas from '../foundryvtt/FoundryCanvas'
-import {injectMethodCondition, wrapMethod} from '../utils/Injection.js'
-import {dispatchModifiedEvent} from '../logic/FakeTouchEvent.js'
-import {getSetting, MEASUREMENT_HUD_LEFT, MEASUREMENT_HUD_OFF, MEASUREMENT_HUD_SETTING} from '../config/TouchSettings.js'
-import {addSceneControlButton} from '../foundryvtt/FoundryUtils'
+import {MODULE_NAME} from "../config/ModuleConstants"
+import FoundryCanvas from "../foundryvtt/FoundryCanvas"
+import {injectMethodCondition, wrapMethod} from "../utils/Injection.js"
+import {dispatchModifiedEvent} from "../logic/FakeTouchEvent.js"
+import {getSetting, MEASUREMENT_HUD_LEFT, MEASUREMENT_HUD_OFF, MEASUREMENT_HUD_SETTING} from "../config/TouchSettings.js"
+import {addSceneControlButton} from "../foundryvtt/FoundryUtils"
 
-const TOOL_NAME_ERASE = 'erase'
+const TOOL_NAME_ERASE = "erase"
 
 class TouchMeasuredTemplateHud extends Application {
   constructor({ touchPointerEventsManager, templateManager }) {
@@ -49,12 +49,12 @@ class TouchMeasuredTemplateHud extends Application {
   }
 
   activateListeners(html) {
-    html.find('.rotate').on('pointerdown', () => {
+    html.find(".rotate").on("pointerdown", () => {
       this._currentTemplate.document.updateSource({direction: this._currentTemplate.document.direction + 15})
       this._currentTemplate.refresh()
     })
     
-    html.find('.confirm').on('pointerdown', () => {
+    html.find(".confirm").on("pointerdown", () => {
       this._templateManager.toggleMeasuredTemplateTouchManagementListeners(false)
       this._templateManager._touchMode = false
       // We send mousedown/mouseup events to be as close as possible to the expected behavior
@@ -63,7 +63,7 @@ class TouchMeasuredTemplateHud extends Application {
       canvas.hud.touchMeasuredTemplate.clear()
     })
 
-    html.find('.cancel').on('pointerdown', () => {
+    html.find(".cancel").on("pointerdown", () => {
       this._templateManager.toggleMeasuredTemplateTouchManagementListeners(false)
       this._templateManager._touchMode = false
       canvas.app.view.dispatchEvent(new MouseEvent("contextmenu", {clientX: 0, clientY: 0, bubbles: true, cancelable: true, view: window, button: 2}))
@@ -202,7 +202,7 @@ export class MeasuredTemplateManager {
       } else {
         callOriginal(...args)
       }
-    }, 'MIXED')    
+    }, "MIXED")
   }
 
   isPremade(template) {
@@ -223,7 +223,7 @@ MeasuredTemplateManager.init = function init() {
 export function installMeasurementTemplateEraser(menuStructure) {
   addSceneControlButton(menuStructure, "templates", {
     name: TOOL_NAME_ERASE,
-    title: 'TOUCHVTT.Erase',
-    icon: 'fas fa-eraser'
+    title: "TOUCHVTT.Erase",
+    icon: "fas fa-eraser"
   })
 }

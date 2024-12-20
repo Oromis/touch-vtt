@@ -1,6 +1,6 @@
-import {MODULE_NAME, MODULE_DISPLAY_NAME} from './ModuleConstants.js'
-import CanvasTouchPointerEventsManager from '../logic/CanvasTouchPointerEventsManager.js'
-import {getSetting, ZOOM_THRESHOLD_SETTING, PAN_THRESHOLD_SETTING} from './TouchSettings.js'
+import {MODULE_NAME, MODULE_DISPLAY_NAME} from "./ModuleConstants.js"
+import CanvasTouchPointerEventsManager from "../logic/CanvasTouchPointerEventsManager.js"
+import {getSetting, ZOOM_THRESHOLD_SETTING, PAN_THRESHOLD_SETTING} from "./TouchSettings.js"
 
 export class GestureCalibrationMenu extends FormApplication {
   constructor() {
@@ -10,7 +10,7 @@ export class GestureCalibrationMenu extends FormApplication {
 
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ['form'],
+      classes: ["form"],
       popOut: true,
       template: `/modules/${MODULE_NAME}/templates/gesture-calibration.hbs`,
       id: `${MODULE_NAME}-gesture-calibration-form`,

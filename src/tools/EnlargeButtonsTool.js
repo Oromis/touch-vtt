@@ -1,5 +1,5 @@
-import {MODULE_NAME} from '../config/ModuleConstants'
-import {getSetting, LARGE_BUTTONS_SETTING} from '../config/TouchSettings'
+import {MODULE_NAME} from "../config/ModuleConstants"
+import {getSetting, LARGE_BUTTONS_SETTING} from "../config/TouchSettings"
 
 const STYLE_ID = `${MODULE_NAME}-bug_button_styles`
 // CSS needed to be more specific. Unsure if just using !important would be better
@@ -19,8 +19,8 @@ const largeButtonStyle = `
 `
 
 function createStyleElement() {
-  const style = document.createElement('style')
-  style.setAttribute('id', STYLE_ID)
+  const style = document.createElement("style")
+  style.setAttribute("id", STYLE_ID)
   document.head.append(style)
   return style
 }
@@ -31,7 +31,7 @@ export function updateButtonSize(useLargeButtons) {
     if (useLargeButtons) {
       style.innerHTML = largeButtonStyle
     } else {
-      style.innerHTML = ''
+      style.innerHTML = ""
     }
   }
 }

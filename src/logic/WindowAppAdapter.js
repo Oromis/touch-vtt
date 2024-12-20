@@ -1,11 +1,11 @@
-import {dispatchModifiedEvent} from './FakeTouchEvent.js'
-import {wrapMethod} from '../utils/Injection'
-import {MODULE_NAME} from '../config/ModuleConstants'
-import Vectors from './Vectors.js'
-import AppTouchPointerEventsManager from './AppTouchPointerEventsManager.js'
+import {dispatchModifiedEvent} from "./FakeTouchEvent.js"
+import {wrapMethod} from "../utils/Injection"
+import {MODULE_NAME} from "../config/ModuleConstants"
+import Vectors from "./Vectors.js"
+import AppTouchPointerEventsManager from "./AppTouchPointerEventsManager.js"
 
 // Drag and Drop polyfill for touch events (https://github.com/Bernardo-Castilho/dragdroptouch)
-import '../utils/DragDropTouch.js'
+import "../utils/DragDropTouch.js"
 
 const STYLE_ID = `${MODULE_NAME}-draggable_apps_styles`
 
@@ -55,8 +55,8 @@ body.touchvtt-using-touch .directory-item .handlebar {
 `
 
 function createStyleElement() {
-  const style = document.createElement('style')
-  style.setAttribute('id', STYLE_ID)
+  const style = document.createElement("style")
+  style.setAttribute("id", STYLE_ID)
   style.innerHTML = appStyle
   document.head.append(style)
   return style
@@ -130,14 +130,14 @@ class WindowAppAdapter {
     /*** Double-click management - End ***/
     
     // Avoid error on Drag and Drop polyfill
-    wrapMethod('DragDrop.prototype._handleDragStart', function(originalMethod, event) {
+    wrapMethod("DragDrop.prototype._handleDragStart", function(originalMethod, event) {
     if (event.dataTransfer.items) {
       return originalMethod.call(this, event)
     } else {
       this.callback(event, "dragstart")
       if ( Object.keys(event.dataTransfer._data).length ) event.stopPropagation()
     }
-    }, 'MIXED')
+    }, "MIXED")
 
   }
 
@@ -151,18 +151,17 @@ class WindowAppAdapter {
   }
 
   fixDirectoryScrolling(directory, usingTouch) {
-    const directoryList = directory.element.find(".directory-list")
-    if (directoryList.length > 0) {
+    const directoryElement = directory.element[0] ?? directory.element
+    const directoryList = directoryElement.querySelector(".directory-list")
+    if (directoryList) {
       if (!usingTouch) {
-        directoryList.find(".directory-item .handlebar").remove()
-        directoryList.find(`li[draggable="false"].directory-item`).each(function(index, element) {
-          element.draggable = true
-        })
+        directoryList.querySelectorAll(".directory-item .handlebar").forEach(element => { element.remove() })
+        directoryList.querySelectorAll(`li[draggable="false"].directory-item`).forEach(element => { element.draggable = true })
       } else {
-        directoryList.find(`li[draggable="true"].directory-item`).each(function(index, element) {
+        directoryList.querySelectorAll(`li[draggable="true"].directory-item`).forEach(element => {
           element.draggable = false
           let handlebar = document.createElement("i")
-          handlebar.className = "handlebar fas fa-grip-vertical";
+          handlebar.className = "handlebar fas fa-grip-vertical"
           handlebar.addEventListener("pointerdown", e => {
             element.draggable = true
           }, true)
@@ -178,7 +177,6 @@ class WindowAppAdapter {
           }
         })
       }
-
     }
   }
 

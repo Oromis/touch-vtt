@@ -1,25 +1,25 @@
-import {MODULE_DISPLAY_NAME} from './config/ModuleConstants.js'
+import {MODULE_DISPLAY_NAME} from "./config/ModuleConstants.js"
 
-import {wrapMethod} from './utils/Injection'
+import {wrapMethod} from "./utils/Injection"
 
-import CanvasTouchPointerEventsManager from './logic/CanvasTouchPointerEventsManager.js'
-import WindowAppAdapter from './logic/WindowAppAdapter.js'
-import {dispatchModifiedEvent} from './logic/FakeTouchEvent.js'
+import CanvasTouchPointerEventsManager from "./logic/CanvasTouchPointerEventsManager.js"
+import WindowAppAdapter from "./logic/WindowAppAdapter.js"
+import {dispatchModifiedEvent} from "./logic/FakeTouchEvent.js"
 
-import '../style/touch-vtt.css'
-import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY, DEBUG_MODE_SETTING, REMOVE_HOVER_EFFECTS, CANVAS_LONG_PRESS_TIMEOUT, CANVAS_RIGHT_CLICK_TIMEOUT} from './config/TouchSettings.js'
-import {MeasuredTemplateManager, installMeasurementTemplateEraser} from './tools/MeasuredTemplateManagement.js'
-import {callbackForWallTools, installWallToolsControls, initWallTools} from './tools/WallTools.js'
-import {callbackForSnapToGrid, installSnapToGrid} from './tools/SnapToGridTool.js'
-import {installTokenEraser} from './tools/TokenEraserTool.js'
-import {callbackForEasyTarget} from './logic/EasyTarget'
-import {initDirectionalArrows} from './logic/DirectionalArrows'
-import {initEnlargeButtonTool} from './tools/EnlargeButtonsTool'
-import {installDrawingToolsControls} from './tools/DrawingTools'
-import {initMeasurementHud} from './tools/MeasurementHud'
-import {installUtilityControls} from './tools/UtilityControls'
+import "../style/touch-vtt.css"
+import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY, DEBUG_MODE_SETTING, REMOVE_HOVER_EFFECTS, CANVAS_LONG_PRESS_TIMEOUT, CANVAS_RIGHT_CLICK_TIMEOUT} from "./config/TouchSettings.js"
+import {MeasuredTemplateManager, installMeasurementTemplateEraser} from "./tools/MeasuredTemplateManagement.js"
+import {callbackForWallTools, installWallToolsControls, initWallTools} from "./tools/WallTools.js"
+import {callbackForSnapToGrid, installSnapToGrid} from "./tools/SnapToGridTool.js"
+import {installTokenEraser} from "./tools/TokenEraserTool.js"
+import {callbackForEasyTarget} from "./logic/EasyTarget"
+import {initDirectionalArrows} from "./logic/DirectionalArrows"
+import {initEnlargeButtonTool} from "./tools/EnlargeButtonsTool"
+import {installDrawingToolsControls} from "./tools/DrawingTools"
+import {initMeasurementHud, initDragRulerMeasurementHud} from "./tools/MeasurementHud"
+import {installUtilityControls} from "./tools/UtilityControls"
 
-import {TouchVTTMouseInteractionManager} from './logic/TouchVTTMouseInteractionManager.js'
+import {TouchVTTMouseInteractionManager} from "./logic/TouchVTTMouseInteractionManager.js"
 
 if (!window.TouchEvent) {
   window.TouchEvent = function() {}
@@ -34,15 +34,16 @@ let windowAppAdapter = null
 let _usingTouch = false
 
 function findCanvas() {
-  return document.querySelector('canvas#board') ||
-    document.querySelector('body > canvas') ||
-    document.querySelector('canvas')
+  return document.querySelector("canvas#board") ||
+    document.querySelector("body > canvas") ||
+    document.querySelector("canvas")
 }
 
 function setUsingTouch(usingTouch) {
+  const mouseInteractionManager = game.release.generation < 13 ? MouseInteractionManager : foundry.canvas.interaction.MouseInteractionManager
   _usingTouch = usingTouch
   if (usingTouch) {
-    MouseInteractionManager.LONG_PRESS_DURATION_MS = 99999999
+    mouseInteractionManager.LONG_PRESS_DURATION_MS = 99999999
     document.body.classList.add("touchvtt-using-touch")
     
     if (getSetting(REMOVE_HOVER_EFFECTS) || false) {
@@ -54,7 +55,7 @@ function setUsingTouch(usingTouch) {
             let selectorText = styleSheet.cssRules[ri].selectorText
             if (!selectorText) continue
     
-            if (selectorText.match(':hover') && !selectorText.match('.control-tools')) {
+            if (selectorText.match(":hover") && !selectorText.match(".control-tools")) {
               styleSheet.deleteRule(ri)
             }
           }
@@ -64,14 +65,14 @@ function setUsingTouch(usingTouch) {
     }
 
   } else {
-    MouseInteractionManager.LONG_PRESS_DURATION_MS = 500
+    mouseInteractionManager.LONG_PRESS_DURATION_MS = 500
     document.body.classList.remove("touchvtt-using-touch")
   }
 }
 
 console.log(`${MODULE_DISPLAY_NAME} booting ...`)
 
-Hooks.on('getSceneControlButtons', (controls) => {
+Hooks.on("getSceneControlButtons", (controls) => {
   if (getSetting(CORE_FUNCTIONALITY) || false) {
     installMeasurementTemplateEraser(controls)
     installWallToolsControls(controls)
@@ -81,13 +82,13 @@ Hooks.on('getSceneControlButtons', (controls) => {
   }
 })
 
-Hooks.on('renderSceneControls', (controls) => {
+Hooks.on("renderSceneControls", (controls) => {
   if (getSetting(CORE_FUNCTIONALITY) || false) {
     installUtilityControls()
   }
 })
 
-Hooks.once('init', () => {
+Hooks.once("init", () => {
   registerTouchSettings()
 
   if (getSetting(CORE_FUNCTIONALITY) || false) {
@@ -102,6 +103,9 @@ Hooks.once('init', () => {
     initDirectionalArrows()
     measuredTemplateManager.initMeasuredTemplateManagement()
     initWallTools()
+    if (game.release.generation > 12) {
+      initDragRulerMeasurementHud()
+    }
 
     if (game.release.generation < 12) {
       // The only clean way I found to patch v11's MouseInteractionManager. The only difference is a listener for mouseupoutside is now pointerupoutside (see https://github.com/foundryvtt/foundryvtt/issues/10236)
@@ -127,13 +131,13 @@ Hooks.once('init', () => {
       
       if (["touch", "pen"].includes(args[0].pointerType) || args[0].nativeEvent?.touchvttTrusted) {
       
-        if (args[0].pointerType == "touch" || args[0].nativeEvent.touchvttTrusted) {
+        if (args[0].pointerType === "touch" || args[0].nativeEvent.touchvttTrusted) {
       
           // v12+ only: ugly patch to fix annoying issue where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
           // For example, you open an actor sheet, if something clickable is under your finger (icon, action, ability, etc.) it will get wrongly clicked.
           // What we do here is delay the sheet rendering a little bit, and also dispatch a right click on the canvas to avoid a lingering drag select on the placeable.
           if (game.release.generation >= 12) {
-            if (event == "clickLeft2") {
+            if (event === "clickLeft2") {
               await new Promise(resolve => setTimeout(resolve, 100))
               canvas.app.view.dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true, view: window, button: 2}))
               return originalMethod.call(this, event, ...args)
@@ -142,7 +146,7 @@ Hooks.once('init', () => {
       
           // The right-click timeout is to send a right click on long press (doesn't happen by default on the canvas)
           // The long press timeout is to send a long press event, mostly used for pinging
-          if (event == "clickLeft") {
+          if (event === "clickLeft") {
             clearTimeout(canvasRightClickTimeout)
             clearTimeout(canvasLongPressTimeout)
             canvasRightClickTimeout = setTimeout(() => {
@@ -170,22 +174,27 @@ Hooks.once('init', () => {
         callbackForEasyTarget(event, args)
       
         // For some reason we receive an empty origin for a touch/pen longPress, but we can get it from the event itself
-        if (event == "longPress" && !args[1]) {
+        if (event === "longPress" && !args[1]) {
           args[1] = args[0].interactionData.origin
+        }
+
+        // Fix for v13 ruler throwing an error on dragLeftCancel when contexts is not there
+        if (event === "dragLeftCancel" && !args[0].interactionData?.contexts) {
+          foundry.utils.setProperty(args[0], "interactionData.contexts", {})
         }
         
       }
       
       return originalMethod.call(this, event, ...args)
 
-    }, 'MIXED')
+    }, "MIXED")
 
     // This wrap is used for wall chaining: when the chain button is active, pretend we are holding Ctrl
-    wrapMethod('game.keyboard.isModifierActive', function(originalMethod, modifier) {
+    wrapMethod("game.keyboard.isModifierActive", function(originalMethod, modifier) {
       var result = originalMethod.call(this, modifier)
       result ||= callbackForWallTools(modifier)
       return result
-    }, 'MIXED')
+    }, "MIXED")
 
     // Adapter for various touch events in windows
     windowAppAdapter = WindowAppAdapter.init()
@@ -201,7 +210,7 @@ Hooks.on("canvasReady", function() {
   canvas.templates.preview.on("childAdded", measuredTemplateManager.onTemplatePreviewCreated.bind(measuredTemplateManager))
 })
 
-Hooks.on('ready', function () {
+Hooks.on("ready", function () {
   if (getSetting(CORE_FUNCTIONALITY) || false) {
     try {
       const canvasElem = findCanvas()
@@ -209,7 +218,7 @@ Hooks.on('ready', function () {
         // This sets up the main listener on the canvas
         // It keeps track of touches and handles pan/zoom gestures
         canvasTouchPointerEventsManager = CanvasTouchPointerEventsManager.init(canvasElem)
-        //initMeasurementHud({ touchPointerEventsManager: canvasTouchPointerEventsManager })
+        initMeasurementHud({ touchPointerEventsManager: canvasTouchPointerEventsManager })
 
         // The measured template hud mentioned in the canvasReady hook
         measuredTemplateManager.initMeasuredTemplateHud(canvasTouchPointerEventsManager)

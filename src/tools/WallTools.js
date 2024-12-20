@@ -1,5 +1,5 @@
-import {wrapMethod} from '../utils/Injection.js'
-import {addSceneControlButton} from '../foundryvtt/FoundryUtils'
+import {wrapMethod} from "../utils/Injection.js"
+import {addSceneControlButton} from "../foundryvtt/FoundryUtils"
 
 // Local storage for GUI toggles, since they shouldn't be saved over reloads
 let chainingActive = false
@@ -21,34 +21,34 @@ function installChainingHook() {
       args[0].defaultPrevented = false
     }
     return result
-  }, 'MIXED')
+  }, "MIXED")
 
 }
 
 export function installWallToolsControls(menuStructure) {
   addSceneControlButton(menuStructure, "walls", {
     // Simulates holding ctrl while drawing walls
-    name: 'tile',
-    title: 'TOUCHVTT.ToggleWallChain',
-    icon: 'fas fa-link',
+    name: "tile",
+    title: "TOUCHVTT.ToggleWallChain",
+    icon: "fas fa-link",
     toggle: true,
     active: chainingActive,
     onChange: (event, active) => chainingActive = active
   })
   addSceneControlButton(menuStructure, "walls", {
     // Simulates hitting Ctrl-Z
-    name: 'undo',
-    title: 'TOUCHVTT.UndoWall',
-    icon: 'fas fa-undo',
+    name: "undo",
+    title: "TOUCHVTT.UndoWall",
+    icon: "fas fa-undo",
     button: true,
     onClick: () => canvas.walls.undoHistory(),
     onChange: () => canvas.walls.undoHistory()
   })
   addSceneControlButton(menuStructure, "walls", {
     // Simulate hitting del with a wall selected
-    name: 'Delete',
-    title: 'TOUCHVTT.DeleteWall',
-    icon: 'fas fa-eraser',
+    name: "Delete",
+    title: "TOUCHVTT.DeleteWall",
+    icon: "fas fa-eraser",
     button: true,
     onClick: () => canvas.walls._onDeleteKey(),
     onChange: () => canvas.walls._onDeleteKey()

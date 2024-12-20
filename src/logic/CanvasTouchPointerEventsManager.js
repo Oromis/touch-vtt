@@ -1,10 +1,10 @@
-import {MODULE_DISPLAY_NAME} from '../config/ModuleConstants.js'
+import {MODULE_DISPLAY_NAME} from "../config/ModuleConstants.js"
 import {dispatchCopy, dispatchModifiedEvent} from "./FakeTouchEvent.js"
-import Vectors from './Vectors.js'
-import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
-import Screen from '../browser/Screen.js'
-import {getSetting, DEBUG_MODE_SETTING, ZOOM_THRESHOLD_SETTING, PAN_THRESHOLD_SETTING, GESTURE_MODE_SETTING, GESTURE_MODE_SPLIT, GESTURE_MODE_OFF} from '../config/TouchSettings.js'
-import TouchPointerEventsManager from './TouchPointerEventsManager.js'
+import Vectors from "./Vectors.js"
+import FoundryCanvas from "../foundryvtt/FoundryCanvas.js"
+import Screen from "../browser/Screen.js"
+import {getSetting, DEBUG_MODE_SETTING, ZOOM_THRESHOLD_SETTING, PAN_THRESHOLD_SETTING, GESTURE_MODE_SETTING, GESTURE_MODE_SPLIT, GESTURE_MODE_OFF} from "../config/TouchSettings.js"
+import TouchPointerEventsManager from "./TouchPointerEventsManager.js"
 
 // This class is similar in structure to the original CanvasTouchToMouseAdapter, but it doesn't capture/prevent events
 // It only hooks into the PointerEvents and tracks them for specific fixes (by dispatching additional events) and multi-touch management
@@ -38,7 +38,7 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
       document.body.removeEventListener("pointerup", trackPadPointerUp)
       dispatchModifiedEvent(evt, "pointerup")
       return false
-    };
+    }
     document.body.addEventListener("pointerdown", evt => {  
       if (evt.isTrusted && !evt.pressure && evt.target === element) {
         evt.preventDefault()

@@ -1,9 +1,10 @@
-import {wrapMethod} from '../utils/Injection'
-import {getSetting, DIRECTIONAL_ARROWS_ON, DIRECTIONAL_ARROWS_SETTING} from '../config/TouchSettings'
+import {wrapMethod} from "../utils/Injection"
+import {getSetting, DIRECTIONAL_ARROWS_ON, DIRECTIONAL_ARROWS_SETTING} from "../config/TouchSettings"
 
 export function initDirectionalArrows() {
   if (tokenHudExists()) {
-    wrapMethod('TokenHUD.prototype.activateListeners', function (originalMethod, html, ...args) {
+    const tokenHUDPath = game.release.generation < 13 ? "TokenHUD" : "foundry.applications.hud.TokenHUD"
+    wrapMethod(`${tokenHUDPath}.prototype.activateListeners`, function (originalMethod, html, ...args) {
       const superResult = originalMethod(html, ...args)
       if (areDirectionalArrowsEnabled() && !getActiveToken()?.document?.lockRotation) {
         injectArrowHtml(html)
@@ -14,9 +15,9 @@ export function initDirectionalArrows() {
 }
 
 function injectArrowHtml(html) {
-  const leftColumn = html.find('.col.left')
-  const middleColumn = html.find('.col.middle')
-  const rightColumn = html.find('.col.right')
+  const leftColumn = html.find(".col.left")
+  const middleColumn = html.find(".col.middle")
+  const rightColumn = html.find(".col.right")
 
   addArrow(middleColumn, 0)
   addArrow(rightColumn, 45)
@@ -35,7 +36,7 @@ function addArrow(parent, angle) {
       <i class="fas fa-chevron-up"></i>
     </div>`
   )
-  arrow.on('click', () => {
+  arrow.on("click", () => {
     const activeToken = getActiveToken()
     if (canControl(activeToken)) {
       activeToken.rotate((angle + 180) % 360)
@@ -45,9 +46,10 @@ function addArrow(parent, angle) {
 }
 
 function tokenHudExists() {
-  return typeof TokenHUD === 'function' &&
-    typeof TokenHUD.prototype === 'object' &&
-    typeof TokenHUD.prototype.activateListeners === 'function'
+  const tokenHud = game.release.generation < 13 ? TokenHUD : foundry.applications.hud.TokenHUD
+  return typeof tokenHud === "function" &&
+    typeof tokenHud.prototype === "object" &&
+    typeof tokenHud.prototype.activateListeners === "function"
 }
 
 function getActiveToken() {
@@ -60,6 +62,6 @@ function areDirectionalArrowsEnabled() {
 
 function canControl(token) {
   return token != null &&
-    typeof token._canDrag === 'function' &&
+    typeof token._canDrag === "function" &&
     token._canDrag()
 }

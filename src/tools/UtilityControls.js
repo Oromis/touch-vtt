@@ -1,4 +1,4 @@
-import {getSetting, PAUSE_BUTTON_SETTING} from '../config/TouchSettings'
+import {getSetting, PAUSE_BUTTON_SETTING} from "../config/TouchSettings"
 
 export function installUtilityControls() {
   const controlsId = game.release.generation < 13 ? "controls" : "scene-controls"

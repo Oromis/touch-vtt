@@ -1,7 +1,7 @@
-import {MODULE_NAME, MODULE_DISPLAY_NAME} from './ModuleConstants.js'
-import {updateButtonSize} from '../tools/EnlargeButtonsTool'
-import {toggleUtilityControls} from '../tools/UtilityControls.js'
-import {GestureCalibrationMenu} from './GestureCalibrationMenu.js'
+import {MODULE_NAME, MODULE_DISPLAY_NAME} from "./ModuleConstants.js"
+import {updateButtonSize} from "../tools/EnlargeButtonsTool"
+import {toggleUtilityControls} from "../tools/UtilityControls.js"
+import {GestureCalibrationMenu} from "./GestureCalibrationMenu.js"
 
 export const CORE_FUNCTIONALITY = "core"
 
@@ -61,7 +61,7 @@ class SettingsOverrideMenu extends FormApplication {
 
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ['form'],
+      classes: ["form"],
       popOut: true,
       template: `/modules/${MODULE_NAME}/templates/settings-override.hbs`,
       id: `${MODULE_NAME}-settings-override-form`,
@@ -444,12 +444,12 @@ export function registerTouchSettings() {
     let overridePresent = false
     touchVttSettings.forEach(setting => {
       let overridden = setting.name.endsWith("*")
-      let input = settingsElem.find(`[name='${setting.id}']`)
+      let input = settingsElem.find(`[name="${setting.id}"]`)
       input.prop("disabled", overridden)
       overridePresent |= overridden
     })
     if (overridePresent) {
-      settingsElem.find(`[data-tab='${MODULE_NAME}'] h2`).after($("<small>").html("Some settings, indicated with an asterisk (*), are being overridden by the GM. The values selected here might not be accurate."))
+      settingsElem.find(`[data-tab="${MODULE_NAME}"] h2`).after($("<small>").html("Some settings, indicated with an asterisk (*), are being overridden by the GM. The values selected here might not be accurate."))
     }
   })
 

@@ -1,4 +1,4 @@
-import {addSceneControlButton} from '../foundryvtt/FoundryUtils'
+import {addSceneControlButton} from "../foundryvtt/FoundryUtils"
 
 let isActive = true
 
@@ -8,9 +8,9 @@ export function isSnapToGridEnabled() {
 
 export function installSnapToGrid(menuStructure) {
   addSceneControlButton(menuStructure, "tokens", {
-    name: 'snap',
-    title: 'TOUCHVTT.SnapToGrid',
-    icon: 'fas fa-border-all',
+    name: "snap",
+    title: "TOUCHVTT.SnapToGrid",
+    icon: "fas fa-border-all",
     toggle: true,
     active: isActive,
     onChange: (event, active) => { isActive = active }

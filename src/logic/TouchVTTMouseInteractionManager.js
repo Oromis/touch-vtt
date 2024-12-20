@@ -1,5 +1,5 @@
-import {MODULE_DISPLAY_NAME} from '../config/ModuleConstants.js'
-import {getSetting, DEBUG_MODE_SETTING} from '../config/TouchSettings.js'
+import {MODULE_DISPLAY_NAME} from "../config/ModuleConstants.js"
+import {getSetting, DEBUG_MODE_SETTING} from "../config/TouchSettings.js"
 
 export class TouchVTTMouseInteractionManager {
     constructor(object, layer, permissions={}, callbacks={}, options={}) {
@@ -20,7 +20,7 @@ export class TouchVTTMouseInteractionManager {
        */
       if (getSetting(DEBUG_MODE_SETTING)) {
         this._state = this.states.NONE;
-        Object.defineProperty(this, 'state', {
+        Object.defineProperty(this, "state", {
           get() {
             return this._state;
           },

@@ -1,7 +1,7 @@
-import FoundryCanvas from '../foundryvtt/FoundryCanvas.js'
-import TouchContext from './TouchContext.js'
-import Vectors from './Vectors.js'
-import {idOf} from '../utils/EventUtils.js'
+import FoundryCanvas from "../foundryvtt/FoundryCanvas.js"
+import TouchContext from "./TouchContext.js"
+import Vectors from "./Vectors.js"
+import {idOf} from "../utils/EventUtils.js"
 
 class Touch {
   constructor(event, touch, { context = TouchContext.PRIMARY_CLICK } = {}) {
@@ -23,7 +23,7 @@ class Touch {
     this.movementDistance = 0
     this.movement = Vectors.zero
 
-    //// console.log(`New Touch: ${context.name}, ID ${this.id}`)
+    // console.log(`New Touch: ${context.name}, ID ${this.id}`)
   }
 
   get identifier() {
