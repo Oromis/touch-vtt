@@ -7,7 +7,7 @@ import WindowAppAdapter from './logic/WindowAppAdapter.js'
 import {dispatchModifiedEvent} from './logic/FakeTouchEvent.js'
 
 import '../style/touch-vtt.css'
-import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY, DEBUG_MODE_SETTING, REMOVE_HOVER_EFFECTS, CANVAS_LONG_PRESS_TIMEOUT, CANVAS_RIGHT_CLICK_TIMEOUT} from './config/TouchSettings.js'
+import {registerTouchSettings, getSetting, CORE_FUNCTIONALITY, DEBUG_MODE_SETTING, REMOVE_HOVER_EFFECTS, CANVAS_LONG_PRESS_TIMEOUT, CANVAS_RIGHT_CLICK_TIMEOUT, DISABLE_DBLCLICK} from './config/TouchSettings.js'
 import {MeasuredTemplateManager, installMeasurementTemplateEraser} from './tools/MeasuredTemplateManagement.js'
 import {callbackForWallTools, installWallToolsControls, initWallTools} from './tools/WallTools.js'
 import {callbackForSnapToGrid, installSnapToGrid} from './tools/SnapToGridTool.js'
@@ -127,6 +127,11 @@ Hooks.once('init', () => {
       if (["touch", "pen"].includes(args[0].pointerType) || args[0].nativeEvent?.touchvttTrusted) {
 
         if (args[0].pointerType == "touch" || args[0].nativeEvent.touchvttTrusted) {
+
+          console.log(event, args[0])
+          if (event === "clickLeft2" && getSetting(DISABLE_DBLCLICK)) {
+            return
+          }
 
           // v12 only: ugly patch to fix annoying issue where a double-click that opens a sheet also sends one of the clicks to an active listener on the sheet.
           // For example, you open an actor sheet, if something clickable is under your finger (icon, action, ability, etc.) it will get wrongly clicked.
