@@ -127,8 +127,7 @@ Hooks.once('init', () => {
       if (["touch", "pen"].includes(args[0].pointerType) || args[0].nativeEvent?.touchvttTrusted) {
 
         if (args[0].pointerType == "touch" || args[0].nativeEvent.touchvttTrusted) {
-
-          console.log(event, args[0])
+          
           if (event === "clickLeft2" && getSetting(DISABLE_DBLCLICK)) {
             return
           }
@@ -201,8 +200,10 @@ Hooks.once('init', () => {
 })
 
 Hooks.on("canvasReady", function() {
-  // This (together with the hud init in the ready hook) gives the user a touch-friendly UI for pre-made templates (like from an automatic "Place Measured Template" chat button, or MidiQOL)
-  canvas.templates.preview.on("childAdded", measuredTemplateManager.onTemplatePreviewCreated.bind(measuredTemplateManager))
+  if (getSetting(CORE_FUNCTIONALITY) || false) {
+    // This (together with the hud init in the ready hook) gives the user a touch-friendly UI for pre-made templates (like from an automatic "Place Measured Template" chat button, or MidiQOL)
+    canvas.templates.preview.on("childAdded", measuredTemplateManager.onTemplatePreviewCreated.bind(measuredTemplateManager))
+  }
 })
 
 Hooks.on('ready', function () {
