@@ -1,11 +1,8 @@
 import {dispatchModifiedEvent} from "./FakeTouchEvent.js"
 import {wrapMethod} from "../utils/Injection"
-import {MODULE_NAME} from "../config/ModuleConstants"
+import {MODULE_NAME, MODULE_DISPLAY_NAME} from "../config/ModuleConstants"
 import Vectors from "./Vectors.js"
 import AppTouchPointerEventsManager from "./AppTouchPointerEventsManager.js"
-
-// Drag and Drop polyfill for touch events (https://github.com/Bernardo-Castilho/dragdroptouch)
-import "../utils/DragDropTouch.js"
 
 const STYLE_ID = `${MODULE_NAME}-draggable_apps_styles`
 
@@ -64,6 +61,10 @@ function createStyleElement() {
 
 class WindowAppAdapter {
   constructor() {
+    // Drag and Drop polyfill for touch events (https://github.com/Bernardo-Castilho/dragdroptouch)
+    import("../utils/DragDropTouch.js") // This is an async import
+      .then(() => { console.log(MODULE_DISPLAY_NAME + ": Loaded Drag and Drop polyfill") })
+    
     this.lastClickInfo = {target: null, time: 0, touch: false}
     this.touchManager = AppTouchPointerEventsManager.init(".app:not(#touch-vtt-gesture-calibration-form), .application:not(#touch-vtt-gesture-calibration-form)")
 

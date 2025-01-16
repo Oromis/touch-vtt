@@ -210,8 +210,10 @@ Hooks.once("init", () => {
 })
 
 Hooks.on("canvasReady", function() {
-  // This (together with the hud init in the ready hook) gives the user a touch-friendly UI for pre-made templates (like from an automatic "Place Measured Template" chat button, or MidiQOL)
-  canvas.templates.preview.on("childAdded", measuredTemplateManager.onTemplatePreviewCreated.bind(measuredTemplateManager))
+  if (getSetting(CORE_FUNCTIONALITY) || false) {
+    // This (together with the hud init in the ready hook) gives the user a touch-friendly UI for pre-made templates (like from an automatic "Place Measured Template" chat button, or MidiQOL)
+    canvas.templates.preview.on("childAdded", measuredTemplateManager.onTemplatePreviewCreated.bind(measuredTemplateManager))
+  }
 })
 
 Hooks.on("ready", function () {
