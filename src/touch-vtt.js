@@ -226,12 +226,10 @@ Hooks.on('ready', function () {
 
       ["pointerdown", "pointerup"].forEach(e => {
         document.body.addEventListener(e, evt => {
-          if (evt.isTrusted) {
-            if (evt.pointerType == "mouse") {
-              setUsingTouch(false)
-            } else if (["touch", "pen"].includes(evt.pointerType)) {
-              setUsingTouch(true)
-            }
+          if (evt.isTrusted && evt.pointerType === "mouse") {
+            setUsingTouch(false)
+          } else if(["touch", "pen"].includes(evt.pointerType) || evt.touchvttTrusted) {
+            setUsingTouch(true)
           }
         }, true)
       })

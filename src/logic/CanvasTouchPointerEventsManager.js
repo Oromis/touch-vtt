@@ -56,7 +56,8 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
 
     // New v11 fix (started in v2.2.3): we completely block these events as soon as possible.
     // We dispatch a pointermove to the location first (not for pointerup), then we dispatch a clone of the original. Except touchstart, that one is gone.
-    if (game.release.generation < 12) {
+    // Chosen to also include v12 on 2025-03-26 to support Image Hover and similar.
+    if (true || game.release.generation < 12) {
       Array("pointerdown", "pointermove", "pointerup", "pointerleave", "touchstart").forEach(e => {
         window.addEventListener(e, evt => {
           if (evt.isTrusted && (evt instanceof TouchEvent || ["touch", "pen"].includes(evt.pointerType)) && evt.target === element) {
@@ -80,25 +81,30 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
       })
     
       // Force hover check on every placeable in the active layer on every pointerdown/pointerup
-      Array("pointerdown", "pointerup").forEach(e => {
+      // Also pointermove, but only our own
+      Array("pointerdown", "pointerup", "pointermove").forEach(e => {
         document.body.addEventListener(e, (evt) => {
-          if (evt.touchvttTrusted || (evt.isTrusted && (evt instanceof TouchEvent || ["touch", "pen"].includes(evt.pointerType)) && evt.target === element)) {
+          if (evt.touchvttTrusted || evt.type !== "pointermove" && (evt.isTrusted && (evt instanceof TouchEvent || ["touch", "pen"].includes(evt.pointerType)) && evt.target === element)) {
+            const mousePos = canvas.mousePosition
             canvas.activeLayer.placeables.forEach(p => {
-              const mousePos = canvas.mousePosition
+              if (!p.bounds.contains(mousePos.x, mousePos.y)) {
+                if (p.hover) {
+                  p._onHoverOut(new PointerEvent("pointerleave", {buttons: 0}))
+                  p.mouseInteractionManager.state = MouseInteractionManager.INTERACTION_STATES.NONE
+                }
+              }
+            });
+            canvas.activeLayer.placeables.forEach(p => {
               if (p.bounds.contains(mousePos.x, mousePos.y)) {
                 if (!p.hover) {
-                  p._onHoverIn(new PIXI.FederatedEvent("pointerover"), {hoverOutOthers: true})
+                  p._onHoverIn(new PointerEvent("pointerenter", {buttons: 0}))
                   if (p.mouseInteractionManager.state < MouseInteractionManager.INTERACTION_STATES.HOVER) {
                     p.mouseInteractionManager.state = MouseInteractionManager.INTERACTION_STATES.HOVER
                   }
                 }
-              } else {
-                if (p.hover) {
-                  p._onHoverOut(new PIXI.FederatedEvent("pointerout"))
-                  p.mouseInteractionManager.state = MouseInteractionManager.INTERACTION_STATES.NONE
-                }
               }
             })
+
           }
         }, true)
       })
