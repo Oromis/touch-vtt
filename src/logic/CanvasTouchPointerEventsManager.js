@@ -86,25 +86,22 @@ class CanvasTouchPointerEventsManager extends TouchPointerEventsManager {
         document.body.addEventListener(e, (evt) => {
           if (evt.touchvttTrusted || evt.type !== "pointermove" && (evt.isTrusted && (evt instanceof TouchEvent || ["touch", "pen"].includes(evt.pointerType)) && evt.target === element)) {
             const mousePos = canvas.mousePosition
+            // We do all the hoverOuts first
             canvas.activeLayer.placeables.forEach(p => {
               if (!p.bounds.contains(mousePos.x, mousePos.y)) {
-                if (p.hover) {
+                if (p.hover && p.mouseInteractionManager.state < MouseInteractionManager.INTERACTION_STATES.DRAG) {
                   p._onHoverOut(new PointerEvent("pointerleave", {buttons: 0}))
-                  p.mouseInteractionManager.state = MouseInteractionManager.INTERACTION_STATES.NONE
                 }
               }
-            });
+            })
             canvas.activeLayer.placeables.forEach(p => {
               if (p.bounds.contains(mousePos.x, mousePos.y)) {
                 if (!p.hover) {
                   p._onHoverIn(new PointerEvent("pointerenter", {buttons: 0}))
-                  if (p.mouseInteractionManager.state < MouseInteractionManager.INTERACTION_STATES.HOVER) {
-                    p.mouseInteractionManager.state = MouseInteractionManager.INTERACTION_STATES.HOVER
-                  }
                 }
               }
             })
-
+      
           }
         }, true)
       })
